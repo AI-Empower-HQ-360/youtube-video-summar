@@ -1,4 +1,6 @@
-# ✨ VidNote - Turn YouTube Videos Into Instant Knowledge
+# ✨ VidNote
+
+![Last Updated](https://img.shields.io/badge/Updated-2026-01-08-blue) - Turn YouTube Videos Into Instant Knowledge
 
 **VidNote** is an AI-powered web application that transforms any YouTube video into digestible summaries, key points, and Q&A in seconds. Perfect for students, professionals, and anyone who wants to learn faster.
 
