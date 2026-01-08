@@ -33,17 +33,34 @@
       "enabled": true,
       "failureThreshold": 5,
       "timeWindow": "24h",
-      "labels": ["agent", "incident", "automated"]
+      "labels": ["agent", "incident", "automated", "auto-remediation"]
     },
     "restartFailedWorkflows": {
-      "enabled": false,
+      "enabled": true,
       "maxRetries": 2,
-      "retryDelay": "1h"
+      "retryDelay": "1h",
+      "maxConcurrentRetries": 3
+    },
+    "autoFix": {
+      "enabled": true,
+      "fixConfigurationIssues": true,
+      "fixMissingFiles": true,
+      "updateDependencies": true,
+      "fixDocumentation": true,
+      "commitChanges": true
+    },
+    "completeFailedTasks": {
+      "enabled": true,
+      "generateMissingDocs": true,
+      "createMissingConfigs": true,
+      "runSecurityFixes": true,
+      "updateDashboard": true
     },
     "notifyMaintainers": {
       "enabled": true,
       "onCriticalFailure": true,
-      "onMultipleFailures": true
+      "onMultipleFailures": true,
+      "includeRemediationDetails": true
     }
   },
   "dashboard": {
