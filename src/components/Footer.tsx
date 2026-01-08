@@ -4,9 +4,28 @@ import { Separator } from '@/components/ui/separator';
 interface FooterProps {
   onNavigateFeatures?: () => void;
   onNavigateChangelog?: () => void;
+  onNavigateDocumentation?: () => void;
+  onNavigateAPI?: () => void;
+  onNavigateGuides?: () => void;
+  onNavigateBlog?: () => void;
+  onNavigatePrivacy?: () => void;
+  onNavigateTerms?: () => void;
+  onNavigateCookies?: () => void;
+  onNavigateContact?: () => void;
 }
 
-export default function Footer({ onNavigateFeatures, onNavigateChangelog }: FooterProps) {
+export default function Footer({ 
+  onNavigateFeatures, 
+  onNavigateChangelog,
+  onNavigateDocumentation,
+  onNavigateAPI,
+  onNavigateGuides,
+  onNavigateBlog,
+  onNavigatePrivacy,
+  onNavigateTerms,
+  onNavigateCookies,
+  onNavigateContact
+}: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -114,36 +133,72 @@ export default function Footer({ onNavigateFeatures, onNavigateChangelog }: Foot
             </h4>
             <ul className="space-y-3">
               <li>
-                <a
-                  href="#docs"
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Documentation
-                </a>
+                {onNavigateDocumentation ? (
+                  <button
+                    onClick={onNavigateDocumentation}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Documentation
+                  </button>
+                ) : (
+                  <a
+                    href="#docs"
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Documentation
+                  </a>
+                )}
               </li>
               <li>
-                <a
-                  href="#api"
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  API Reference
-                </a>
+                {onNavigateAPI ? (
+                  <button
+                    onClick={onNavigateAPI}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    API Reference
+                  </button>
+                ) : (
+                  <a
+                    href="#api"
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    API Reference
+                  </a>
+                )}
               </li>
               <li>
-                <a
-                  href="#guides"
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Guides & Tutorials
-                </a>
+                {onNavigateGuides ? (
+                  <button
+                    onClick={onNavigateGuides}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Guides & Tutorials
+                  </button>
+                ) : (
+                  <a
+                    href="#guides"
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Guides & Tutorials
+                  </a>
+                )}
               </li>
               <li>
-                <a
-                  href="#blog"
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Blog
-                </a>
+                {onNavigateBlog ? (
+                  <button
+                    onClick={onNavigateBlog}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Blog
+                  </button>
+                ) : (
+                  <a
+                    href="#blog"
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Blog
+                  </a>
+                )}
               </li>
             </ul>
           </div>
@@ -154,36 +209,72 @@ export default function Footer({ onNavigateFeatures, onNavigateChangelog }: Foot
             </h4>
             <ul className="space-y-3">
               <li>
-                <a
-                  href="#privacy"
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Privacy Policy
-                </a>
+                {onNavigatePrivacy ? (
+                  <button
+                    onClick={onNavigatePrivacy}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Privacy Policy
+                  </button>
+                ) : (
+                  <a
+                    href="#privacy"
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Privacy Policy
+                  </a>
+                )}
               </li>
               <li>
-                <a
-                  href="#terms"
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Terms of Service
-                </a>
+                {onNavigateTerms ? (
+                  <button
+                    onClick={onNavigateTerms}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Terms of Service
+                  </button>
+                ) : (
+                  <a
+                    href="#terms"
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Terms of Service
+                  </a>
+                )}
               </li>
               <li>
-                <a
-                  href="#cookies"
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Cookie Policy
-                </a>
+                {onNavigateCookies ? (
+                  <button
+                    onClick={onNavigateCookies}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Cookie Policy
+                  </button>
+                ) : (
+                  <a
+                    href="#cookies"
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Cookie Policy
+                  </a>
+                )}
               </li>
               <li>
-                <a
-                  href="#contact"
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Contact Us
-                </a>
+                {onNavigateContact ? (
+                  <button
+                    onClick={onNavigateContact}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Contact Us
+                  </button>
+                ) : (
+                  <a
+                    href="#contact"
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Contact Us
+                  </a>
+                )}
               </li>
             </ul>
           </div>

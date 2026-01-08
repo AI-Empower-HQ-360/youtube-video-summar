@@ -31,6 +31,14 @@ import DashboardPage from '@/components/DashboardPage';
 import CheckoutPage from '@/components/CheckoutPage';
 import FeaturesPage from '@/components/FeaturesPage';
 import ChangelogPage from '@/components/ChangelogPage';
+import DocumentationPage from '@/components/DocumentationPage';
+import APIReferencePage from '@/components/APIReferencePage';
+import GuidesPage from '@/components/GuidesPage';
+import BlogPage from '@/components/BlogPage';
+import PrivacyPolicyPage from '@/components/PrivacyPolicyPage';
+import TermsOfServicePage from '@/components/TermsOfServicePage';
+import CookiePolicyPage from '@/components/CookiePolicyPage';
+import ContactPage from '@/components/ContactPage';
 import { useKV } from '@github/spark/hooks';
 import {
   DropdownMenu,
@@ -54,6 +62,14 @@ export default function App() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [showFeatures, setShowFeatures] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
+  const [showDocumentation, setShowDocumentation] = useState(false);
+  const [showAPI, setShowAPI] = useState(false);
+  const [showGuides, setShowGuides] = useState(false);
+  const [showBlog, setShowBlog] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showCookies, setShowCookies] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: string; period: string } | null>(null);
   const [currentUser, setCurrentUser] = useKV<{ email: string; name: string } | null>('vidnote-current-user', null);
 
@@ -99,6 +115,38 @@ export default function App() {
 
   if (showChangelog) {
     return <ChangelogPage onBack={() => setShowChangelog(false)} />;
+  }
+
+  if (showDocumentation) {
+    return <DocumentationPage onBack={() => setShowDocumentation(false)} />;
+  }
+
+  if (showAPI) {
+    return <APIReferencePage onBack={() => setShowAPI(false)} />;
+  }
+
+  if (showGuides) {
+    return <GuidesPage onBack={() => setShowGuides(false)} />;
+  }
+
+  if (showBlog) {
+    return <BlogPage onBack={() => setShowBlog(false)} />;
+  }
+
+  if (showPrivacy) {
+    return <PrivacyPolicyPage onBack={() => setShowPrivacy(false)} />;
+  }
+
+  if (showTerms) {
+    return <TermsOfServicePage onBack={() => setShowTerms(false)} />;
+  }
+
+  if (showCookies) {
+    return <CookiePolicyPage onBack={() => setShowCookies(false)} />;
+  }
+
+  if (showContact) {
+    return <ContactPage onBack={() => setShowContact(false)} />;
   }
 
   const handleUrlChange = (value: string) => {
@@ -568,6 +616,14 @@ export default function App() {
       <Footer 
         onNavigateFeatures={() => setShowFeatures(true)}
         onNavigateChangelog={() => setShowChangelog(true)}
+        onNavigateDocumentation={() => setShowDocumentation(true)}
+        onNavigateAPI={() => setShowAPI(true)}
+        onNavigateGuides={() => setShowGuides(true)}
+        onNavigateBlog={() => setShowBlog(true)}
+        onNavigatePrivacy={() => setShowPrivacy(true)}
+        onNavigateTerms={() => setShowTerms(true)}
+        onNavigateCookies={() => setShowCookies(true)}
+        onNavigateContact={() => setShowContact(true)}
       />
     </div>
   );
