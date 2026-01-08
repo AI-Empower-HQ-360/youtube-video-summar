@@ -54,7 +54,7 @@ export function isEmpty(value: string): boolean {
  * @description Check if string meets minimum length
  */
 export function hasMinLength(value: string, minLength: number): boolean {
-  return value && value.trim().length >= minLength;
+  return Boolean(value && value.trim().length >= minLength);
 }
 
 /**
@@ -62,7 +62,7 @@ export function hasMinLength(value: string, minLength: number): boolean {
  * @description Check if string is within maximum length
  */
 export function hasMaxLength(value: string, maxLength: number): boolean {
-  return value && value.trim().length <= maxLength;
+  return Boolean(value && value.trim().length <= maxLength);
 }
 
 // ============================================
