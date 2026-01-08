@@ -21,6 +21,7 @@ import {
 import { isValidYouTubeUrl, extractVideoId, getVideoTranscript, getVideoInfo } from '@/lib/youtube';
 import { generateAllContent, type GeneratedContent } from '@/lib/ai';
 import PricingSection from '@/components/PricingSection';
+import Footer from '@/components/Footer';
 
 export default function App() {
   const [url, setUrl] = useState('');
@@ -424,6 +425,8 @@ export default function App() {
       </div>
 
       <PricingSection />
+
+      <Footer />
     </div>
   );
 }
