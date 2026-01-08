@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check } from '@phosphor-icons/react';
@@ -9,7 +10,8 @@ interface PricingSectionProps {
 const plans = [
   {
     name: 'Free',
-    price: '$0',
+    monthlyPrice: '$0',
+    yearlyPrice: '$0',
     period: 'forever',
     description: 'Perfect for casual learners',
     features: [
@@ -24,7 +26,9 @@ const plans = [
   },
   {
     name: 'Basic',
-    price: '$22',
+    monthlyPrice: '$22',
+    yearlyPrice: '$220',
+    monthlySavings: 17,
     period: 'per month',
     description: 'For regular knowledge seekers',
     features: [
@@ -41,7 +45,9 @@ const plans = [
   },
   {
     name: 'Pro',
-    price: '$45',
+    monthlyPrice: '$45',
+    yearlyPrice: '$450',
+    monthlySavings: 17,
     period: 'per month',
     description: 'For power users & professionals',
     features: [
@@ -60,6 +66,8 @@ const plans = [
 ];
 
 export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
+  const [isYearly, setIsYearly] = useState(false);
+
   return (
     <section className="py-20" id="pricing">
       <div className="container mx-auto px-6 md:px-12 max-w-7xl">
@@ -67,65 +75,105 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Simple, Transparent Pricing
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             Start free, upgrade when you need more. No hidden fees, cancel anytime.
           </p>
+          
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <span className={`text-sm font-medium transition-colors ${!isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>
+              Monthly
+            </span>
+            <button
+              onClick={() => setIsYearly(!isYearly)}
+              className="relative w-14 h-7 bg-secondary rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+              role="switch"
+              aria-checked={isYearly}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-6 h-6 bg-primary rounded-full transition-transform ${
+                  isYearly ? 'translate-x-7' : 'translate-x-0'
+                }`}
+              />
+            </button>
+            <span className={`text-sm font-medium transition-colors ${isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>
+              Yearly
+            </span>
+            {isYearly && (
+              <span className="ml-2 px-3 py-1 bg-accent/20 text-accent text-xs font-bold rounded-full">
+                Save 17%
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan) => (
-            <Card
-              key={plan.name}
-              className={`relative border-2 transition-all duration-300 hover:shadow-2xl hover:scale-105 ${
-                plan.popular
-                  ? 'border-accent shadow-xl scale-105 md:scale-110'
-                  : 'border-border'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent text-accent-foreground text-sm font-bold rounded-full">
-                  Most Popular
-                </div>
-              )}
-              <CardHeader className="text-center pb-8 pt-8">
-                <CardTitle className="text-2xl mb-2">{plan.name}</CardTitle>
-                <CardDescription className="text-base mb-6">
-                  {plan.description}
-                </CardDescription>
-                <div className="mb-2">
-                  <span className="text-5xl font-bold">{plan.price}</span>
-                  <span className="text-muted-foreground ml-2">/ {plan.period}</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <Check
-                        weight="bold"
-                        className={`flex-shrink-0 mt-0.5 ${
-                          plan.popular ? 'text-accent' : 'text-primary'
-                        }`}
-                        size={20}
-                      />
-                      <span className="text-sm leading-relaxed">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  className={`w-full h-12 font-medium ${
-                    plan.popular
-                      ? 'bg-accent hover:bg-accent/90 text-accent-foreground'
-                      : 'bg-primary hover:bg-primary/90 text-primary-foreground'
-                  }`}
-                  size="lg"
-                  onClick={() => onSelectPlan?.(plan)}
-                >
-                  {plan.cta}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          {plans.map((plan) => {
+            const displayPrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+            const displayPeriod = plan.name === 'Free' ? plan.period : isYearly ? 'per year' : 'per month';
+            
+            return (
+              <Card
+                key={plan.name}
+                className={`relative border-2 transition-all duration-300 hover:shadow-2xl hover:scale-105 ${
+                  plan.popular
+                    ? 'border-accent shadow-xl scale-105 md:scale-110'
+                    : 'border-border'
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent text-accent-foreground text-sm font-bold rounded-full">
+                    Most Popular
+                  </div>
+                )}
+                <CardHeader className="text-center pb-8 pt-8">
+                  <CardTitle className="text-2xl mb-2">{plan.name}</CardTitle>
+                  <CardDescription className="text-base mb-6">
+                    {plan.description}
+                  </CardDescription>
+                  <div className="mb-2">
+                    <span className="text-5xl font-bold">{displayPrice}</span>
+                    <span className="text-muted-foreground ml-2">/ {displayPeriod}</span>
+                  </div>
+                  {isYearly && plan.monthlySavings && plan.name !== 'Free' && (
+                    <div className="text-sm text-accent font-medium mt-2">
+                      Save {plan.monthlySavings}% vs monthly
+                    </div>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-3">
+                        <Check
+                          weight="bold"
+                          className={`flex-shrink-0 mt-0.5 ${
+                            plan.popular ? 'text-accent' : 'text-primary'
+                          }`}
+                          size={20}
+                        />
+                        <span className="text-sm leading-relaxed">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    className={`w-full h-12 font-medium ${
+                      plan.popular
+                        ? 'bg-accent hover:bg-accent/90 text-accent-foreground'
+                        : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                    }`}
+                    size="lg"
+                    onClick={() => onSelectPlan?.({ 
+                      name: plan.name, 
+                      price: displayPrice, 
+                      period: displayPeriod 
+                    })}
+                  >
+                    {plan.cta}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         <div className="text-center mt-16">
