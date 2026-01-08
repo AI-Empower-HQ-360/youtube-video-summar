@@ -18,13 +18,15 @@ import {
   Question,
   YoutubeLogo,
   User as UserIcon,
-  SignOut
+  SignOut,
+  ChartBar
 } from '@phosphor-icons/react';
 import { isValidYouTubeUrl, extractVideoId, getVideoTranscript, getVideoInfo } from '@/lib/youtube';
 import { generateAllContent, type GeneratedContent } from '@/lib/ai';
 import PricingSection from '@/components/PricingSection';
 import Footer from '@/components/Footer';
 import AuthPage from '@/components/AuthPage';
+import DashboardPage from '@/components/DashboardPage';
 import { useKV } from '@github/spark/hooks';
 import {
   DropdownMenu,
@@ -44,6 +46,7 @@ export default function App() {
   const [content, setContent] = useState<GeneratedContent | null>(null);
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
   const [showAuthPage, setShowAuthPage] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
   const [currentUser, setCurrentUser] = useKV<{ email: string; name: string } | null>('vidnote-current-user', null);
 
   const handleSignOut = () => {
@@ -57,6 +60,10 @@ export default function App() {
 
   if (showAuthPage) {
     return <AuthPage onBack={() => setShowAuthPage(false)} onAuthSuccess={handleAuthSuccess} />;
+  }
+
+  if (showDashboard) {
+    return <DashboardPage onBack={() => setShowDashboard(false)} user={currentUser || null} />;
   }
 
   const handleUrlChange = (value: string) => {
@@ -125,35 +132,49 @@ export default function App() {
                 VidNote
               </h1>
             </div>
-            <div className="w-32 flex justify-end">
+            <div className="w-32 flex justify-end gap-2">
               {currentUser ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="gap-2">
-                      <UserIcon weight="fill" />
-                      {currentUser.name}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <UserIcon className="mr-2" size={16} />
-                      Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      Settings
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      Billing
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
-                      <SignOut className="mr-2" size={16} />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowDashboard(true)}
+                    className="gap-2"
+                  >
+                    <ChartBar weight="fill" />
+                    Dashboard
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="gap-2">
+                        <UserIcon weight="fill" />
+                        {currentUser.name}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setShowDashboard(true)}>
+                        <ChartBar className="mr-2" size={16} />
+                        Dashboard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <UserIcon className="mr-2" size={16} />
+                        Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        Settings
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        Billing
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                        <SignOut className="mr-2" size={16} />
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
                 <Button onClick={() => setShowAuthPage(true)} className="gap-2">
                   <UserIcon weight="fill" />
