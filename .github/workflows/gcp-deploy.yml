@@ -1,0 +1,166 @@
+name: GCP Deployment
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/gcp/**'
+      - 'server/**'
+      - '.github/workflows/gcp-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_REGION: us-central1
+  SERVICE_NAME: youtube-summarizer-api
+
+jobs:
+  deploy-infrastructure:
+    name: Deploy GCP Infrastructure
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[deploy]'))
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        working-directory: ./infrastructure/gcp
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: ./infrastructure/gcp
+        run: |
+          terraform plan \
+            -var="project_id=${{ env.GCP_PROJECT_ID }}" \
+            -var="environment=${{ github.event.inputs.environment || 'staging' }}" \
+            -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: ./infrastructure/gcp
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
+
+  build-and-deploy-api:
+    name: Build and Deploy API
+    runs-on: ubuntu-latest
+    needs: deploy-infrastructure
+    if: always() && (needs.deploy-infrastructure.result == 'success' || needs.deploy-infrastructure.result == 'skipped')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
+
+      - name: Build Docker image
+        working-directory: ./server
+        run: |
+          docker build \
+            -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/youtube-summarizer/api:${{ github.sha }} \
+            -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/youtube-summarizer/api:latest \
+            .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/youtube-summarizer/api:${{ github.sha }}
+          docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/youtube-summarizer/api:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image=${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/youtube-summarizer/api:${{ github.sha }} \
+            --platform=managed \
+            --region=${{ env.GCP_REGION }} \
+            --allow-unauthenticated \
+            --set-env-vars="NODE_ENV=production" \
+            --set-secrets="OPENAI_API_KEY=openai-api-key:latest,YOUTUBE_API_KEY=youtube-api-key:latest" \
+            --labels=app=youtube-video-summarizer,environment=${{ github.event.inputs.environment || 'staging' }},deployed-by=github-actions,commit-sha=${{ github.sha }}
+
+      - name: Get Service URL
+        id: service-url
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --platform=managed \
+            --region=${{ env.GCP_REGION }} \
+            --format='value(status.url)')
+          echo "url=$SERVICE_URL" >> $GITHUB_OUTPUT
+
+      - name: Health Check
+        run: |
+          sleep 10
+          curl -f ${{ steps.service-url.outputs.url }}/health || exit 1
+
+  deploy-frontend:
+    name: Deploy Frontend to Cloud Storage
+    runs-on: ubuntu-latest
+    needs: build-and-deploy-api
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: ${{ needs.build-and-deploy-api.outputs.service-url }}/api
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Deploy to Cloud Storage
+        run: |
+          gsutil -m rsync -r -d dist/ gs://${{ env.GCP_PROJECT_ID }}-youtube-summarizer-assets/
+          gsutil -m setmeta -h "Cache-Control:public, max-age=3600" gs://${{ env.GCP_PROJECT_ID }}-youtube-summarizer-assets/**
+
+      - name: Deployment Summary
+        run: |
+          echo "### Deployment Complete! 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**API URL:** ${{ needs.build-and-deploy-api.outputs.service-url }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Frontend URL:** https://storage.googleapis.com/${{ env.GCP_PROJECT_ID }}-youtube-summarizer-assets/index.html" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
