@@ -28,6 +28,7 @@ import FAQSection from '@/components/FAQSection';
 import Footer from '@/components/Footer';
 import AuthPage from '@/components/AuthPage';
 import DashboardPage from '@/components/DashboardPage';
+import CheckoutPage from '@/components/CheckoutPage';
 import { useKV } from '@github/spark/hooks';
 import {
   DropdownMenu,
@@ -48,6 +49,8 @@ export default function App() {
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
   const [showAuthPage, setShowAuthPage] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: string; period: string } | null>(null);
   const [currentUser, setCurrentUser] = useKV<{ email: string; name: string } | null>('vidnote-current-user', null);
 
   const handleSignOut = () => {
@@ -59,6 +62,24 @@ export default function App() {
     setShowAuthPage(false);
     setShowDashboard(true);
   };
+
+  const handleSelectPlan = (plan: { name: string; price: string; period: string }) => {
+    if (plan.name === 'Free') {
+      toast.success('You are already on the free plan!');
+      return;
+    }
+    setSelectedPlan(plan);
+    setShowCheckout(true);
+  };
+
+  if (showCheckout && selectedPlan) {
+    return (
+      <CheckoutPage
+        onBack={() => setShowCheckout(false)}
+        selectedPlan={selectedPlan}
+      />
+    );
+  }
 
   if (showAuthPage) {
     return <AuthPage onBack={() => setShowAuthPage(false)} onAuthSuccess={handleAuthSuccess} />;
@@ -513,7 +534,7 @@ export default function App() {
         )}
       </div>
 
-      <PricingSection />
+      <PricingSection onSelectPlan={handleSelectPlan} />
 
       <FAQSection />
 

@@ -69,14 +69,31 @@ This is a focused tool with clear inputs and outputs - paste link, generate summ
 - **Success criteria**: Copies formatted text properly, provides immediate feedback, works across all major browsers
 
 ### Pricing Display
-- **Functionality**: Clear three-tier pricing structure (Free, Pro, Team) with feature comparison
+- **Functionality**: Clear three-tier pricing structure (Free, Basic, Pro) with feature comparison and checkout integration
 - **Purpose**: Transparent monetization and value communication for users considering upgrades
 - **Trigger**: User scrolls to pricing section or navigates directly
-- **Progression**: View pricing cards → Compare features → Select plan → Call-to-action button (Start/Contact)
-- **Success criteria**: Plans clearly differentiate value tiers, popular plan is visually highlighted, features are benefit-focused, mobile-responsive card layout
+- **Progression**: View pricing cards → Compare features → Select plan → Navigate to checkout page (for paid plans)
+- **Success criteria**: Plans clearly differentiate value tiers, popular plan is visually highlighted, features are benefit-focused, mobile-responsive card layout, seamless transition to checkout
+
+### Payment & Checkout
+- **Functionality**: Complete payment form with credit/debit card details and billing address collection
+- **Purpose**: Enable users to upgrade to paid plans with secure payment processing
+- **Trigger**: User clicks on a paid plan button (Basic or Pro) from pricing section
+- **Progression**: Select plan → Navigate to checkout → Fill card details → Enter billing address → Review order summary → Submit payment → Success confirmation
+- **Success criteria**: Card number formatting with spaces, CVV masking, expiry date dropdowns, comprehensive address fields (line 1, line 2, city, state, ZIP, country), real-time validation with clear error messages, order summary sidebar showing selected plan details, secure payment indicators (lock icons, encryption messaging)
 
 ## Edge Case Handling
 
+- **Checkout - Invalid Card Number**: Real-time validation showing error when card number is incomplete or invalid format
+- **Checkout - Card Number Formatting**: Automatically formats card number with spaces (1234 5678 9012 3456) as user types
+- **Checkout - Expired Card**: Validation to prevent selection of past expiry dates, clear error messaging
+- **Checkout - CVV Validation**: Enforces 3-4 digit CVV with masking, shows error for incomplete CVV
+- **Checkout - Missing Required Fields**: Highlights all empty required fields with red borders and error messages
+- **Checkout - Invalid Email Format**: Real-time email validation with clear error messaging
+- **Checkout - Free Plan Selection**: Shows success toast indicating user is already on free plan instead of navigating to checkout
+- **Checkout - Payment Processing**: Loading state during payment with disabled submit button, simulated processing delay
+- **Checkout - Payment Success**: Success toast notification and automatic redirect back to home page
+- **Checkout - Form Persistence**: Form clears on successful payment, maintains values during validation errors
 - **Duplicate Email Registration**: Clear error message that email is already registered, prompt to sign in instead
 - **Invalid Login Credentials**: Generic error message for security (don't reveal if email exists), suggest password reset
 - **Empty Form Fields**: Inline validation preventing submission, highlight empty required fields

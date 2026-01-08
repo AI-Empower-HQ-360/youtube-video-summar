@@ -2,6 +2,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check } from '@phosphor-icons/react';
 
+interface PricingSectionProps {
+  onSelectPlan?: (plan: { name: string; price: string; period: string }) => void;
+}
+
 const plans = [
   {
     name: 'Free',
@@ -55,7 +59,7 @@ const plans = [
   },
 ];
 
-export default function PricingSection() {
+export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
   return (
     <section className="py-20" id="pricing">
       <div className="container mx-auto px-6 md:px-12 max-w-7xl">
@@ -115,6 +119,7 @@ export default function PricingSection() {
                       : 'bg-primary hover:bg-primary/90 text-primary-foreground'
                   }`}
                   size="lg"
+                  onClick={() => onSelectPlan?.(plan)}
                 >
                   {plan.cta}
                 </Button>
