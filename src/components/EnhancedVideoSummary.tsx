@@ -8,6 +8,7 @@ import { useAISummary } from '../hooks/useAISummary'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { LanguageSelectorPair } from './LanguageSelector'
+import { DownloadButton } from './DownloadButton'
 
 export function EnhancedVideoSummary() {
   const [url, setUrl] = useState('')
@@ -134,7 +135,18 @@ export function EnhancedVideoSummary() {
         {/* Summary Display */}
         {summary && (
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2">Summary</h3>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-semibold">Summary</h3>
+              <DownloadButton
+                data={{ summary }}
+                metadata={{
+                  title: 'Video Summary',
+                  date: new Date().toLocaleDateString()
+                }}
+                variant="outline"
+                size="sm"
+              />
+            </div>
             <p className="whitespace-pre-wrap">{summary}</p>
           </div>
         )}
@@ -142,6 +154,22 @@ export function EnhancedVideoSummary() {
         {/* Full Result Display */}
         {result && (
           <div className="space-y-4">
+            {/* Download Button - Top of Results */}
+            <div className="flex justify-end">
+              <DownloadButton
+                data={result}
+                metadata={{
+                  title: result.title,
+                  url: url,
+                  date: new Date().toLocaleDateString(),
+                  detectedLanguage: result.detectedLanguage,
+                  targetLanguage: result.targetLanguage
+                }}
+                variant="default"
+                showLabel={true}
+              />
+            </div>
+
             {/* Video Info */}
             <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
               <h3 className="text-lg font-semibold mb-2">{result.title}</h3>
@@ -234,7 +262,18 @@ export function EnhancedVideoSummary() {
         {/* Key Points Only Display */}
         {!result && keyPoints.length > 0 && (
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2">Key Points</h3>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-semibold">Key Points</h3>
+              <DownloadButton
+                data={{ keyPoints }}
+                metadata={{
+                  title: 'Video Key Points',
+                  date: new Date().toLocaleDateString()
+                }}
+                variant="outline"
+                size="sm"
+              />
+            </div>
             <ul className="list-disc list-inside space-y-1">
               {keyPoints.map((point, index) => (
                 <li key={index}>{point}</li>
