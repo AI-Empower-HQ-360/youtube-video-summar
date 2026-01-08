@@ -7,11 +7,14 @@ import { useState } from 'react'
 import { useAISummary } from '../hooks/useAISummary'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
+import { LanguageSelectorPair } from './LanguageSelector'
 
 export function EnhancedVideoSummary() {
   const [url, setUrl] = useState('')
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
+  const [sourceLanguage, setSourceLanguage] = useState<string>('auto')
+  const [targetLanguage, setTargetLanguage] = useState<string>('en')
   
   const {
     result,
@@ -36,7 +39,9 @@ export function EnhancedVideoSummary() {
       includeQA: true,
       includeRecommendations: true,
       summaryLength: 'medium',
-      summaryFormat: 'structured'
+      summaryFormat: 'structured',
+      sourceLanguage: sourceLanguage === 'auto' ? undefined : sourceLanguage,
+      targetLanguage: targetLanguage || undefined
     })
   }
 
@@ -67,6 +72,9 @@ export function EnhancedVideoSummary() {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="space-y-4">
         <h2 className="text-2xl font-bold">AI-Powered YouTube Video Analysis</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          🌐 Multi-language support: Summarize videos in any language and get results in your preferred language
+        </p>
         
         {/* URL Input */}
         <div className="flex gap-2">
@@ -82,6 +90,14 @@ export function EnhancedVideoSummary() {
             Reset
           </Button>
         </div>
+
+        {/* Language Selection */}
+        <LanguageSelectorPair
+          sourceLanguage={sourceLanguage}
+          targetLanguage={targetLanguage}
+          onSourceChange={setSourceLanguage}
+          onTargetChange={setTargetLanguage}
+        />
 
         {/* Action Buttons */}
         <div className="flex gap-2 flex-wrap">
@@ -201,9 +217,15 @@ export function EnhancedVideoSummary() {
             )}
 
             {/* Metadata */}
-            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600">
+            <div className="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-600 dark:text-gray-400 space-y-1">
               <p>Processing Time: {result.metadata.processingTime}ms</p>
               <p>Model: {result.metadata.model}</p>
+              {result.detectedLanguage && (
+                <p>Detected Language: {result.detectedLanguage.toUpperCase()}</p>
+              )}
+              {result.targetLanguage && (
+                <p>Output Language: {result.targetLanguage.toUpperCase()}</p>
+              )}
               <p>Timestamp: {new Date(result.metadata.timestamp).toLocaleString()}</p>
             </div>
           </div>

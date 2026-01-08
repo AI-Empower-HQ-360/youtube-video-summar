@@ -63,7 +63,8 @@ export interface VideoMetadata {
 export interface VideoTranscript {
   videoId: string;
   transcript: string;
-  language?: string;
+  language?: string;        // ISO 639-1 language code (e.g., 'en', 'es', 'fr')
+  detectedLanguage?: string; // Auto-detected language
   length: number;
 }
 
@@ -98,6 +99,8 @@ export interface QAPair {
 export interface GenerationOptions {
   model?: string;
   temperature?: number;
+  sourceLanguage?: string;  // Source content language
+  targetLanguage?: string;  // Desired output language
   maxTokens?: number;
   language?: string;
 }

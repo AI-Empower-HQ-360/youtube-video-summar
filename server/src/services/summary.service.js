@@ -11,32 +11,42 @@ import { ApiError } from '../utils/ApiError.js';
 
 /**
  * @label Generate Summary
- * @description Generate AI summary from transcript
+ * @description Generate AI summary from transcript with multi-language support
  * @note Placeholder - Integrate with your AI service (OpenAI, GitHub Copilot, etc.)
  */
-export async function generateSummary(transcript) {
+export async function generateSummary(transcript, options = {}) {
   try {
+    const { sourceLanguage, targetLanguage } = options;
+    
     // TODO: Integrate with actual AI service
-    // Example: OpenAI API call
+    // Example: OpenAI API call with language support
     // const response = await openai.chat.completions.create({
     //   model: "gpt-4",
     //   messages: [{
     //     role: "user",
-    //     content: `Summarize this transcript: ${transcript}`
+    //     content: `Summarize this transcript${targetLanguage ? ` in ${targetLanguage}` : ''}: ${transcript}`
     //   }]
     // });
     
     // Placeholder implementation
     const wordCount = transcript.split(' ').length;
-    const summary = `This is a placeholder summary. The transcript contains approximately ${wordCount} words. 
+    let summary = `This is a placeholder summary. The transcript contains approximately ${wordCount} words.`;
     
-In a production environment, this would be replaced with an actual AI-generated summary using services like:
-- OpenAI GPT-4
+    if (sourceLanguage) {
+      summary += `\n\nDetected source language: ${sourceLanguage.toUpperCase()}`;
+    }
+    
+    if (targetLanguage) {
+      summary += `\n\nOutput language: ${targetLanguage.toUpperCase()}`;
+    }
+    
+    summary += `\n\nIn a production environment, this would be replaced with an actual AI-generated summary using services like:
+- OpenAI GPT-4 (with multi-language support)
 - GitHub Copilot AI
-- Azure OpenAI
+- Azure OpenAI (supports 50+ languages)
 - Google PaLM
 
-The summary would provide a concise overview of the video content, highlighting main themes and key information.`;
+The summary would provide a concise overview of the video content in the requested language, highlighting main themes and key information.`;
 
     return summary;
   } catch (error) {

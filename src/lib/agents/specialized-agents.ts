@@ -31,6 +31,8 @@ export class SummarizationAgent extends OpenAIAgent {
   async summarize(content: string, options?: {
     length?: 'short' | 'medium' | 'long'
     format?: 'paragraph' | 'bullets' | 'structured'
+    sourceLanguage?: string
+    targetLanguage?: string
   }): Promise<string> {
     const lengthGuide = {
       short: '100-200 words',
@@ -44,9 +46,24 @@ export class SummarizationAgent extends OpenAIAgent {
       structured: 'with clear sections and headings',
     }
 
-    const prompt = `Please summarize the following content in ${lengthGuide[options?.length || 'medium']} ${formatGuide[options?.format || 'paragraph']}:
+    let prompt = `Please summarize the following content in ${lengthGuide[options?.length || 'medium']} ${formatGuide[options?.format || 'paragraph']}`
 
-${content}`
+    // Add language instructions
+    if (options?.targetLanguage) {
+      const { formatLanguageForPrompt } = await import('../language-support')
+      const targetLangName = formatLanguageForPrompt(options.targetLanguage)
+      
+      if (options.sourceLanguage && options.sourceLanguage !== options.targetLanguage) {
+        const sourceLangName = formatLanguageForPrompt(options.sourceLanguage)
+        prompt += `.\n\nThe content is in ${sourceLangName}. Please provide the summary in ${targetLangName}, translating from the source language.`
+      } else {
+        prompt += `.\n\nPlease provide the summary in ${targetLangName}.`
+      }
+      
+      prompt += `\n\nIMPORTANT: Your entire response must be in ${targetLangName}. All text, headings, bullet points, and explanations should be written in ${targetLangName}.`
+    }
+
+    prompt += `\n\nContent:\n${content}`
 
     const response = await this.process(prompt)
     return response.content

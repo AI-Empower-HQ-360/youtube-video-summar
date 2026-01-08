@@ -20,6 +20,8 @@ export interface VideoSummaryResult {
   sentiment: string
   qaPairs: Array<{ question: string; answer: string }>
   recommendations: string[]
+  detectedLanguage?: string  // Detected source language
+  targetLanguage?: string    // Output language
   metadata: {
     processingTime: number
     timestamp: string
@@ -36,6 +38,8 @@ export interface AnalysisOptions {
   includeRecommendations?: boolean
   summaryLength?: 'short' | 'medium' | 'long'
   summaryFormat?: 'paragraph' | 'bullets' | 'structured'
+  sourceLanguage?: string  // Auto-detect if not provided
+  targetLanguage?: string  // Default to source language or English
 }
 
 // ============================================
@@ -88,10 +92,22 @@ export async function processYouTubeVideo(
     ...options
   }
 
-  // Generate summary
+  // Detect source language if not provided
+  let detectedLanguage = opts.sourceLanguage
+  if (!detectedLanguage) {
+    const { detectLanguage } = await import('./language-support')
+    detectedLanguage = detectLanguage(transcript)
+  }
+
+  // Set target language (default to detected language if not specified)
+  const targetLanguage = opts.targetLanguage || detectedLanguage
+
+  // Generate summary with language support
   const summary = await summarizer.summarize(transcript, {
     length: opts.summaryLength,
-    format: opts.summaryFormat
+    format: opts.summaryFormat,
+    sourceLanguage: detectedLanguage,
+    targetLanguage: targetLanguage
   })
 
   // Parallel processing for independent tasks
@@ -187,6 +203,8 @@ export async function processYouTubeVideo(
     sentiment,
     qaPairs,
     recommendations,
+    detectedLanguage,
+    targetLanguage,
     metadata: {
       processingTime,
       timestamp: new Date().toISOString(),
@@ -200,7 +218,10 @@ export async function processYouTubeVideo(
  * @label Quick YouTube Summary
  * @description Fast summary generation using agents
  */
-export async function quickYouTubeSummary(url: string): Promise<string> {
+export async function quickYouTubeSummary(
+  url: string,
+  targetLanguage?: string
+): Promise<string> {
   const videoId = extractVideoId(url)
   if (!videoId) {
     throw new Error('Invalid YouTube URL')
@@ -214,9 +235,15 @@ export async function quickYouTubeSummary(url: string): Promise<string> {
     throw new Error('Summarizer agent not initialized')
   }
 
+  // Detect source language
+  const { detectLanguage } = await import('./language-support')
+  const detectedLanguage = detectLanguage(transcript)
+
   return await summarizer.summarize(transcript, {
     length: 'medium',
-    format: 'paragraph'
+    format: 'paragraph',
+    sourceLanguage: detectedLanguage,
+    targetLanguage: targetLanguage || detectedLanguage
   })
 }
 

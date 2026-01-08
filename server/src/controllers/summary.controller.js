@@ -11,16 +11,23 @@ import * as summaryService from '../services/summary.service.js';
 
 /**
  * @label Generate Summary Controller
- * @description Generate AI summary from transcript
+ * @description Generate AI summary from transcript with language support
  */
 export const generateSummary = async (req, res, next) => {
   try {
-    const { transcript } = req.body;
-    const summary = await summaryService.generateSummary(transcript);
+    const { transcript, sourceLanguage, targetLanguage } = req.body;
+    const summary = await summaryService.generateSummary(transcript, {
+      sourceLanguage,
+      targetLanguage
+    });
 
     res.status(200).json({
       success: true,
-      data: { summary }
+      data: { 
+        summary,
+        detectedLanguage: sourceLanguage,
+        targetLanguage
+      }
     });
   } catch (error) {
     next(error);
@@ -58,19 +65,32 @@ export const generateQA = async (req, res, next) => {
       success: true,
       data: { qaPairs }
     });
+  } catch (error) { with language support
+ */
+export const generateComplete = async (req, res, next) => {
+  try {
+    const { transcript, sourceLanguage, targetLanguage } = req.body;
+    
+    const [summary, keyPoints, qaPairs] = await Promise.all([
+      summaryService.generateSummary(transcript, { sourceLanguage, targetLanguage }),
+      summaryService.generateKeyPoints(transcript),
+      summaryService.generateQA(transcript)
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        summary,
+        keyPoints,
+        qaPairs,
+        detectedLanguage: sourceLanguage,
+        targetLanguage
+      }
+    });
   } catch (error) {
     next(error);
   }
 };
-
-/**
- * @label Generate Complete Analysis Controller
- * @description Generate all analysis types at once
- */
-export const generateComplete = async (req, res, next) => {
-  try {
-    const { transcript } = req.body;
-    
     const [summary, keyPoints, qaPairs] = await Promise.all([
       summaryService.generateSummary(transcript),
       summaryService.generateKeyPoints(transcript),
