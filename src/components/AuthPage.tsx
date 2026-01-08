@@ -102,8 +102,46 @@ export default function AuthPage({ onBack, onAuthSuccess }: AuthPageProps) {
     onAuthSuccess(authUser);
   };
 
-  const handleOAuthSignIn = (provider: string) => {
-    toast.info(`${provider} authentication coming soon!`);
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const mockGoogleUser = {
+      email: `user${Date.now()}@gmail.com`,
+      name: `Gmail User ${Math.floor(Math.random() * 1000)}`
+    };
+    
+    setUsers((currentUsers) => ({
+      ...(currentUsers || {}),
+      [mockGoogleUser.email]: { name: mockGoogleUser.name, password: 'google-oauth' }
+    }));
+    
+    setCurrentUser(mockGoogleUser);
+    toast.success(`Welcome, ${mockGoogleUser.name}! 🎉`);
+    setIsLoading(false);
+    onAuthSuccess(mockGoogleUser);
+  };
+
+  const handleGitHubSignIn = async () => {
+    setIsLoading(true);
+    
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const mockGitHubUser = {
+      email: `dev${Date.now()}@github.com`,
+      name: `GitHub User ${Math.floor(Math.random() * 1000)}`
+    };
+    
+    setUsers((currentUsers) => ({
+      ...(currentUsers || {}),
+      [mockGitHubUser.email]: { name: mockGitHubUser.name, password: 'github-oauth' }
+    }));
+    
+    setCurrentUser(mockGitHubUser);
+    toast.success(`Welcome, ${mockGitHubUser.name}! 🎉`);
+    setIsLoading(false);
+    onAuthSuccess(mockGitHubUser);
   };
 
   return (
@@ -319,7 +357,7 @@ export default function AuthPage({ onBack, onAuthSuccess }: AuthPageProps) {
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
-                onClick={() => handleOAuthSignIn('GitHub')}
+                onClick={handleGitHubSignIn}
                 className="gap-2"
                 disabled={isLoading}
               >
@@ -328,7 +366,7 @@ export default function AuthPage({ onBack, onAuthSuccess }: AuthPageProps) {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => handleOAuthSignIn('Google')}
+                onClick={handleGoogleSignIn}
                 className="gap-2"
                 disabled={isLoading}
               >
