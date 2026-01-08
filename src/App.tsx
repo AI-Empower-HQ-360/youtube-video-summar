@@ -208,22 +208,7 @@ export default function App() {
       <div className="container mx-auto px-6 md:px-12 py-12 max-w-5xl">
         <header className="text-center mb-12">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-32 flex justify-start gap-2">
-              <Button
-                variant="ghost"
-                onClick={() => setShowFeatures(true)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Features
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setShowChangelog(true)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Changelog
-              </Button>
-            </div>
+            <div className="w-32"></div>
             <div className="flex items-center gap-2">
               <Sparkle size={32} weight="fill" className="text-accent" />
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight gradient-text">
