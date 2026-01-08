@@ -1,0 +1,5 @@
+{
+  "timeout_minutes": 60,
+  "retry_on_error": true,
+  "config_file": ".github/markdown-link-check-config.json"
+}

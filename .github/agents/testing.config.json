@@ -1,0 +1,51 @@
+{
+  "coverage": {
+    "global": {
+      "statements": 80,
+      "branches": 75,
+      "functions": 80,
+      "lines": 80
+    },
+    "perFile": {
+      "statements": 70,
+      "branches": 65,
+      "functions": 70,
+      "lines": 70
+    }
+  },
+  "testTypes": {
+    "unit": {
+      "enabled": true,
+      "pattern": "**/*.test.{ts,tsx}",
+      "required": true
+    },
+    "integration": {
+      "enabled": true,
+      "pattern": "**/*.integration.test.{ts,tsx}",
+      "required": false
+    },
+    "e2e": {
+      "enabled": false,
+      "pattern": "**/*.e2e.test.{ts,tsx}",
+      "required": false
+    }
+  },
+  "reporting": {
+    "formats": ["text", "json", "html", "lcov"],
+    "outputDirectory": "coverage",
+    "reporters": ["default", "lcov"],
+    "commentOnPR": true
+  },
+  "enforcement": {
+    "failOnLowCoverage": true,
+    "failOnNoTests": false,
+    "requireTestsForNewCode": true
+  },
+  "excludePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/*.config.{js,ts}",
+    "**/test/**",
+    "**/*.d.ts"
+  ]
+}

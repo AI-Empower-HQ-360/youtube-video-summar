@@ -1,0 +1,85 @@
+{
+  "scanners": {
+    "npm-audit": {
+      "enabled": true,
+      "severity": ["critical", "high", "moderate"],
+      "autoFix": true
+    },
+    "snyk": {
+      "enabled": true,
+      "severity": ["critical", "high"],
+      "autoFix": false
+    },
+    "trivy": {
+      "enabled": true,
+      "scanType": ["config", "vuln", "secret"],
+      "severity": ["CRITICAL", "HIGH"]
+    },
+    "owasp": {
+      "enabled": true,
+      "failOnCVSS": 7
+    },
+    "secretDetection": {
+      "enabled": true,
+      "patterns": [
+        "api[_-]?key",
+        "password",
+        "secret",
+        "token",
+        "auth",
+        "bearer",
+        "jwt",
+        "private[_-]?key"
+      ]
+    }
+  },
+  "policies": {
+    "dependencies": {
+      "allowedLicenses": [
+        "MIT",
+        "Apache-2.0",
+        "BSD-2-Clause",
+        "BSD-3-Clause",
+        "ISC",
+        "0BSD"
+      ],
+      "blockedPackages": [],
+      "requireLockfile": true
+    },
+    "code": {
+      "noHardcodedSecrets": true,
+      "requireHTTPS": true,
+      "sqlInjectionCheck": true,
+      "xssCheck": true
+    },
+    "containers": {
+      "useNonRootUser": true,
+      "scanBaseImages": true,
+      "noSecretsInLayers": true
+    }
+  },
+  "reporting": {
+    "createIssues": true,
+    "commentOnPR": true,
+    "uploadToGitHubSecurity": true,
+    "severity": {
+      "critical": "error",
+      "high": "error",
+      "moderate": "warning",
+      "low": "info"
+    }
+  },
+  "autoRemediation": {
+    "enabled": false,
+    "createPR": true,
+    "autoMerge": false,
+    "onlyPatchVersions": true
+  },
+  "excludePatterns": [
+    "**/node_modules/**",
+    "**/test/**",
+    "**/tests/**",
+    "**/*.test.{js,ts}",
+    "**/*.spec.{js,ts}"
+  ]
+}

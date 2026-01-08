@@ -1,0 +1,164 @@
+name: Auto Documentation Agent
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**/*.ts'
+      - 'src/**/*.tsx'
+      - 'server/**/*.js'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate-docs:
+    name: Generate Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate API Documentation
+        run: |
+          mkdir -p docs/api
+          npx typedoc --out docs/api src/lib --excludePrivate --excludeProtected || echo "TypeDoc not configured, skipping"
+        continue-on-error: true
+
+      - name: Extract Function Documentation
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const glob = require('glob');
+          
+          const files = glob.sync('src/**/*.{ts,tsx}');
+          let markdown = '# API Reference\\n\\n';
+          markdown += 'Auto-generated API documentation\\n\\n';
+          markdown += '## Functions\\n\\n';
+          
+          files.forEach(file => {
+            const content = fs.readFileSync(file, 'utf-8');
+            const lines = content.split('\\n');
+            
+            // Look for exported functions with JSDoc
+            let inComment = false;
+            let currentComment = [];
+            
+            lines.forEach((line, index) => {
+              if (line.includes('/**')) {
+                inComment = true;
+                currentComment = [];
+              }
+              if (inComment) {
+                currentComment.push(line);
+              }
+              if (line.includes('*/')) {
+                inComment = false;
+              }
+              if (line.match(/^export (async )?function|^export const.*=.*=>/) && currentComment.length > 0) {
+                markdown += '### ' + file + '\\n\\n';
+                markdown += currentComment.join('\\n') + '\\n';
+                markdown += '\`\`\`typescript\\n' + line + '\\n\`\`\`\\n\\n';
+                currentComment = [];
+              }
+            });
+          });
+          
+          fs.writeFileSync('docs/API_AUTO.md', markdown);
+          console.log('✅ API documentation generated');
+          " || echo "Documentation generation skipped"
+
+      - name: Update README badges
+        run: |
+          node -e "
+          const fs = require('fs');
+          const readme = fs.readFileSync('README.md', 'utf-8');
+          
+          // Add/update last updated badge
+          const date = new Date().toISOString().split('T')[0];
+          let updated = readme;
+          
+          if (!readme.includes('Last Updated')) {
+            updated = readme.replace(
+              '# ✨ VidNote',
+              '# ✨ VidNote\\n\\n![Last Updated](https://img.shields.io/badge/Updated-' + date + '-blue)'
+            );
+          } else {
+            updated = readme.replace(
+              /!\[Last Updated\]\(.*?\)/,
+              '![Last Updated](https://img.shields.io/badge/Updated-' + date + '-blue)'
+            );
+          }
+          
+          fs.writeFileSync('README.md', updated);
+          console.log('✅ README updated');
+          " || echo "README update skipped"
+
+      - name: Check for documentation changes
+        id: changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit documentation updates
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git commit -m "docs(auto): Update API documentation and README [skip ci]"
+          git push
+
+      - name: Create documentation report
+        if: always()
+        run: |
+          echo "## 📚 Documentation Update Report" > doc-report.md
+          echo "" >> doc-report.md
+          echo "### Generated Files:" >> doc-report.md
+          echo "- API Documentation: docs/api/" >> doc-report.md
+          echo "- Auto-generated API: docs/API_AUTO.md" >> doc-report.md
+          echo "- README badges updated" >> doc-report.md
+          echo "" >> doc-report.md
+          echo "### Next Steps:" >> doc-report.md
+          echo "- Review generated documentation" >> doc-report.md
+          echo "- Add missing JSDoc comments" >> doc-report.md
+          echo "- Update examples as needed" >> doc-report.md
+          cat doc-report.md
+
+  validate-links:
+    name: Validate Documentation Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check Markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@5c5dfc0ac2e225883c0e5f03a85311ec2830d368 # v1
+        with:
+          use-quiet-mode: 'yes'
+          config-file: '.github/markdown-link-check-config.json'
+        continue-on-error: true
+
+      - name: Link check report
+        if: failure()
+        run: |
+          echo "⚠️ Some documentation links are broken"
+          echo "Please review and fix broken links"

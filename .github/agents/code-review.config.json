@@ -1,0 +1,64 @@
+{
+  "rules": {
+    "complexity": {
+      "maxCyclomaticComplexity": 10,
+      "maxFileLines": 300,
+      "maxFunctionLines": 50,
+      "enabled": true
+    },
+    "documentation": {
+      "requireJSDoc": true,
+      "requireTypeDoc": true,
+      "checkExportedFunctions": true,
+      "checkExportedClasses": true
+    },
+    "testing": {
+      "requireTests": true,
+      "minCoverage": 80,
+      "checkNewCode": true
+    },
+    "naming": {
+      "enforce": true,
+      "conventions": {
+        "functions": "camelCase",
+        "classes": "PascalCase",
+        "constants": "UPPER_CASE",
+        "interfaces": "PascalCase"
+      }
+    },
+    "imports": {
+      "sortImports": true,
+      "noCircularDependencies": true,
+      "noUnusedImports": true
+    },
+    "security": {
+      "noHardcodedSecrets": true,
+      "noConsoleInProduction": true,
+      "requireInputValidation": true
+    }
+  },
+  "autoFix": {
+    "enabled": true,
+    "rules": [
+      "sortImports",
+      "removeUnusedImports",
+      "formatCode"
+    ]
+  },
+  "reporting": {
+    "commentOnPR": true,
+    "createIssues": false,
+    "severity": {
+      "error": ["security", "complexity"],
+      "warning": ["documentation", "naming"],
+      "info": ["imports"]
+    }
+  },
+  "excludePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}
