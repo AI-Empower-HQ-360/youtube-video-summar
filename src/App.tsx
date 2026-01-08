@@ -24,6 +24,7 @@ import {
 import { isValidYouTubeUrl, extractVideoId, getVideoTranscript, getVideoInfo } from '@/lib/youtube';
 import { generateAllContent, type GeneratedContent } from '@/lib/ai';
 import PricingSection from '@/components/PricingSection';
+import FAQSection from '@/components/FAQSection';
 import Footer from '@/components/Footer';
 import AuthPage from '@/components/AuthPage';
 import DashboardPage from '@/components/DashboardPage';
@@ -513,6 +514,8 @@ export default function App() {
       </div>
 
       <PricingSection />
+
+      <FAQSection />
 
       <Footer />
     </div>
