@@ -7,6 +7,7 @@ import express from 'express';
 import youtubeRoutes from './youtube.routes.js';
 import summaryRoutes from './summary.routes.js';
 import healthRoutes from './health.routes.js';
+import chatRoutes from './chat.routes.js';
 
 const router = express.Router();
 
@@ -31,6 +32,12 @@ router.use('/summary', summaryRoutes);
  * @path /api/health
  */
 router.use('/health', healthRoutes);
+
+/**
+ * @label Chat Routes
+ * @path /api/chat
+ */
+router.use('/chat', chatRoutes);
 
 // API documentation endpoint
 router.get('/docs', (req, res) => {

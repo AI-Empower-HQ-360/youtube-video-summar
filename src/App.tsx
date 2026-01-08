@@ -26,6 +26,7 @@ import { generateAllContent, type GeneratedContent } from '@/lib/ai';
 import PricingSection from '@/components/PricingSection';
 import FAQSection from '@/components/FAQSection';
 import Footer from '@/components/Footer';
+import { CustomerServiceChat } from '@/components/CustomerServiceChat';
 import AuthPage from '@/components/AuthPage';
 import DashboardPage from '@/components/DashboardPage';
 import CheckoutPage from '@/components/CheckoutPage';
@@ -610,6 +611,9 @@ export default function App() {
         onNavigateCookies={() => setShowCookies(true)}
         onNavigateContact={() => setShowContact(true)}
       />
+      
+      {/* Customer Service Chat */}
+      <CustomerServiceChat />
     </div>
   );
 }
