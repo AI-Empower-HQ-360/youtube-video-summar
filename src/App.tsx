@@ -20,6 +20,7 @@ import {
 } from '@phosphor-icons/react';
 import { isValidYouTubeUrl, extractVideoId, getVideoTranscript, getVideoInfo } from '@/lib/youtube';
 import { generateAllContent, type GeneratedContent } from '@/lib/ai';
+import PricingSection from '@/components/PricingSection';
 
 export default function App() {
   const [url, setUrl] = useState('');
@@ -355,6 +356,8 @@ export default function App() {
           </div>
         )}
       </div>
+
+      <PricingSection />
     </div>
   );
 }

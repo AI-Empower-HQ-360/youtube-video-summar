@@ -54,6 +54,13 @@ This is a focused tool with clear inputs and outputs - paste link, generate summ
 - **Progression**: User clicks copy icon → Content copied to clipboard → Visual confirmation (toast notification) → User can paste elsewhere
 - **Success criteria**: Copies formatted text properly, provides immediate feedback, works across all major browsers
 
+### Pricing Display
+- **Functionality**: Clear three-tier pricing structure (Free, Pro, Team) with feature comparison
+- **Purpose**: Transparent monetization and value communication for users considering upgrades
+- **Trigger**: User scrolls to pricing section or navigates directly
+- **Progression**: View pricing cards → Compare features → Select plan → Call-to-action button (Start/Contact)
+- **Success criteria**: Plans clearly differentiate value tiers, popular plan is visually highlighted, features are benefit-focused, mobile-responsive card layout
+
 ## Edge Case Handling
 
 - **Invalid URLs**: Clear error message with example format, input field highlights in error state
