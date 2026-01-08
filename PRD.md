@@ -12,6 +12,13 @@ This is a focused tool with clear inputs and outputs - paste link, generate summ
 
 ## Essential Features
 
+### What is VidNote Section
+- **Functionality**: Informational section that explains the product value proposition, core benefits, and target users
+- **Purpose**: Immediately communicate what VidNote does and why users should care before they try it
+- **Trigger**: Displays automatically on page load, positioned prominently after hero section
+- **Progression**: User reads hero → Views "What is VidNote" explanation → Understands value → Proceeds to use the tool
+- **Success criteria**: Clear value proposition in simple language, visual breakdown of key benefits (save time, learn smarter, zero effort), target audience tags that users can relate to, visually appealing with icons and structured layout
+
 ### YouTube URL Input & Validation
 - **Functionality**: Single input field accepts YouTube video URLs, validates format, extracts video ID
 - **Purpose**: Gateway to the entire experience - must be dead simple and foolproof

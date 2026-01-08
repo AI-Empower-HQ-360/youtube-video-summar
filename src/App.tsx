@@ -114,6 +114,72 @@ export default function App() {
           </div>
         </header>
 
+        <div className="mb-12">
+          <Card className="border-2 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 p-8">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center">
+                What is VidNote?
+              </h2>
+              <p className="text-base md:text-lg text-foreground/90 leading-relaxed max-w-3xl mx-auto text-center mb-6">
+                VidNote is your AI-powered learning companion that transforms lengthy YouTube videos into bite-sized, actionable knowledge in seconds. Simply paste any video link and get instant summaries, key takeaways, and study questions—perfect for students, professionals, and lifelong learners.
+              </p>
+              
+              <div className="grid md:grid-cols-3 gap-6 mt-8">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <Lightning size={24} weight="fill" className="text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Save Time</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Turn a 30-minute video into a 2-minute read. Get the essence without the wait.
+                  </p>
+                </div>
+                
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-3">
+                    <Sparkle size={24} weight="fill" className="text-accent" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Learn Smarter</h3>
+                  <p className="text-sm text-muted-foreground">
+                    AI extracts key concepts, generates study questions, and structures information for maximum retention.
+                  </p>
+                </div>
+                
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <Check size={24} weight="bold" className="text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Zero Effort</h3>
+                  <p className="text-sm text-muted-foreground">
+                    No signup required. Just paste, click, and get instant results. It's that simple.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-border/50">
+                <h3 className="font-semibold text-center mb-4 text-lg">Perfect For:</h3>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <span className="px-4 py-2 bg-card rounded-full text-sm font-medium border border-border">
+                    📚 Students studying for exams
+                  </span>
+                  <span className="px-4 py-2 bg-card rounded-full text-sm font-medium border border-border">
+                    💼 Professionals learning new skills
+                  </span>
+                  <span className="px-4 py-2 bg-card rounded-full text-sm font-medium border border-border">
+                    🎯 Interview preparation
+                  </span>
+                  <span className="px-4 py-2 bg-card rounded-full text-sm font-medium border border-border">
+                    ✍️ Content creators repurposing videos
+                  </span>
+                  <span className="px-4 py-2 bg-card rounded-full text-sm font-medium border border-border">
+                    🧠 Curious minds exploring topics
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
         <div className="mb-8">
           <Card className="border-2 shadow-lg">
             <CardContent className="p-6">
