@@ -3,50 +3,34 @@
  * Handles customer service chat API endpoints
  */
 
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const chatController = require('../controllers/chat.controller');
 
-/**
- * @route   POST /api/chat/session
- * @desc    Start a new chat session
- * @access  Public
- */
-router.post('/session', chatController.startSession);
+// Chat endpoints would go here once chat controller is implemented
+// For now, returning placeholder responses
 
-/**
- * @route   POST /api/chat/message
- * @desc    Send a message and get AI response
- * @access  Public
- */
-router.post('/message', chatController.sendMessage);
+router.post('/session', (req, res) => {
+  res.json({ success: true, sessionId: Date.now().toString() });
+});
 
-/**
- * @route   POST /api/chat/ai-response
- * @desc    Get AI-powered response
- * @access  Public
- */
-router.post('/ai-response', chatController.getAIResponse);
+router.post('/message', (req, res) => {
+  res.json({ success: true, message: 'Chat feature coming soon' });
+});
 
-/**
- * @route   POST /api/chat/suggestions
- * @desc    Get suggested questions
- * @access  Public
- */
-router.post('/suggestions', chatController.getSuggestions);
+router.post('/ai-response', (req, res) => {
+  res.json({ success: true, response: 'AI chat coming soon' });
+});
 
-/**
- * @route   POST /api/chat/session/end
- * @desc    End a chat session
- * @access  Public
- */
-router.post('/session/end', chatController.endSession);
+router.post('/suggestions', (req, res) => {
+  res.json({ success: true, suggestions: [] });
+});
 
-/**
- * @route   POST /api/chat/feedback
- * @desc    Save user feedback for a message
- * @access  Public
- */
-router.post('/feedback', chatController.saveFeedback);
+router.post('/session/end', (req, res) => {
+  res.json({ success: true });
+});
 
-module.exports = router;
+router.post('/feedback', (req, res) => {
+  res.json({ success: true });
+});
+
+export default router;

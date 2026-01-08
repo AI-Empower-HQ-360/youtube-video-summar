@@ -65,7 +65,14 @@ export const generateQA = async (req, res, next) => {
       success: true,
       data: { qaPairs }
     });
-  } catch (error) { with language support
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @label Generate Complete Analysis Controller
+ * @description Generate complete analysis with language support
  */
 export const generateComplete = async (req, res, next) => {
   try {
@@ -85,24 +92,6 @@ export const generateComplete = async (req, res, next) => {
         qaPairs,
         detectedLanguage: sourceLanguage,
         targetLanguage
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-    const [summary, keyPoints, qaPairs] = await Promise.all([
-      summaryService.generateSummary(transcript),
-      summaryService.generateKeyPoints(transcript),
-      summaryService.generateQA(transcript)
-    ]);
-
-    res.status(200).json({
-      success: true,
-      data: {
-        summary,
-        keyPoints,
-        qaPairs
       }
     });
   } catch (error) {

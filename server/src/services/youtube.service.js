@@ -4,6 +4,7 @@
  */
 
 import axios from 'axios';
+import { YoutubeTranscript } from 'youtube-transcript';
 import { ApiError } from '../utils/ApiError.js';
 
 // ============================================
@@ -41,45 +42,51 @@ export function isValidYouTubeUrl(url) {
 
 /**
  * @label Get Video Transcript
- * @description Fetch transcript for a YouTube video
+ * @description Fetch transcript for a YouTube video using youtube-transcript library
  */
 export async function getVideoTranscript(videoId) {
   try {
-    const response = await axios.get(`https://www.youtube.com/watch?v=${videoId}`);
-    const html = response.data;
+    // Use the youtube-transcript library for reliable transcript fetching
+    const transcriptData = await YoutubeTranscript.fetchTranscript(videoId, {
+      lang: 'en', // Try English first
+    });
     
-    const captionsMatch = html.match(/"captions":({.*?})/);
-    if (!captionsMatch) {
-      throw new ApiError(404, 'No captions found for this video');
+    if (!transcriptData || transcriptData.length === 0) {
+      throw new ApiError(404, 'No transcript available for this video');
     }
 
-    const captionsData = JSON.parse(captionsMatch[1]);
-    const captionTracks = captionsData?.playerCaptionsTracklistRenderer?.captionTracks;
-    
-    if (!captionTracks || captionTracks.length === 0) {
-      throw new ApiError(404, 'No caption tracks available');
-    }
-
-    const transcriptUrl = captionTracks[0].baseUrl;
-    const transcriptResponse = await axios.get(transcriptUrl);
-    const transcriptXml = transcriptResponse.data;
-    
-    const textMatches = transcriptXml.matchAll(/<text[^>]*>([^<]+)<\/text>/g);
-    const transcript = Array.from(textMatches)
-      .map(match => match[1])
+    // Combine all transcript segments into a single text
+    const transcript = transcriptData
+      .map(item => item.text)
       .join(' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>');
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
 
     return transcript;
   } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
+    // If English fails, try to fetch any available language
+    try {
+      const transcriptData = await YoutubeTranscript.fetchTranscript(videoId);
+      
+      if (!transcriptData || transcriptData.length === 0) {
+        throw new ApiError(404, 'No transcript available for this video');
+      }
+
+      const transcript = transcriptData
+        .map(item => item.text)
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      return transcript;
+    } catch (fallbackError) {
+      if (error.message?.includes('Transcript is disabled')) {
+        throw new ApiError(404, 'Captions are disabled for this video');
+      } else if (error.message?.includes('No transcript found')) {
+        throw new ApiError(404, 'No captions available for this video. Please use a video with captions enabled.');
+      }
+      throw new ApiError(500, `Failed to fetch transcript: ${fallbackError.message}`);
     }
-    throw new ApiError(500, `Failed to fetch transcript: ${error.message}`);
   }
 }
 
