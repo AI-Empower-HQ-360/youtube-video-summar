@@ -1,3 +1,9 @@
+/**
+ * @label AI Service (Legacy)
+ * @description Legacy AI functions - Use services/summary.api.ts instead
+ * @deprecated Use the new API services for better integration
+ */
+
 export interface GeneratedContent {
   summary: string;
   keyPoints: string[];
@@ -5,15 +11,9 @@ export interface GeneratedContent {
 }
 
 export async function generateSummary(transcript: string): Promise<string> {
-  const prompt = (window.spark.llmPrompt as any)`You are an expert at summarizing video content. Given this video transcript, create a clear, concise summary in 3-5 paragraphs that captures the main ideas and key information. Write in a natural, engaging style.
-
-Transcript:
-${transcript}
-
-Provide only the summary, no additional commentary.`;
-
-  const result = await window.spark.llm(prompt, 'gpt-4o-mini');
-  return result.trim();
+  // Use the new API service instead
+  const { summaryApi } = await import('../services/summary.api');
+  return await summaryApi.generateSummary(transcript);
 }
 
 export async function generateKeyPoints(transcript: string): Promise<string[]> {
