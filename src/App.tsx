@@ -1,5 +1,360 @@
-function App() {
-    return <div></div>
-}
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
+import { 
+  ArrowRight, 
+  Sparkle, 
+  Copy, 
+  Check, 
+  Lightning, 
+  Article, 
+  ListBullets, 
+  Question,
+  YoutubeLogo
+} from '@phosphor-icons/react';
+import { isValidYouTubeUrl, extractVideoId, getVideoTranscript, getVideoInfo } from '@/lib/youtube';
+import { generateAllContent, type GeneratedContent } from '@/lib/ai';
 
-export default App
+export default function App() {
+  const [url, setUrl] = useState('');
+  const [isValidUrl, setIsValidUrl] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [videoInfo, setVideoInfo] = useState<{ title: string; thumbnail: string } | null>(null);
+  const [content, setContent] = useState<GeneratedContent | null>(null);
+  const [copiedSection, setCopiedSection] = useState<string | null>(null);
+
+  const handleUrlChange = (value: string) => {
+    setUrl(value);
+    setError('');
+    setIsValidUrl(isValidYouTubeUrl(value));
+  };
+
+  const copyToClipboard = async (text: string, section: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedSection(section);
+      toast.success('Copied to clipboard!');
+      setTimeout(() => setCopiedSection(null), 2000);
+    } catch (err) {
+      toast.error('Failed to copy');
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!isValidUrl) return;
+
+    setIsLoading(true);
+    setError('');
+    setContent(null);
+    setVideoInfo(null);
+
+    try {
+      const videoId = extractVideoId(url);
+      if (!videoId) {
+        throw new Error('Could not extract video ID');
+      }
+
+      const [info, transcript] = await Promise.all([
+        getVideoInfo(videoId),
+        getVideoTranscript(videoId)
+      ]);
+
+      setVideoInfo(info);
+
+      if (transcript.length < 50) {
+        throw new Error('Transcript is too short or unavailable');
+      }
+
+      const generatedContent = await generateAllContent(transcript);
+      setContent(generatedContent);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen gradient-bg">
+      <Toaster />
+      <div className="container mx-auto px-6 md:px-12 py-12 max-w-5xl">
+        <header className="text-center mb-12">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Sparkle size={32} weight="fill" className="text-accent" />
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight gradient-text">
+              VidNote
+            </h1>
+          </div>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Turn any YouTube video into instant notes, key points, and Q&A
+          </p>
+          <div className="flex items-center justify-center gap-6 mt-6 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Lightning weight="fill" className="text-accent" />
+              <span>Save time</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Sparkle weight="fill" className="text-accent" />
+              <span>AI-powered</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check weight="bold" className="text-accent" />
+              <span>Zero effort</span>
+            </div>
+          </div>
+        </header>
+
+        <div className="mb-8">
+          <Card className="border-2 shadow-lg">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <YoutubeLogo size={20} weight="fill" className="text-muted-foreground" />
+                  </div>
+                  <Input
+                    id="youtube-url"
+                    type="text"
+                    placeholder="Paste YouTube video URL here..."
+                    value={url}
+                    onChange={(e) => handleUrlChange(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && isValidUrl && !isLoading && handleGenerate()}
+                    className={`pl-10 h-12 text-base ${
+                      url && !isValidUrl ? 'border-destructive focus-visible:ring-destructive' : ''
+                    } ${url && isValidUrl ? 'border-accent' : ''}`}
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button
+                  onClick={handleGenerate}
+                  disabled={!isValidUrl || isLoading}
+                  size="lg"
+                  className="h-12 px-8 bg-primary hover:bg-primary/90 text-primary-foreground gap-2 font-medium"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin h-4 w-4 border-2 border-background border-t-transparent rounded-full" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Generate
+                      <ArrowRight weight="bold" />
+                    </>
+                  )}
+                </Button>
+              </div>
+              {url && !isValidUrl && (
+                <p className="text-sm text-destructive mt-2">
+                  Please enter a valid YouTube URL (e.g., youtube.com/watch?v=... or youtu.be/...)
+                </p>
+              )}
+              {error && (
+                <p className="text-sm text-destructive mt-2 flex items-center gap-2">
+                  <span className="font-medium">Error:</span> {error}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {(isLoading || content) && (
+          <div className="space-y-8">
+            {videoInfo && (
+              <Card className="border-2 overflow-hidden">
+                <div className="flex flex-col md:flex-row">
+                  <div className="md:w-48 h-32 md:h-auto bg-muted flex-shrink-0">
+                    <img
+                      src={videoInfo.thumbnail}
+                      alt={videoInfo.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = `https://img.youtube.com/vi/${extractVideoId(url)}/hqdefault.jpg`;
+                      }}
+                    />
+                  </div>
+                  <CardHeader className="flex-1">
+                    <CardTitle className="text-lg leading-snug">{videoInfo.title}</CardTitle>
+                  </CardHeader>
+                </div>
+              </Card>
+            )}
+
+            <Card className="border-2 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Article size={24} weight="fill" className="text-primary" />
+                    <CardTitle>Summary</CardTitle>
+                  </div>
+                  {content?.summary && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(content.summary, 'summary')}
+                      className="gap-2"
+                    >
+                      {copiedSection === 'summary' ? (
+                        <Check weight="bold" className="text-accent" />
+                      ) : (
+                        <Copy />
+                      )}
+                    </Button>
+                  )}
+                </div>
+                <CardDescription>AI-generated overview of the video content</CardDescription>
+              </CardHeader>
+              <Separator />
+              <CardContent className="pt-6">
+                {isLoading && !content ? (
+                  <div className="space-y-3">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                  </div>
+                ) : content?.summary ? (
+                  <div className="prose prose-sm max-w-none leading-relaxed text-foreground">
+                    {content.summary.split('\n\n').map((paragraph, idx) => (
+                      <p key={idx} className="mb-4 last:mb-0">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ListBullets size={24} weight="fill" className="text-primary" />
+                    <CardTitle>Key Points</CardTitle>
+                  </div>
+                  {content?.keyPoints && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(content.keyPoints.join('\n'), 'keypoints')}
+                      className="gap-2"
+                    >
+                      {copiedSection === 'keypoints' ? (
+                        <Check weight="bold" className="text-accent" />
+                      ) : (
+                        <Copy />
+                      )}
+                    </Button>
+                  )}
+                </div>
+                <CardDescription>Essential takeaways and main concepts</CardDescription>
+              </CardHeader>
+              <Separator />
+              <CardContent className="pt-6">
+                {isLoading && !content ? (
+                  <div className="space-y-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="h-4 w-full" />
+                    ))}
+                  </div>
+                ) : content?.keyPoints ? (
+                  <ul className="space-y-3">
+                    {content.keyPoints.map((point, idx) => (
+                      <li key={idx} className="flex gap-3 items-start">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/10 text-accent flex items-center justify-center text-sm font-bold mt-0.5">
+                          {idx + 1}
+                        </span>
+                        <span className="flex-1 leading-relaxed">{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Question size={24} weight="fill" className="text-primary" />
+                    <CardTitle>Questions & Answers</CardTitle>
+                  </div>
+                  {content?.qaPairs && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        copyToClipboard(
+                          content.qaPairs
+                            .map((qa, i) => `Q${i + 1}: ${qa.question}\nA: ${qa.answer}`)
+                            .join('\n\n'),
+                          'qa'
+                        )
+                      }
+                      className="gap-2"
+                    >
+                      {copiedSection === 'qa' ? (
+                        <Check weight="bold" className="text-accent" />
+                      ) : (
+                        <Copy />
+                      )}
+                    </Button>
+                  )}
+                </div>
+                <CardDescription>Test your understanding with these questions</CardDescription>
+              </CardHeader>
+              <Separator />
+              <CardContent className="pt-6">
+                {isLoading && !content ? (
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-5/6" />
+                      </div>
+                    ))}
+                  </div>
+                ) : content?.qaPairs ? (
+                  <Accordion type="single" collapsible className="w-full">
+                    {content.qaPairs.map((qa, idx) => (
+                      <AccordionItem key={idx} value={`item-${idx}`}>
+                        <AccordionTrigger className="text-left hover:no-underline">
+                          <span className="font-medium">
+                            <span className="text-accent mr-2">Q{idx + 1}:</span>
+                            {qa.question}
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent className="text-muted-foreground leading-relaxed pt-2">
+                          {qa.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                ) : null}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {!isLoading && !content && !error && (
+          <div className="text-center py-16 text-muted-foreground">
+            <Sparkle size={48} weight="thin" className="mx-auto mb-4 opacity-50" />
+            <p className="text-lg">Paste a YouTube URL above to get started</p>
+            <p className="text-sm mt-2">Works with any video that has captions enabled</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
