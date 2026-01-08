@@ -5,16 +5,24 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
+        "dev:staging": "vite --mode staging",
+        "dev:prod": "vite --mode production",
         "kill": "fuser -k 5000/tcp",
         "build": "tsc -b --noCheck && vite build",
+        "build:staging": "tsc -b --noCheck && vite build --mode staging",
+        "build:prod": "tsc -b --noCheck && vite build --mode production",
         "lint": "eslint .",
         "optimize": "vite optimize",
         "preview": "vite preview",
+        "preview:staging": "vite preview --mode staging",
+        "preview:prod": "vite preview --mode production",
         "deploy": "npm run build && gh-pages -d dist",
         "test": "vitest",
         "test:ui": "vitest --ui",
         "test:run": "vitest run",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "env:validate": "node -e \"import('./src/config/env.ts').then(m => m.validateEnv())\"",
+        "env:info": "node -e \"import('./src/config/env.ts').then(m => m.logEnvironmentInfo())\""
     },
     "dependencies": {
         "@github/spark": "^0.44.15",
