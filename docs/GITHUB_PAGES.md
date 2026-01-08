@@ -1,7 +1,7 @@
 # GitHub Pages Deployment Guide
 
 ## 🌐 Live Demo
-**URL:** https://youtube-video-summar--ai-empower-hq-360.github.app/
+**URL:** https://ai-empower-hq-360.github.io/youtube-video-summar/
 
 ## 📋 Prerequisites
 

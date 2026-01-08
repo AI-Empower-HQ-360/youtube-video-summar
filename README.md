@@ -2,7 +2,13 @@
 
 **VidNote** is an AI-powered web application that transforms any YouTube video into digestible summaries, key points, and Q&A in seconds. Perfect for students, professionals, and anyone who wants to learn faster.
 
-## 🌟 What Does VidNote Do?
+## � Live Demo
+
+**Try it now:** [https://ai-empower-hq-360.github.io/youtube-video-summar/](https://ai-empower-hq-360.github.io/youtube-video-summar/)
+
+---
+
+## �🌟 What Does VidNote Do?
 
 VidNote helps you save time and learn more efficiently by:
 

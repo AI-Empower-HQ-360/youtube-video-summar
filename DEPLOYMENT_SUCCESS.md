@@ -2,7 +2,7 @@
 
 ## ✅ Deployment Status: LIVE
 
-**Live URL:** https://youtube-video-summar--ai-empower-hq-360.github.app/
+**Live URL:** https://ai-empower-hq-360.github.io/youtube-video-summar/
 
 **Deployment Date:** January 8, 2026  
 **Build Status:** ✅ Successful  
@@ -260,7 +260,7 @@ Your **YouTube Video Summarizer** is now **LIVE on GitHub Pages**! 🚀
 The frontend deployment is complete and fully functional. To enable the full AI summarization features, deploy the backend API using the GCP infrastructure that's already configured.
 
 **Repository:** https://github.com/AI-Empower-HQ-360/youtube-video-summar  
-**Live Site:** https://youtube-video-summar--ai-empower-hq-360.github.app/
+**Live Site:** https://ai-empower-hq-360.github.io/youtube-video-summar/
 
 **Status:** ✅ Production-ready frontend deployed  
 **Next:** Deploy backend for full functionality
