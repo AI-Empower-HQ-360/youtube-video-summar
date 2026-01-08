@@ -48,6 +48,40 @@ This repository includes AI-powered agents and automation tools for code quality
 **Features:**
 - Bundle size analysis
 - Lighthouse audits
+
+### 6. PR Commit Review Agent 🆕
+**Purpose:** Reviews commit messages and PR structure  
+**Trigger:** Every pull request  
+**Features:**
+- Conventional commit validation
+- Commit message quality scoring
+- Issue reference checking
+- Breaking change detection
+- Commit author analysis
+- Auto-feedback on PRs
+
+### 7. Environment Check Agent 🆕
+**Purpose:** Validates environment files and configurations  
+**Trigger:** Config file changes, weekly schedule  
+**Features:**
+- Environment variable validation
+- Secret detection in .env files
+- Configuration file validation (package.json, tsconfig.json)
+- .env.example auto-generation
+- Security best practices enforcement
+- Configuration consistency checks
+
+### 8. Agent Manager (Meta-Agent) 🆕
+**Purpose:** Monitors and manages all other agents  
+**Trigger:** After agent runs, every 6 hours  
+**Features:**
+- Agent performance monitoring
+- Success rate tracking
+- Auto-remediation on failures
+- Dashboard generation
+- Weekly performance reports
+- Incident issue creation
+- Agent health checks
 - Load time monitoring
 - Performance regression detection
 

@@ -1,0 +1,59 @@
+{
+  "commitReview": {
+    "conventionalCommits": {
+      "enabled": true,
+      "types": [
+        "feat",
+        "fix",
+        "docs",
+        "style",
+        "refactor",
+        "perf",
+        "test",
+        "build",
+        "ci",
+        "chore",
+        "revert"
+      ],
+      "scopeRequired": false,
+      "subjectMaxLength": 72,
+      "subjectMinLength": 10
+    },
+    "commitMessage": {
+      "capitalizeSubject": true,
+      "noTrailingPeriod": true,
+      "bodyMaxLineLength": 100
+    },
+    "checks": {
+      "preventWIP": true,
+      "preventFixup": true,
+      "requireIssueReference": false,
+      "blockMergeCommits": false
+    },
+    "scoring": {
+      "passThreshold": 70,
+      "warningThreshold": 85,
+      "excellentThreshold": 95
+    }
+  },
+  "issueLinks": {
+    "enabled": true,
+    "keywords": [
+      "closes",
+      "fixes",
+      "resolves",
+      "related to",
+      "references"
+    ],
+    "suggestIfMissing": true
+  },
+  "autoFix": {
+    "enabled": false,
+    "rewriteCommitMessages": false
+  },
+  "notifications": {
+    "postCommentOnPR": true,
+    "failOnLowScore": false,
+    "showExamples": true
+  }
+}

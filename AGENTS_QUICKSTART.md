@@ -109,6 +109,43 @@ gh workflow run documentation-agent.yml
 
 **Result:** Auto-creates PRs for updates
 
+### 7. 🤖 PR Commit Review Agent 🆕
+**Runs on:** Every PR
+
+**Checks:**
+- Conventional commit format
+- Commit message quality
+- Subject line length
+- Issue references
+- Breaking changes
+- WIP/fixup commits
+
+**Result:** Commit quality score + recommendations
+
+### 8. 🔍 Environment Check Agent 🆕
+**Runs on:** Config changes + Weekly
+
+**Checks:**
+- Required env variables
+- Missing configurations
+- Secret exposure
+- .gitignore rules
+- Config file validity
+
+**Result:** Environment report + auto-updates .env.example
+
+### 9. 🎯 Agent Manager 🆕
+**Runs on:** After agent runs + Every 6 hours
+
+**Monitors:**
+- All agent performance
+- Success/failure rates
+- Agent health status
+- System bottlenecks
+- Auto-remediation
+
+**Result:** Agent dashboard + weekly reports + incident issues
+
 ---
 
 ## 📝 Example: Creating a Pull Request
@@ -322,8 +359,11 @@ See all agent runs, status, and logs.
 | Documentation | Push to main | Auto-updated docs |
 | Performance | Every PR + Weekly | Performance metrics |
 | Dependencies | Weekly | Update PRs |
+| PR Commit Review 🆕 | Every PR | Commit quality score |
+| Environment Check 🆕 | Config changes + Weekly | Environment report |
+| Agent Manager 🆕 | Every 6h + After agents | Dashboard + reports |
 
-**All agents are active and monitoring your repository! 🎉**
+**All 9 agents are active and monitoring your repository! 🎉**
 
 ---
 

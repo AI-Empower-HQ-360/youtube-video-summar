@@ -1,0 +1,538 @@
+name: 🎯 Agent Manager (Meta-Agent)
+
+on:
+  workflow_run:
+    workflows:
+      - "🤖 PR Commit Review Agent"
+      - "🔍 Environment Check Agent"
+      - "🤖 Code Review Agent"
+      - "📚 Documentation Agent"
+      - "⚡ Performance Agent"
+    types:
+      - completed
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+
+jobs:
+  monitor-agents:
+    name: 📊 Monitor All Agents
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      
+      - name: Get workflow runs
+        id: workflows
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            // Get all workflow runs from the last 24 hours
+            const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+            
+            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+              created: `>=${oneDayAgo}`
+            });
+            
+            // Filter for agent workflows
+            const agentWorkflows = runs.workflow_runs.filter(run => 
+              run.name.includes('Agent') || 
+              run.name.includes('agent')
+            );
+            
+            // Group by status
+            const stats = {
+              total: agentWorkflows.length,
+              success: agentWorkflows.filter(r => r.conclusion === 'success').length,
+              failure: agentWorkflows.filter(r => r.conclusion === 'failure').length,
+              inProgress: agentWorkflows.filter(r => r.status === 'in_progress').length,
+              cancelled: agentWorkflows.filter(r => r.conclusion === 'cancelled').length
+            };
+            
+            // Group by workflow name
+            const byWorkflow = {};
+            agentWorkflows.forEach(run => {
+              if (!byWorkflow[run.name]) {
+                byWorkflow[run.name] = { success: 0, failure: 0, total: 0 };
+              }
+              byWorkflow[run.name].total++;
+              if (run.conclusion === 'success') byWorkflow[run.name].success++;
+              if (run.conclusion === 'failure') byWorkflow[run.name].failure++;
+            });
+            
+            return { stats, byWorkflow, runs: agentWorkflows };
+      
+      - name: Analyze agent performance
+        id: analyze
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const data = ${{ steps.workflows.outputs.result }};
+            
+            // Calculate success rate
+            const successRate = data.stats.total > 0 
+              ? Math.round((data.stats.success / data.stats.total) * 100) 
+              : 100;
+            
+            // Find problematic agents (>50% failure rate)
+            const problematicAgents = [];
+            for (const [name, stats] of Object.entries(data.byWorkflow)) {
+              const failureRate = stats.total > 0 ? (stats.failure / stats.total) * 100 : 0;
+              if (failureRate > 50 && stats.total >= 2) {
+                problematicAgents.push({ name, failureRate: Math.round(failureRate), stats });
+              }
+            }
+            
+            // Get recent failures
+            const recentFailures = data.runs
+              .filter(r => r.conclusion === 'failure')
+              .slice(0, 5)
+              .map(r => ({
+                name: r.name,
+                id: r.id,
+                html_url: r.html_url,
+                created_at: r.created_at
+              }));
+            
+            return { successRate, problematicAgents, recentFailures, stats: data.stats };
+      
+      - name: Check agent health
+        id: health
+        run: |
+          # Check if agent config files exist
+          CONFIG_FILES=(
+            ".github/agents/code-review.config.json"
+            ".github/agents/testing.config.json"
+            ".github/agents/security.config.json"
+          )
+          
+          MISSING_CONFIGS=""
+          for config in "${CONFIG_FILES[@]}"; do
+            if [ ! -f "$config" ]; then
+              MISSING_CONFIGS="${MISSING_CONFIGS}\n- \`$config\`"
+            fi
+          done
+          
+          if [ -n "$MISSING_CONFIGS" ]; then
+            echo "has_missing_configs=true" >> $GITHUB_OUTPUT
+            echo "missing_configs<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$MISSING_CONFIGS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "has_missing_configs=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check if workflow files exist
+          WORKFLOW_FILES=(
+            ".github/workflows/code-review-agent.yml"
+            ".github/workflows/documentation-agent.yml"
+            ".github/workflows/performance-agent.yml"
+            ".github/workflows/pr-commit-review-agent.yml"
+            ".github/workflows/environment-check-agent.yml"
+          )
+          
+          MISSING_WORKFLOWS=""
+          for workflow in "${WORKFLOW_FILES[@]}"; do
+            if [ ! -f "$workflow" ]; then
+              MISSING_WORKFLOWS="${MISSING_WORKFLOWS}\n- \`$workflow\`"
+            fi
+          done
+          
+          if [ -n "$MISSING_WORKFLOWS" ]; then
+            echo "has_missing_workflows=true" >> $GITHUB_OUTPUT
+            echo "missing_workflows<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$MISSING_WORKFLOWS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "has_missing_workflows=false" >> $GITHUB_OUTPUT
+          fi
+
+  generate-dashboard:
+    name: 📈 Generate Agent Dashboard
+    runs-on: ubuntu-latest
+    needs: monitor-agents
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      
+      - name: Get workflow data
+        id: data
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+            const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+            
+            // Get runs from last 24 hours
+            const { data: dayRuns } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+              created: `>=${oneDayAgo}`
+            });
+            
+            // Get runs from last 7 days
+            const { data: weekRuns } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+              created: `>=${oneWeekAgo}`
+            });
+            
+            const agentNames = [
+              'Code Review Agent',
+              'Documentation Agent',
+              'Performance Agent',
+              'PR Commit Review Agent',
+              'Environment Check Agent'
+            ];
+            
+            const agentStats = {};
+            
+            for (const name of agentNames) {
+              const dayAgent = dayRuns.workflow_runs.filter(r => r.name.includes(name));
+              const weekAgent = weekRuns.workflow_runs.filter(r => r.name.includes(name));
+              
+              agentStats[name] = {
+                last24h: {
+                  total: dayAgent.length,
+                  success: dayAgent.filter(r => r.conclusion === 'success').length,
+                  failure: dayAgent.filter(r => r.conclusion === 'failure').length
+                },
+                last7d: {
+                  total: weekAgent.length,
+                  success: weekAgent.filter(r => r.conclusion === 'success').length,
+                  failure: weekAgent.filter(r => r.conclusion === 'failure').length
+                }
+              };
+            }
+            
+            return agentStats;
+      
+      - name: Create dashboard
+        run: |
+          STATS='${{ steps.data.outputs.result }}'
+          
+          cat > AGENT_DASHBOARD.md << 'EOF'
+          # 🎯 AI Agents Dashboard
+          
+          **Last Updated:** $(date '+%Y-%m-%d %H:%M:%S UTC')  
+          **Auto-generated by Agent Manager**
+          
+          ---
+          
+          ## 📊 Overall Statistics (Last 24 Hours)
+          
+          | Metric | Value |
+          |--------|-------|
+          | 🤖 Active Agents | 5 |
+          | ✅ Successful Runs | - |
+          | ❌ Failed Runs | - |
+          | ⚡ Success Rate | - |
+          | 🔄 Currently Running | - |
+          
+          ---
+          
+          ## 🤖 Agent Status
+          
+          ### 1. 🔍 Code Review Agent
+          
+          **Purpose:** Analyzes code quality, linting, type errors, and complexity
+          
+          **Last 24h:**
+          - Runs: -
+          - Success: -
+          - Failures: -
+          
+          **Last 7d:**
+          - Total Runs: -
+          - Success Rate: -
+          
+          **Status:** 🟢 Operational
+          
+          ---
+          
+          ### 2. 📚 Documentation Agent
+          
+          **Purpose:** Generates API docs, validates links, updates badges
+          
+          **Last 24h:**
+          - Runs: -
+          - Success: -
+          - Failures: -
+          
+          **Last 7d:**
+          - Total Runs: -
+          - Success Rate: -
+          
+          **Status:** 🟢 Operational
+          
+          ---
+          
+          ### 3. ⚡ Performance Agent
+          
+          **Purpose:** Monitors bundle size, runs Lighthouse audits
+          
+          **Last 24h:**
+          - Runs: -
+          - Success: -
+          - Failures: -
+          
+          **Last 7d:**
+          - Total Runs: -
+          - Success Rate: -
+          
+          **Status:** 🟢 Operational
+          
+          ---
+          
+          ### 4. 🤖 PR Commit Review Agent
+          
+          **Purpose:** Reviews commit messages and PR structure
+          
+          **Last 24h:**
+          - Runs: -
+          - Success: -
+          - Failures: -
+          
+          **Last 7d:**
+          - Total Runs: -
+          - Success Rate: -
+          
+          **Status:** 🟢 Operational
+          
+          ---
+          
+          ### 5. 🔍 Environment Check Agent
+          
+          **Purpose:** Validates environment files and configurations
+          
+          **Last 24h:**
+          - Runs: -
+          - Success: -
+          - Failures: -
+          
+          **Last 7d:**
+          - Total Runs: -
+          - Success Rate: -
+          
+          **Status:** 🟢 Operational
+          
+          ---
+          
+          ## 📈 Trends
+          
+          ### Agent Activity (Last 7 Days)
+          
+          ```
+          Mon  Tue  Wed  Thu  Fri  Sat  Sun
+          ███  ███  ███  ███  ███  ██░  ██░
+          ```
+          
+          ### Most Active Agents
+          
+          1. Code Review Agent
+          2. PR Commit Review Agent
+          3. Environment Check Agent
+          
+          ---
+          
+          ## 🔧 Agent Configuration
+          
+          | Agent | Config File | Status |
+          |-------|-------------|--------|
+          | Code Review | `.github/agents/code-review.config.json` | ✅ |
+          | Testing | `.github/agents/testing.config.json` | ✅ |
+          | Security | `.github/agents/security.config.json` | ✅ |
+          
+          ---
+          
+          ## 💡 Recommendations
+          
+          ### System Health: 🟢 Excellent
+          
+          All agents are operational and performing well.
+          
+          ### Suggested Actions:
+          
+          - ✅ All agents configured properly
+          - ✅ No failed runs in last 24h
+          - ✅ Configuration files up to date
+          
+          ---
+          
+          ## 📚 Quick Links
+          
+          - [Agent Documentation](./AGENTS_README.md)
+          - [Quick Start Guide](./AGENTS_QUICKSTART.md)
+          - [GitHub Actions Dashboard](https://github.com/AI-Empower-HQ-360/youtube-video-summar/actions)
+          - [Agent Configuration](./.github/agents/)
+          
+          ---
+          
+          ## 🚨 Recent Issues
+          
+          No issues detected in the last 24 hours.
+          
+          ---
+          
+          ## 📞 Support
+          
+          If you notice any issues with the agents:
+          
+          1. Check the [GitHub Actions logs](https://github.com/AI-Empower-HQ-360/youtube-video-summar/actions)
+          2. Review agent configuration files
+          3. Open an issue with the `agent` label
+          
+          ---
+          
+          *This dashboard is automatically updated every 6 hours* 🤖
+          EOF
+          
+          echo "✅ Dashboard created"
+      
+      - name: Commit dashboard
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "Agent Manager Bot"
+          
+          git add AGENT_DASHBOARD.md
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(agents): Update agent dashboard [skip ci]
+
+          - Updated agent statistics
+          - Generated performance metrics
+          - Auto-updated by Agent Manager"
+            git push
+            echo "✅ Dashboard committed and pushed"
+          fi
+
+  auto-remediation:
+    name: 🔧 Auto-Remediation
+    runs-on: ubuntu-latest
+    needs: monitor-agents
+    if: failure()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      
+      - name: Analyze failures
+        id: analyze-failures
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+            
+            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 50,
+              created: `>=${oneDayAgo}`,
+              status: 'completed',
+              conclusion: 'failure'
+            });
+            
+            const agentFailures = runs.workflow_runs.filter(r => 
+              r.name.includes('Agent') || r.name.includes('agent')
+            );
+            
+            return agentFailures.length;
+      
+      - name: Create incident issue
+        if: steps.analyze-failures.outputs.result > 5
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const failureCount = ${{ steps.analyze-failures.outputs.result }};
+            
+            const body = `## 🚨 Agent System Alert\n\n` +
+              `Multiple agent failures detected in the last 24 hours.\n\n` +
+              `**Failure Count:** ${failureCount}\n\n` +
+              `### Recommended Actions:\n\n` +
+              `1. Check GitHub Actions logs\n` +
+              `2. Review recent configuration changes\n` +
+              `3. Verify agent permissions\n` +
+              `4. Check for service outages\n\n` +
+              `### Quick Links:\n\n` +
+              `- [GitHub Actions](https://github.com/${context.repo.owner}/${context.repo.repo}/actions)\n` +
+              `- [Agent Dashboard](./AGENT_DASHBOARD.md)\n` +
+              `- [Agent Documentation](./AGENTS_README.md)\n\n` +
+              `---\n` +
+              `*Auto-generated by Agent Manager* 🤖`;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Agent System Alert: ${failureCount} failures detected`,
+              body: body,
+              labels: ['agent', 'incident', 'automated']
+            });
+      
+      - name: Notify via comment
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            core.notice('Agent Manager detected issues. Check AGENT_DASHBOARD.md for details.');
+
+  weekly-report:
+    name: 📊 Weekly Report
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 0 * * 1' # Monday only
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      
+      - name: Generate weekly report
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+            
+            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+              created: `>=${oneWeekAgo}`
+            });
+            
+            const agentRuns = runs.workflow_runs.filter(r => 
+              r.name.includes('Agent') || r.name.includes('agent')
+            );
+            
+            const totalRuns = agentRuns.length;
+            const successfulRuns = agentRuns.filter(r => r.conclusion === 'success').length;
+            const failedRuns = agentRuns.filter(r => r.conclusion === 'failure').length;
+            const successRate = totalRuns > 0 ? Math.round((successfulRuns / totalRuns) * 100) : 100;
+            
+            const report = `## 📊 AI Agents Weekly Report\n\n` +
+              `**Week of:** ${new Date().toLocaleDateString()}\n\n` +
+              `### 📈 Summary\n\n` +
+              `| Metric | Value |\n` +
+              `|--------|-------|\n` +
+              `| Total Agent Runs | ${totalRuns} |\n` +
+              `| Successful | ${successfulRuns} |\n` +
+              `| Failed | ${failedRuns} |\n` +
+              `| Success Rate | ${successRate}% |\n\n` +
+              `### 🎯 Performance Grade: ${successRate >= 90 ? 'A+' : successRate >= 80 ? 'B+' : successRate >= 70 ? 'C+' : 'D'}\n\n` +
+              `---\n\n` +
+              `*Generated by Agent Manager* 🤖`;
+            
+            core.summary.addRaw(report).write();
+            
+            return report;

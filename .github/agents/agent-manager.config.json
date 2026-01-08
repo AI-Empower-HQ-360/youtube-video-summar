@@ -1,0 +1,92 @@
+{
+  "agentManager": {
+    "monitoring": {
+      "enabled": true,
+      "checkInterval": "6h",
+      "monitoredAgents": [
+        "Code Review Agent",
+        "Documentation Agent",
+        "Performance Agent",
+        "PR Commit Review Agent",
+        "Environment Check Agent"
+      ]
+    },
+    "healthChecks": {
+      "enabled": true,
+      "checks": [
+        "workflowFilesExist",
+        "configFilesExist",
+        "recentRunsSuccessful",
+        "noBlockedWorkflows"
+      ]
+    },
+    "metrics": {
+      "trackSuccessRate": true,
+      "trackRunDuration": true,
+      "trackFailurePatterns": true,
+      "reportingPeriod": "24h"
+    }
+  },
+  "autoRemediation": {
+    "enabled": true,
+    "createIncidentIssue": {
+      "enabled": true,
+      "failureThreshold": 5,
+      "timeWindow": "24h",
+      "labels": ["agent", "incident", "automated"]
+    },
+    "restartFailedWorkflows": {
+      "enabled": false,
+      "maxRetries": 2,
+      "retryDelay": "1h"
+    },
+    "notifyMaintainers": {
+      "enabled": true,
+      "onCriticalFailure": true,
+      "onMultipleFailures": true
+    }
+  },
+  "dashboard": {
+    "enabled": true,
+    "autoUpdate": true,
+    "updateInterval": "6h",
+    "fileName": "AGENT_DASHBOARD.md",
+    "includeMetrics": [
+      "totalRuns",
+      "successRate",
+      "recentFailures",
+      "agentHealth",
+      "trends"
+    ]
+  },
+  "reporting": {
+    "weeklyReport": {
+      "enabled": true,
+      "schedule": "Monday 9:00 AM",
+      "recipients": ["team"]
+    },
+    "realTimeAlerts": {
+      "enabled": true,
+      "alertOnFailure": true,
+      "alertOnLowSuccessRate": true,
+      "successRateThreshold": 70
+    }
+  },
+  "agentCoordination": {
+    "preventDuplicateRuns": true,
+    "queueWorkflows": false,
+    "priorityOrder": [
+      "Security Agent",
+      "Code Review Agent",
+      "Testing Agent",
+      "Documentation Agent",
+      "Performance Agent"
+    ]
+  },
+  "analytics": {
+    "enabled": true,
+    "trackAgentUsage": true,
+    "identifyBottlenecks": true,
+    "suggestOptimizations": true
+  }
+}

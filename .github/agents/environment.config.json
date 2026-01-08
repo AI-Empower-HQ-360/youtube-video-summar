@@ -1,0 +1,57 @@
+{
+  "environmentValidation": {
+    "requiredVariables": [
+      "VITE_API_URL",
+      "VITE_OPENAI_API_KEY",
+      "VITE_YOUTUBE_API_KEY",
+      "VITE_APP_NAME",
+      "VITE_APP_VERSION",
+      "NODE_ENV",
+      "PORT"
+    ],
+    "optionalVariables": [
+      "VITE_GA_TRACKING_ID",
+      "VITE_SENTRY_DSN",
+      "VITE_ENABLE_AI_SUMMARY",
+      "VITE_ENABLE_ANALYTICS"
+    ],
+    "checkForPlaceholders": true,
+    "checkForEmptyValues": true
+  },
+  "security": {
+    "scanForSecrets": true,
+    "secretPatterns": [
+      "sk-[a-zA-Z0-9]{48}",
+      "AIza[a-zA-Z0-9_-]{35}",
+      "[0-9]{10}:[a-zA-Z0-9_-]{35}",
+      "ghp_[a-zA-Z0-9]{36}",
+      "gho_[a-zA-Z0-9]{36}"
+    ],
+    "requireGitignore": true,
+    "checkGitignoreRules": [
+      ".env",
+      ".env.local",
+      ".env.*.local"
+    ]
+  },
+  "configValidation": {
+    "validatePackageJson": true,
+    "validateTsConfig": true,
+    "checkDependencyVersions": true,
+    "checkSecurityVulnerabilities": true
+  },
+  "autoGenerate": {
+    "createEnvExample": true,
+    "updateOnChange": true,
+    "includeComments": true
+  },
+  "notifications": {
+    "postReportOnPR": true,
+    "createIssueOnCritical": true,
+    "failOnMissingRequired": false
+  },
+  "consistency": {
+    "checkNodeVersionMatch": true,
+    "checkConfigAlignment": true
+  }
+}

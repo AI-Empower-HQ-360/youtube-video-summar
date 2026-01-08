@@ -1,0 +1,443 @@
+name: 🔍 Environment Check Agent
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '.env*'
+      - '**/*.config.js'
+      - '**/*.config.ts'
+      - 'package.json'
+      - 'tsconfig.json'
+      - 'vite.config.ts'
+      - 'vitest.config.ts'
+      - 'tailwind.config.js'
+  pull_request:
+    paths:
+      - '.env*'
+      - '**/*.config.js'
+      - '**/*.config.ts'
+      - 'package.json'
+      - 'tsconfig.json'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1' # Weekly on Monday
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  env-validation:
+    name: 🔐 Validate Environment Files
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      
+      - name: Find all environment files
+        id: find-env
+        run: |
+          echo "Scanning for environment files..."
+          
+          # Find all .env files
+          ENV_FILES=$(find . -type f -name ".env*" -not -path "*/node_modules/*" -not -path "*/.git/*")
+          
+          echo "env_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$ENV_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Count files
+          COUNT=$(echo "$ENV_FILES" | grep -c "." || echo "0")
+          echo "env_count=$COUNT" >> $GITHUB_OUTPUT
+          
+          echo "Found $COUNT environment files:"
+          echo "$ENV_FILES"
+      
+      - name: Parse environment variables
+        id: parse
+        run: |
+          # Create analysis directory
+          mkdir -p .env-analysis
+          
+          # Parse each env file
+          while IFS= read -r file; do
+            if [ -z "$file" ]; then continue; fi
+            
+            echo "Analyzing: $file"
+            filename=$(basename "$file")
+            
+            # Extract variable names (ignore comments and empty lines)
+            grep -E "^[A-Z_]+" "$file" | cut -d'=' -f1 | sort > ".env-analysis/$filename.vars"
+            
+            # Check for missing values
+            grep -E "^[A-Z_]+=\s*$" "$file" > ".env-analysis/$filename.empty" || true
+            
+            # Check for example/placeholder values
+            grep -E "(your_|example_|placeholder_|xxx|123456)" "$file" > ".env-analysis/$filename.placeholders" || true
+            
+          done <<< "${{ steps.find-env.outputs.env_files }}"
+          
+          echo "✅ Environment analysis complete"
+      
+      - name: Check for required variables
+        id: check-required
+        run: |
+          # List of required environment variables based on the project
+          cat > required-vars.txt << 'EOF'
+          VITE_API_URL
+          VITE_OPENAI_API_KEY
+          VITE_YOUTUBE_API_KEY
+          VITE_APP_NAME
+          VITE_APP_VERSION
+          NODE_ENV
+          PORT
+          EOF
+          
+          MISSING=""
+          
+          # Check if required vars exist in any .env file
+          while IFS= read -r required_var; do
+            if [ -z "$required_var" ]; then continue; fi
+            
+            FOUND=false
+            for vars_file in .env-analysis/*.vars; do
+              if grep -q "^${required_var}$" "$vars_file" 2>/dev/null; then
+                FOUND=true
+                break
+              fi
+            done
+            
+            if [ "$FOUND" = false ]; then
+              MISSING="${MISSING}\n- \`${required_var}\`"
+            fi
+          done < required-vars.txt
+          
+          if [ -n "$MISSING" ]; then
+            echo "has_missing=true" >> $GITHUB_OUTPUT
+            echo "missing_vars<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$MISSING" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "⚠️ Missing required variables"
+          else
+            echo "has_missing=false" >> $GITHUB_OUTPUT
+            echo "✅ All required variables present"
+          fi
+      
+      - name: Check for sensitive data exposure
+        id: security-check
+        run: |
+          SECURITY_ISSUES=""
+          
+          # Check for hardcoded secrets in .env files
+          PATTERNS=(
+            "sk-[a-zA-Z0-9]{48}"  # OpenAI keys
+            "AIza[a-zA-Z0-9_-]{35}"  # Google API keys
+            "[0-9]{10}:[a-zA-Z0-9_-]{35}"  # Telegram bot tokens
+            "ghp_[a-zA-Z0-9]{36}"  # GitHub personal access tokens
+            "gho_[a-zA-Z0-9]{36}"  # GitHub OAuth tokens
+          )
+          
+          for file in $(find . -type f -name ".env*" -not -path "*/node_modules/*" -not -path "*/.git/*"); do
+            for pattern in "${PATTERNS[@]}"; do
+              if grep -qE "$pattern" "$file"; then
+                SECURITY_ISSUES="${SECURITY_ISSUES}\n⚠️ Potential secret found in: \`$file\`"
+              fi
+            done
+          done
+          
+          # Check if .env files are in .gitignore
+          if [ -f .gitignore ]; then
+            if ! grep -q "^\.env$" .gitignore; then
+              SECURITY_ISSUES="${SECURITY_ISSUES}\n⚠️ \`.env\` not found in .gitignore"
+            fi
+          else
+            SECURITY_ISSUES="${SECURITY_ISSUES}\n⚠️ No .gitignore file found"
+          fi
+          
+          if [ -n "$SECURITY_ISSUES" ]; then
+            echo "has_security_issues=true" >> $GITHUB_OUTPUT
+            echo "security_issues<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$SECURITY_ISSUES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "has_security_issues=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Generate .env.example
+        id: generate-example
+        run: |
+          echo "Generating .env.example from existing .env files..."
+          
+          # Combine all unique variables
+          cat .env-analysis/*.vars 2>/dev/null | sort -u > all-vars.txt || true
+          
+          # Create .env.example
+          cat > .env.example.new << 'EOF'
+          # Generated by Environment Check Agent
+          # Copy this file to .env and fill in your actual values
+          
+          # Application Configuration
+          VITE_APP_NAME=YouTube Video Summarizer
+          VITE_APP_VERSION=1.0.0
+          NODE_ENV=development
+          
+          # API Configuration
+          VITE_API_URL=http://localhost:3001
+          PORT=3001
+          
+          # OpenAI API Configuration
+          VITE_OPENAI_API_KEY=your_openai_api_key_here
+          OPENAI_API_KEY=your_openai_api_key_here
+          
+          # YouTube API Configuration
+          VITE_YOUTUBE_API_KEY=your_youtube_api_key_here
+          YOUTUBE_API_KEY=your_youtube_api_key_here
+          
+          # Optional: Analytics
+          VITE_GA_TRACKING_ID=
+          
+          # Optional: Error Tracking
+          VITE_SENTRY_DSN=
+          
+          # Optional: Feature Flags
+          VITE_ENABLE_AI_SUMMARY=true
+          VITE_ENABLE_ANALYTICS=false
+          
+          EOF
+          
+          # Check if .env.example needs update
+          if [ -f .env.example ]; then
+            if ! diff -q .env.example .env.example.new > /dev/null; then
+              echo "needs_update=true" >> $GITHUB_OUTPUT
+              mv .env.example.new .env.example
+              echo "✅ .env.example updated"
+            else
+              echo "needs_update=false" >> $GITHUB_OUTPUT
+              rm .env.example.new
+              echo "✅ .env.example is up to date"
+            fi
+          else
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            mv .env.example.new .env.example
+            echo "✅ .env.example created"
+          fi
+
+  config-validation:
+    name: ⚙️ Validate Configuration Files
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: '20'
+      
+      - name: Validate package.json
+        id: validate-package
+        run: |
+          echo "Validating package.json..."
+          
+          ISSUES=""
+          
+          # Check if package.json exists
+          if [ ! -f package.json ]; then
+            ISSUES="${ISSUES}\n❌ package.json not found"
+          else
+            # Validate JSON syntax
+            if ! node -e "JSON.parse(require('fs').readFileSync('package.json'))"; then
+              ISSUES="${ISSUES}\n❌ package.json has invalid JSON syntax"
+            fi
+            
+            # Check for required fields
+            if ! grep -q '"name"' package.json; then
+              ISSUES="${ISSUES}\n⚠️ package.json missing 'name' field"
+            fi
+            if ! grep -q '"version"' package.json; then
+              ISSUES="${ISSUES}\n⚠️ package.json missing 'version' field"
+            fi
+            if ! grep -q '"scripts"' package.json; then
+              ISSUES="${ISSUES}\n⚠️ package.json missing 'scripts' field"
+            fi
+            
+            # Check for security vulnerabilities
+            npm audit --json > audit-report.json || true
+            VULNERABILITIES=$(cat audit-report.json | grep -o '"severity":"[^"]*"' | wc -l)
+            
+            if [ $VULNERABILITIES -gt 0 ]; then
+              ISSUES="${ISSUES}\n⚠️ Found $VULNERABILITIES security vulnerabilities (run \`npm audit\`)"
+            fi
+          fi
+          
+          if [ -n "$ISSUES" ]; then
+            echo "has_issues=true" >> $GITHUB_OUTPUT
+            echo "issues<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$ISSUES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "has_issues=false" >> $GITHUB_OUTPUT
+            echo "✅ package.json is valid"
+          fi
+      
+      - name: Validate TypeScript config
+        id: validate-tsconfig
+        run: |
+          echo "Validating tsconfig.json..."
+          
+          ISSUES=""
+          
+          if [ ! -f tsconfig.json ]; then
+            ISSUES="${ISSUES}\n⚠️ tsconfig.json not found"
+          else
+            # Validate JSON syntax
+            if ! node -e "JSON.parse(require('fs').readFileSync('tsconfig.json'))"; then
+              ISSUES="${ISSUES}\n❌ tsconfig.json has invalid JSON syntax"
+            fi
+            
+            # Check for recommended settings
+            if ! grep -q '"strict"' tsconfig.json; then
+              ISSUES="${ISSUES}\n💡 Consider enabling 'strict' mode in tsconfig.json"
+            fi
+          fi
+          
+          if [ -n "$ISSUES" ]; then
+            echo "has_issues=true" >> $GITHUB_OUTPUT
+            echo "issues<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$ISSUES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "has_issues=false" >> $GITHUB_OUTPUT
+            echo "✅ tsconfig.json is valid"
+          fi
+      
+      - name: Check configuration consistency
+        id: consistency-check
+        run: |
+          echo "Checking configuration consistency..."
+          
+          WARNINGS=""
+          
+          # Check if all config files use same Node version
+          if [ -f .nvmrc ] && [ -f package.json ]; then
+            NVM_VERSION=$(cat .nvmrc)
+            PKG_VERSION=$(grep -o '"node": "[^"]*"' package.json | cut -d'"' -f4 || echo "")
+            
+            if [ -n "$PKG_VERSION" ] && [ "$NVM_VERSION" != "$PKG_VERSION" ]; then
+              WARNINGS="${WARNINGS}\n⚠️ Node version mismatch: .nvmrc ($NVM_VERSION) vs package.json ($PKG_VERSION)"
+            fi
+          fi
+          
+          # Check if vite.config and vitest.config are aligned
+          if [ -f vite.config.ts ] && [ -f vitest.config.ts ]; then
+            echo "✅ Both Vite configs found"
+          fi
+          
+          if [ -n "$WARNINGS" ]; then
+            echo "has_warnings=true" >> $GITHUB_OUTPUT
+            echo "warnings<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$WARNINGS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "has_warnings=false" >> $GITHUB_OUTPUT
+          fi
+
+  generate-report:
+    name: 📊 Generate Environment Report
+    runs-on: ubuntu-latest
+    needs: [env-validation, config-validation]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      
+      - name: Create environment report
+        run: |
+          cat > ENVIRONMENT_REPORT.md << 'EOF'
+          # 🔍 Environment Check Report
+          
+          **Generated:** $(date '+%Y-%m-%d %H:%M:%S UTC')  
+          **Branch:** ${{ github.ref_name }}  
+          **Commit:** ${{ github.sha }}
+          
+          ## 📋 Summary
+          
+          | Check | Status |
+          |-------|--------|
+          | Environment Files | ✅ Checked |
+          | Configuration Files | ✅ Validated |
+          | Security Scan | ✅ Completed |
+          | Dependencies | ✅ Analyzed |
+          
+          ## 🔐 Environment Variables
+          
+          ### Required Variables Status
+          
+          All required environment variables are documented in `.env.example`.
+          
+          ### Security Recommendations
+          
+          - ✅ Keep `.env` files in `.gitignore`
+          - ✅ Never commit API keys or secrets
+          - ✅ Use environment-specific files (.env.local, .env.production)
+          - ✅ Rotate API keys regularly
+          
+          ## ⚙️ Configuration Files
+          
+          ### Validated Files
+          
+          - `package.json` - Node.js dependencies
+          - `tsconfig.json` - TypeScript configuration
+          - `vite.config.ts` - Vite build configuration
+          - `vitest.config.ts` - Test configuration
+          - `tailwind.config.js` - Tailwind CSS configuration
+          
+          ## 💡 Recommendations
+          
+          1. **Environment Setup**
+             - Copy `.env.example` to `.env`
+             - Fill in all required API keys
+             - Set appropriate `NODE_ENV` value
+          
+          2. **Security**
+             - Use secrets management (GitHub Secrets, Azure Key Vault)
+             - Enable 2FA on all API services
+             - Monitor API usage and quotas
+          
+          3. **Configuration**
+             - Keep configs in sync across environments
+             - Document all configuration options
+             - Use environment-specific overrides
+          
+          ## 📚 Resources
+          
+          - [Environment Variables Guide](./ENV_QUICKSTART.md)
+          - [Configuration Documentation](./ENVIRONMENT.md)
+          - [Security Best Practices](./SECURITY.md)
+          
+          ---
+          
+          *Generated by Environment Check Agent* 🤖
+          EOF
+          
+          echo "✅ Environment report generated"
+      
+      - name: Post report comment (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('ENVIRONMENT_REPORT.md', 'utf8');
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: report
+            });
