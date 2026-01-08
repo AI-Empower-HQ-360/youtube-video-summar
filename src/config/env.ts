@@ -70,7 +70,7 @@ export const env = {
  * @description Validate required environment variables
  */
 export function validateEnv(): void {
-  const required: Array<keyof typeof import.meta.env> = ['VITE_API_BASE_URL'];
+  const required: string[] = ['VITE_API_BASE_URL'];
   const missing = required.filter(key => !import.meta.env[key]);
 
   if (missing.length > 0 && env.IS_PROD) {
