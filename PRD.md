@@ -12,6 +12,13 @@ This is a focused tool with clear inputs and outputs - paste link, generate summ
 
 ## Essential Features
 
+### User Authentication (Sign In/Sign Up)
+- **Functionality**: Complete authentication system with sign in, sign up, and user session management
+- **Purpose**: Enable personalized features, usage tracking, and premium tier access control
+- **Trigger**: User clicks "Sign In" button in the header navigation
+- **Progression**: Click Sign In → Navigate to auth page → Choose sign in or sign up tab → Fill form → Submit → Return to home with authenticated state
+- **Success criteria**: Persistent user sessions using KV storage, form validation (email format, password strength, matching passwords), error handling for duplicate emails and invalid credentials, visual feedback on success, dropdown menu showing user name and sign out option
+
 ### What is VidNote Section
 - **Functionality**: Informational section that explains the product value proposition, core benefits, and target users
 - **Purpose**: Immediately communicate what VidNote does and why users should care before they try it
@@ -70,6 +77,12 @@ This is a focused tool with clear inputs and outputs - paste link, generate summ
 
 ## Edge Case Handling
 
+- **Duplicate Email Registration**: Clear error message that email is already registered, prompt to sign in instead
+- **Invalid Login Credentials**: Generic error message for security (don't reveal if email exists), suggest password reset
+- **Empty Form Fields**: Inline validation preventing submission, highlight empty required fields
+- **Password Mismatch**: Real-time validation showing mismatch before submission
+- **Weak Passwords**: Minimum 6 character requirement with clear error message
+- **Session Persistence**: User stays logged in across page refreshes using KV storage
 - **Invalid URLs**: Clear error message with example format, input field highlights in error state
 - **Videos Without Captions**: Friendly message explaining captions are required, suggest enabling auto-generated captions
 - **Private/Restricted Videos**: Error state explaining video must be public, privacy icon indicator

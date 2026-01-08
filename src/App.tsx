@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,12 +16,24 @@ import {
   Article, 
   ListBullets, 
   Question,
-  YoutubeLogo
+  YoutubeLogo,
+  User as UserIcon,
+  SignOut
 } from '@phosphor-icons/react';
 import { isValidYouTubeUrl, extractVideoId, getVideoTranscript, getVideoInfo } from '@/lib/youtube';
 import { generateAllContent, type GeneratedContent } from '@/lib/ai';
 import PricingSection from '@/components/PricingSection';
 import Footer from '@/components/Footer';
+import AuthPage from '@/components/AuthPage';
+import { useKV } from '@github/spark/hooks';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function App() {
   const [url, setUrl] = useState('');
@@ -31,6 +43,21 @@ export default function App() {
   const [videoInfo, setVideoInfo] = useState<{ title: string; thumbnail: string } | null>(null);
   const [content, setContent] = useState<GeneratedContent | null>(null);
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
+  const [showAuthPage, setShowAuthPage] = useState(false);
+  const [currentUser, setCurrentUser] = useKV<{ email: string; name: string } | null>('vidnote-current-user', null);
+
+  const handleSignOut = () => {
+    setCurrentUser(null);
+    toast.success('Signed out successfully');
+  };
+
+  const handleAuthSuccess = (user: { email: string; name: string }) => {
+    setShowAuthPage(false);
+  };
+
+  if (showAuthPage) {
+    return <AuthPage onBack={() => setShowAuthPage(false)} onAuthSuccess={handleAuthSuccess} />;
+  }
 
   const handleUrlChange = (value: string) => {
     setUrl(value);
@@ -90,11 +117,50 @@ export default function App() {
       <Toaster />
       <div className="container mx-auto px-6 md:px-12 py-12 max-w-5xl">
         <header className="text-center mb-12">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Sparkle size={32} weight="fill" className="text-accent" />
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight gradient-text">
-              VidNote
-            </h1>
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-32"></div>
+            <div className="flex items-center gap-2">
+              <Sparkle size={32} weight="fill" className="text-accent" />
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight gradient-text">
+                VidNote
+              </h1>
+            </div>
+            <div className="w-32 flex justify-end">
+              {currentUser ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="gap-2">
+                      <UserIcon weight="fill" />
+                      {currentUser.name}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <UserIcon className="mr-2" size={16} />
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      Billing
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                      <SignOut className="mr-2" size={16} />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button onClick={() => setShowAuthPage(true)} className="gap-2">
+                  <UserIcon weight="fill" />
+                  Sign In
+                </Button>
+              )}
+            </div>
           </div>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Turn any YouTube video into instant notes, key points, and Q&A
