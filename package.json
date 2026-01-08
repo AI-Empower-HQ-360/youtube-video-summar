@@ -21,6 +21,14 @@
         "test:ui": "vitest --ui",
         "test:run": "vitest run",
         "test:coverage": "vitest run --coverage",
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui",
+        "test:e2e:debug": "playwright test --debug",
+        "test:e2e:headed": "playwright test --headed",
+        "test:e2e:chromium": "playwright test --project=chromium",
+        "test:e2e:report": "playwright show-report",
+        "test:all": "npm run test:run && npm run test:e2e",
+        "playwright:install": "playwright install --with-deps",
         "env:validate": "node -e \"import('./src/config/env.ts').then(m => m.validateEnv())\"",
         "env:info": "node -e \"import('./src/config/env.ts').then(m => m.logEnvironmentInfo())\""
     },
@@ -89,7 +97,9 @@
         "zod": "^3.25.76"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.11.0",
         "@eslint/js": "^9.21.0",
+        "@playwright/test": "^1.57.0",
         "@tailwindcss/postcss": "^4.1.8",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.1",

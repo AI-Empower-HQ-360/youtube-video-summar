@@ -1,0 +1,195 @@
+<testsuites id="" name="" tests="8" failures="4" skipped="0" errors="0" time="43.231866000000004">
+<testsuite name="home.spec.ts" timestamp="2026-01-08T20:18:57.120Z" hostname="chromium" tests="8" failures="4" skipped="0" time="36.039" errors="0">
+<testcase name="Home Page › should load the home page successfully" classname="home.spec.ts" time="6.408">
+<failure message="home.spec.ts:8:3 should load the home page successfully" type="FAILURE">
+<![CDATA[  [chromium] › home.spec.ts:8:3 › Home Page › should load the home page successfully ───────────────
+
+    Error: expect(page).toHaveTitle(expected) failed
+
+    Expected pattern: /VidNote|YouTube Video Summarizer/i
+    Received string:  "Site not found · GitHub Pages"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveTitle" with timeout 5000ms
+        9 × unexpected value "Site not found · GitHub Pages"
+
+
+       9 |     // Wait for React to render
+      10 |     await page.waitForSelector('h1, h2, [role="main"]', { timeout: 10000 });
+    > 11 |     await expect(page).toHaveTitle(/VidNote|YouTube Video Summarizer/i);
+         |                        ^
+      12 |   });
+      13 |
+      14 |   test('should display main heading', async ({ page }) => {
+        at /workspaces/youtube-video-summar/e2e/home.spec.ts:11:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/home-Home-Page-should-load-the-home-page-successfully-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/home-Home-Page-should-load-the-home-page-successfully-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/home-Home-Page-should-load-the-home-page-successfully-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|home-Home-Page-should-load-the-home-page-successfully-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|home-Home-Page-should-load-the-home-page-successfully-chromium/video.webm]]
+
+[[ATTACHMENT|home-Home-Page-should-load-the-home-page-successfully-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Home Page › should display main heading" classname="home.spec.ts" time="0.903">
+</testcase>
+<testcase name="Home Page › should have navigation menu" classname="home.spec.ts" time="6.263">
+<failure message="home.spec.ts:19:3 should have navigation menu" type="FAILURE">
+<![CDATA[  [chromium] › home.spec.ts:19:3 › Home Page › should have navigation menu ─────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('nav')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('nav')
+
+
+      19 |   test('should have navigation menu', async ({ page }) => {
+      20 |     const nav = page.locator('nav');
+    > 21 |     await expect(nav).toBeVisible();
+         |                       ^
+      22 |   });
+      23 |
+      24 |   test('should display footer', async ({ page }) => {
+        at /workspaces/youtube-video-summar/e2e/home.spec.ts:21:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/home-Home-Page-should-have-navigation-menu-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/home-Home-Page-should-have-navigation-menu-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/home-Home-Page-should-have-navigation-menu-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|home-Home-Page-should-have-navigation-menu-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|home-Home-Page-should-have-navigation-menu-chromium/video.webm]]
+
+[[ATTACHMENT|home-Home-Page-should-have-navigation-menu-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Home Page › should display footer" classname="home.spec.ts" time="6.232">
+<failure message="home.spec.ts:24:3 should display footer" type="FAILURE">
+<![CDATA[  [chromium] › home.spec.ts:24:3 › Home Page › should display footer ───────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('footer')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('footer')
+
+
+      24 |   test('should display footer', async ({ page }) => {
+      25 |     const footer = page.locator('footer');
+    > 26 |     await expect(footer).toBeVisible();
+         |                          ^
+      27 |   });
+      28 |
+      29 |   test('should be responsive on mobile', async ({ page }) => {
+        at /workspaces/youtube-video-summar/e2e/home.spec.ts:26:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/home-Home-Page-should-display-footer-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/home-Home-Page-should-display-footer-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/home-Home-Page-should-display-footer-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|home-Home-Page-should-display-footer-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|home-Home-Page-should-display-footer-chromium/video.webm]]
+
+[[ATTACHMENT|home-Home-Page-should-display-footer-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Home Page › should be responsive on mobile" classname="home.spec.ts" time="0.836">
+</testcase>
+<testcase name="Home Page › should have customer service chat widget" classname="home.spec.ts" time="11.6">
+<failure message="home.spec.ts:34:3 should have customer service chat widget" type="FAILURE">
+<![CDATA[  [chromium] › home.spec.ts:34:3 › Home Page › should have customer service chat widget ────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[class*="chat"]').first()
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('[class*="chat"]').first()
+
+
+      35 |     // Look for chat button or widget
+      36 |     const chatWidget = page.locator('[class*="chat"]').first();
+    > 37 |     await expect(chatWidget).toBeVisible({ timeout: 10000 });
+         |                              ^
+      38 |   });
+      39 |
+      40 |   test('should not have console errors', async ({ page }) => {
+        at /workspaces/youtube-video-summar/e2e/home.spec.ts:37:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/home-Home-Page-should-have-customer-service-chat-widget-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/home-Home-Page-should-have-customer-service-chat-widget-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/home-Home-Page-should-have-customer-service-chat-widget-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|home-Home-Page-should-have-customer-service-chat-widget-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|home-Home-Page-should-have-customer-service-chat-widget-chromium/video.webm]]
+
+[[ATTACHMENT|home-Home-Page-should-have-customer-service-chat-widget-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Home Page › should not have console errors" classname="home.spec.ts" time="3.019">
+</testcase>
+<testcase name="Home Page › should load without network errors" classname="home.spec.ts" time="0.778">
+</testcase>
+</testsuite>
+</testsuites>

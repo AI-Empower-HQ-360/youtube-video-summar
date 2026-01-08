@@ -139,6 +139,40 @@ VidNote features a modern, dark-themed interface with:
 
 ---
 
+## 🧪 Testing
+
+VidNote has comprehensive test coverage:
+
+### Unit & Integration Tests (Vitest)
+```bash
+npm run test              # Run all unit tests
+npm run test:ui           # Run tests with UI
+npm run test:coverage     # Generate coverage report
+```
+
+### End-to-End Tests (Playwright)
+```bash
+npm run test:e2e          # Run all E2E tests
+npm run test:e2e:ui       # Run with interactive UI
+npm run test:e2e:debug    # Debug mode
+npm run test:e2e:report   # View test report
+```
+
+### Test Coverage
+- ✅ **100+ E2E test cases** across 8 test suites
+- ✅ **7 browser configurations** (Chrome, Firefox, Safari, Edge, Mobile)
+- ✅ **WCAG 2.1 AA accessibility** compliance
+- ✅ **50+ languages** validated
+- ✅ **Mobile responsiveness** tested on iPhone & iPad
+- ✅ **Performance benchmarks** (LCP, FID, load times)
+
+For detailed testing information, see:
+- [E2E Testing Guide](E2E_TESTING_GUIDE.md)
+- [Testing Documentation](TESTING.md)
+- [Testing Guide](TESTING_GUIDE.md)
+
+---
+
 ## 🔒 Privacy & Security
 
 - No user data is stored permanently (unless you have an account)
