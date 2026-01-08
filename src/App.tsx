@@ -56,6 +56,7 @@ export default function App() {
 
   const handleAuthSuccess = (user: { email: string; name: string }) => {
     setShowAuthPage(false);
+    setShowDashboard(true);
   };
 
   if (showAuthPage) {
