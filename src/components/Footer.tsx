@@ -1,7 +1,12 @@
 import { Sparkle, GithubLogo, TwitterLogo, EnvelopeSimple } from '@phosphor-icons/react';
 import { Separator } from '@/components/ui/separator';
 
-export default function Footer() {
+interface FooterProps {
+  onNavigateFeatures?: () => void;
+  onNavigateChangelog?: () => void;
+}
+
+export default function Footer({ onNavigateFeatures, onNavigateChangelog }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -51,12 +56,21 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
-                <a
-                  href="#features"
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Features
-                </a>
+                {onNavigateFeatures ? (
+                  <button
+                    onClick={onNavigateFeatures}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Features
+                  </button>
+                ) : (
+                  <a
+                    href="#features"
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Features
+                  </a>
+                )}
               </li>
               <li>
                 <a
@@ -75,12 +89,21 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a
-                  href="#changelog"
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Changelog
-                </a>
+                {onNavigateChangelog ? (
+                  <button
+                    onClick={onNavigateChangelog}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Changelog
+                  </button>
+                ) : (
+                  <a
+                    href="#changelog"
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    Changelog
+                  </a>
+                )}
               </li>
             </ul>
           </div>

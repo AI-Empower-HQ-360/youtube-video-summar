@@ -29,6 +29,8 @@ import Footer from '@/components/Footer';
 import AuthPage from '@/components/AuthPage';
 import DashboardPage from '@/components/DashboardPage';
 import CheckoutPage from '@/components/CheckoutPage';
+import FeaturesPage from '@/components/FeaturesPage';
+import ChangelogPage from '@/components/ChangelogPage';
 import { useKV } from '@github/spark/hooks';
 import {
   DropdownMenu,
@@ -50,6 +52,8 @@ export default function App() {
   const [showAuthPage, setShowAuthPage] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: string; period: string } | null>(null);
   const [currentUser, setCurrentUser] = useKV<{ email: string; name: string } | null>('vidnote-current-user', null);
 
@@ -87,6 +91,14 @@ export default function App() {
 
   if (showDashboard) {
     return <DashboardPage onBack={() => setShowDashboard(false)} user={currentUser || null} />;
+  }
+
+  if (showFeatures) {
+    return <FeaturesPage onBack={() => setShowFeatures(false)} />;
+  }
+
+  if (showChangelog) {
+    return <ChangelogPage onBack={() => setShowChangelog(false)} />;
   }
 
   const handleUrlChange = (value: string) => {
@@ -148,7 +160,22 @@ export default function App() {
       <div className="container mx-auto px-6 md:px-12 py-12 max-w-5xl">
         <header className="text-center mb-12">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-32"></div>
+            <div className="w-32 flex justify-start gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setShowFeatures(true)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Features
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowChangelog(true)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Changelog
+              </Button>
+            </div>
             <div className="flex items-center gap-2">
               <Sparkle size={32} weight="fill" className="text-accent" />
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight gradient-text">
@@ -538,7 +565,10 @@ export default function App() {
 
       <FAQSection />
 
-      <Footer />
+      <Footer 
+        onNavigateFeatures={() => setShowFeatures(true)}
+        onNavigateChangelog={() => setShowChangelog(true)}
+      />
     </div>
   );
 }
