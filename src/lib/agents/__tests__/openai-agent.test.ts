@@ -61,7 +61,7 @@ describe('OpenAIAgent', () => {
       
       vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
 
-      const response = await agent.process('Hello')
+      await agent.process('Hello')
 
       expect(fetch).toHaveBeenCalledWith(
         'https://api.openai.com/v1/chat/completions',

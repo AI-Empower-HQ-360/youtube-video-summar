@@ -58,7 +58,7 @@ export const useYouTube = (): UseYouTubeReturn => {
       const id = extractVideoIdLocal(url);
       setVideoId(id);
       return id;
-    } catch (err) {
+    } catch {
       setError('Failed to extract video ID');
       return null;
     }
@@ -107,7 +107,7 @@ export const useYouTube = (): UseYouTubeReturn => {
   const validateUrl = useCallback(async (url: string): Promise<boolean> => {
     try {
       return await youtubeApi.validateUrl(url);
-    } catch (err) {
+    } catch {
       return false;
     }
   }, []);

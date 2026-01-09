@@ -3,7 +3,7 @@
  * @description Custom hook for localStorage with type safety
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 // ============================================
 // HOOK

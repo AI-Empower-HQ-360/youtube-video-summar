@@ -37,37 +37,31 @@ export function downloadFile(options: DownloadOptions): void {
   const finalFilename = filename || defaultFilename;
   
   let blob: Blob;
-  let mimeType: string;
   let extension: string;
   
   switch (format) {
     case 'txt':
       blob = createTextFile(content, metadata);
-      mimeType = 'text/plain';
       extension = 'txt';
       break;
       
     case 'md':
       blob = createMarkdownFile(content, metadata);
-      mimeType = 'text/markdown';
       extension = 'md';
       break;
       
     case 'json':
       blob = createJSONFile(content, metadata);
-      mimeType = 'application/json';
       extension = 'json';
       break;
       
     case 'html':
       blob = createHTMLFile(content, metadata);
-      mimeType = 'text/html';
       extension = 'html';
       break;
       
     case 'csv':
       blob = createCSVFile(content, metadata);
-      mimeType = 'text/csv';
       extension = 'csv';
       break;
       
@@ -75,7 +69,6 @@ export function downloadFile(options: DownloadOptions): void {
       // PDF generation requires a library, show info message
       console.warn('PDF generation requires additional library. Use HTML export and print to PDF.');
       blob = createHTMLFile(content, metadata);
-      mimeType = 'text/html';
       extension = 'html';
       break;
       
@@ -392,7 +385,7 @@ function createHTMLFile(content: string | object, metadata?: any): Blob {
 /**
  * Create CSV file
  */
-function createCSVFile(content: string | object, metadata?: any): Blob {
+function createCSVFile(content: string | object, _metadata?: any): Blob {
   let csv = '';
   
   if (typeof content === 'object' && !Array.isArray(content)) {
@@ -538,7 +531,7 @@ export async function copyToClipboard(content: string): Promise<boolean> {
         document.execCommand('copy');
         document.body.removeChild(textArea);
         return true;
-      } catch (err) {
+      } catch {
         document.body.removeChild(textArea);
         return false;
       }

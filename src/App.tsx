@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -79,7 +79,7 @@ export default function App() {
     toast.success('Signed out successfully');
   };
 
-  const handleAuthSuccess = (user: { email: string; name: string }) => {
+  const handleAuthSuccess = (_user: { email: string; name: string }) => {
     setShowAuthPage(false);
     setShowDashboard(true);
   };
@@ -162,7 +162,7 @@ export default function App() {
       setCopiedSection(section);
       toast.success('Copied to clipboard!');
       setTimeout(() => setCopiedSection(null), 2000);
-    } catch (err) {
+    } catch {
       toast.error('Failed to copy');
     }
   };

@@ -3,7 +3,7 @@
  * @description UI component for selecting source and target languages
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from './ui/button';
 import { Globe, Check, ChevronDown } from 'lucide-react';
 import { 

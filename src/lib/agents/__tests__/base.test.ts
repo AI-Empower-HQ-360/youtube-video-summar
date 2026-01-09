@@ -160,7 +160,7 @@ describe('BaseAgent', () => {
 describe('AgentFactory', () => {
   beforeEach(() => {
     // Get factory instance and clear any existing agents
-    const factory = AgentFactory.getInstance()
+    AgentFactory.getInstance()
     // Clear by creating new instance (reset singleton for testing)
     vi.clearAllMocks()
   })

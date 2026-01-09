@@ -159,7 +159,7 @@ export class OpenAIAgent extends BaseAgent {
                 fullContent += content
                 yield content
               }
-            } catch (e) {
+            } catch {
               // Skip invalid JSON
             }
           }
