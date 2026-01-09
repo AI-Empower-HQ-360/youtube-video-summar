@@ -4,7 +4,7 @@
  */
 
 import axios from 'axios';
-import { YoutubeTranscript } from 'youtube-transcript';
+import { Innertube } from 'youtubei.js';
 import { ApiError } from '../utils/ApiError.js';
 
 // ============================================
