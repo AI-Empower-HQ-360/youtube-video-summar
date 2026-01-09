@@ -131,7 +131,7 @@ test.describe('Customer Service Chat', () => {
         await sendButton.click();
         
         // Typing indicator should appear
-        const typingIndicator = page.locator('text=/typing|\\.\\.\\./).first();
+        const typingIndicator = page.locator('text=/typing|\\.\\.\\./').first();
         await expect(typingIndicator).toBeVisible({ timeout: 5000 });
       }
     }

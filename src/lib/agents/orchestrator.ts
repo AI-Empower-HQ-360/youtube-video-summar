@@ -14,7 +14,7 @@ export interface OrchestrationTask {
   agentId: string
   input: string
   dependencies?: string[]
-  context?: any
+  context?: Record<string, unknown>
 }
 
 export interface OrchestrationResult {
@@ -189,7 +189,7 @@ export class AgentOrchestrator {
    * Execute agents in parallel and combine results
    */
   async executeParallel(
-    tasks: Array<{ agentId: string; input: string; context?: any }>,
+    tasks: Array<{ agentId: string; input: string; context?: Record<string, unknown> }>,
     combiner?: (results: string[]) => string
   ): Promise<string> {
     const promises = tasks.map(async task => {

@@ -22,8 +22,8 @@ export interface AgentConfig {
 export interface AgentTool {
   name: string
   description: string
-  parameters: Record<string, any>
-  execute: (params: any) => Promise<any>
+  parameters: Record<string, unknown>
+  execute: (params: Record<string, unknown>) => Promise<unknown>
 }
 
 export interface AgentMessage {
@@ -39,13 +39,13 @@ export interface AgentResponse {
     completionTokens: number
     totalTokens: number
   }
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface AgentMemory {
   shortTerm: AgentMessage[]
-  longTerm?: any[]
-  context?: Record<string, any>
+  longTerm?: AgentMessage[]
+  context?: Record<string, unknown>
 }
 
 // ============================================
@@ -83,7 +83,7 @@ export abstract class BaseAgent {
   /**
    * Process a user request
    */
-  abstract process(input: string, context?: any): Promise<AgentResponse>
+  abstract process(input: string, context?: Record<string, unknown>): Promise<AgentResponse>
 
   // ============================================
   // MEMORY MANAGEMENT
@@ -103,7 +103,7 @@ export abstract class BaseAgent {
   /**
    * Get conversation history
    */
-  protected getHistory(): AgentMessage[] {
+  public getHistory(): AgentMessage[] {
     return this.memory.shortTerm
   }
 
@@ -119,14 +119,14 @@ export abstract class BaseAgent {
   /**
    * Update context
    */
-  public setContext(key: string, value: any): void {
+  public setContext(key: string, value: unknown): void {
     this.memory.context[key] = value
   }
 
   /**
    * Get context
    */
-  public getContext(key: string): any {
+  public getContext(key: string): unknown {
     return this.memory.context[key]
   }
 
@@ -153,9 +153,16 @@ export abstract class BaseAgent {
   }
 
   /**
+   * Get agent configuration
+   */
+  public getConfig(): AgentConfig {
+    return this.config
+  }
+
+  /**
    * Log agent activity
    */
-  protected log(message: string, data?: any): void {
+  protected log(message: string, data?: unknown): void {
     if (env.ENABLE_DEBUG) {
       console.log(`[${this.config.name}]`, message, data || '')
     }

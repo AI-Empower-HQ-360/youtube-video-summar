@@ -17,7 +17,7 @@ export async function generateSummary(transcript: string): Promise<string> {
 }
 
 export async function generateKeyPoints(transcript: string): Promise<string[]> {
-  const prompt = (window.spark.llmPrompt as any)`You are an expert at extracting key information. Given this video transcript, identify the 5-8 most important takeaways, lessons, or concepts. Each point should be clear, actionable, and distinct.
+  const prompt = (window.spark.llmPrompt as unknown)`You are an expert at extracting key information. Given this video transcript, identify the 5-8 most important takeaways, lessons, or concepts. Each point should be clear, actionable, and distinct.
 
 Transcript:
 ${transcript}
@@ -33,7 +33,7 @@ Return the result as a valid JSON object with a single property called "points" 
 }
 
 export async function generateQA(transcript: string): Promise<{ question: string; answer: string }[]> {
-  const prompt = (window.spark.llmPrompt as any)`You are an expert educator. Given this video transcript, create 5-7 meaningful questions that test understanding of the content, along with comprehensive answers. Questions should range from basic comprehension to deeper application.
+  const prompt = (window.spark.llmPrompt as unknown)`You are an expert educator. Given this video transcript, create 5-7 meaningful questions that test understanding of the content, along with comprehensive answers. Questions should range from basic comprehension to deeper application.
 
 Transcript:
 ${transcript}

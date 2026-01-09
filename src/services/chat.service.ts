@@ -6,7 +6,7 @@ export interface ChatMessage {
   sender: 'user' | 'bot';
   timestamp: Date;
   type?: 'text' | 'quick-reply' | 'suggestion';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ChatSession {
@@ -21,7 +21,7 @@ export interface AIResponse {
   text: string;
   suggestions?: string[];
   quickReplies?: Array<{ text: string; action: string }>;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 class ChatService {

@@ -25,7 +25,7 @@ export class OpenAIAgent extends BaseAgent {
   /**
    * Process user input using OpenAI API
    */
-  async process(input: string, context?: any): Promise<AgentResponse> {
+  async process(input: string, context?: Record<string, unknown>): Promise<AgentResponse> {
     if (this.isProcessing) {
       throw new Error('Agent is already processing a request')
     }
@@ -101,7 +101,7 @@ export class OpenAIAgent extends BaseAgent {
    */
   async *processStream(
     input: string,
-    context?: any
+    context?: Record<string, unknown>
   ): AsyncGenerator<string, void, unknown> {
     this.addMessage('user', input)
 

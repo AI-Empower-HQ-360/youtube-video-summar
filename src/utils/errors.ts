@@ -30,7 +30,7 @@ export class AppError extends Error {
  * @label Parse API Error
  * @description Extract error message from API response
  */
-export function parseApiError(error: any): string {
+export function parseApiError(error: unknown): string {
   // Axios error with response
   if (error.response?.data?.error?.message) {
     return error.response.data.error.message;
@@ -58,7 +58,7 @@ export function parseApiError(error: any): string {
  * @label Get Error Code
  * @description Extract error code from error object
  */
-export function getErrorCode(error: any): string {
+export function getErrorCode(error: unknown): string {
   if (error.response?.status) {
     return `HTTP_${error.response.status}`;
   }
@@ -72,7 +72,7 @@ export function getErrorCode(error: any): string {
  * @label Is Network Error
  * @description Check if error is a network error
  */
-export function isNetworkError(error: any): boolean {
+export function isNetworkError(error: unknown): boolean {
   return error.request && !error.response;
 }
 
@@ -80,7 +80,7 @@ export function isNetworkError(error: any): boolean {
  * @label Is Timeout Error
  * @description Check if error is a timeout error
  */
-export function isTimeoutError(error: any): boolean {
+export function isTimeoutError(error: unknown): boolean {
   return error.code === 'ECONNABORTED' || error.message?.includes('timeout');
 }
 
@@ -88,7 +88,7 @@ export function isTimeoutError(error: any): boolean {
  * @label Is Rate Limit Error
  * @description Check if error is a rate limit error
  */
-export function isRateLimitError(error: any): boolean {
+export function isRateLimitError(error: unknown): boolean {
   return error.response?.status === 429;
 }
 
@@ -100,7 +100,7 @@ export function isRateLimitError(error: any): boolean {
  * @label Handle Error
  * @description Centralized error handling
  */
-export function handleError(error: any, defaultMessage?: string): string {
+export function handleError(error: unknown, defaultMessage?: string): string {
   console.error('Error occurred:', error);
 
   if (isNetworkError(error)) {

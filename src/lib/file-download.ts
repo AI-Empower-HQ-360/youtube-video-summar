@@ -17,8 +17,17 @@ export interface DownloadOptions {
     title?: string;
     author?: string;
     date?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
+}
+
+export interface SummaryData {
+  summary?: string;
+  keyPoints?: string[];
+  themes?: string[];
+  qaPairs?: Array<{ question: string; answer: string }>;
+  recommendations?: string[];
+  [key: string]: unknown;
 }
 
 // ============================================
@@ -98,7 +107,7 @@ export function downloadFile(options: DownloadOptions): void {
 /**
  * Create plain text file
  */
-function createTextFile(content: string | object, metadata?: any): Blob {
+function createTextFile(content: string | object, metadata?: Record<string, unknown>): Blob {
   let text = '';
   
   // Add metadata header
@@ -123,7 +132,7 @@ function createTextFile(content: string | object, metadata?: any): Blob {
 /**
  * Create Markdown file
  */
-function createMarkdownFile(content: string | object, metadata?: any): Blob {
+function createMarkdownFile(content: string | object, metadata?: Record<string, unknown>): Blob {
   let markdown = '';
   
   // Add metadata header
@@ -144,7 +153,7 @@ function createMarkdownFile(content: string | object, metadata?: any): Blob {
     markdown += content;
   } else if (typeof content === 'object') {
     // Format object as markdown
-    const obj = content as any;
+    const obj = content as SummaryData;
     
     if (obj.summary) {
       markdown += `## Summary\n\n${obj.summary}\n\n`;
@@ -168,7 +177,7 @@ function createMarkdownFile(content: string | object, metadata?: any): Blob {
     
     if (obj.qaPairs && Array.isArray(obj.qaPairs)) {
       markdown += `## Q&A\n\n`;
-      obj.qaPairs.forEach((qa: any, i: number) => {
+      obj.qaPairs.forEach((qa: { question: string; answer: string }, i: number) => {
         markdown += `### ${i + 1}. ${qa.question}\n\n${qa.answer}\n\n`;
       });
     }
@@ -188,7 +197,7 @@ function createMarkdownFile(content: string | object, metadata?: any): Blob {
 /**
  * Create JSON file
  */
-function createJSONFile(content: string | object, metadata?: any): Blob {
+function createJSONFile(content: string | object, metadata?: Record<string, unknown>): Blob {
   const data = {
     metadata: metadata || {},
     content: typeof content === 'string' ? { text: content } : content,
@@ -202,7 +211,7 @@ function createJSONFile(content: string | object, metadata?: any): Blob {
 /**
  * Create HTML file
  */
-function createHTMLFile(content: string | object, metadata?: any): Blob {
+function createHTMLFile(content: string | object, metadata?: Record<string, unknown>): Blob {
   const title = metadata?.title || 'Document';
   const date = metadata?.date || new Date().toLocaleDateString();
   
@@ -211,7 +220,7 @@ function createHTMLFile(content: string | object, metadata?: any): Blob {
   if (typeof content === 'string') {
     bodyContent = `<div class="content">${content.replace(/\n/g, '<br>')}</div>`;
   } else {
-    const obj = content as any;
+    const obj = content as SummaryData;
     
     if (obj.summary) {
       bodyContent += `<section class="summary">
@@ -241,7 +250,7 @@ function createHTMLFile(content: string | object, metadata?: any): Blob {
     if (obj.qaPairs && Array.isArray(obj.qaPairs)) {
       bodyContent += `<section class="qa">
         <h2>Questions & Answers</h2>
-        ${obj.qaPairs.map((qa: any, i: number) => `
+        ${obj.qaPairs.map((qa: { question: string; answer: string }, i: number) => `
           <div class="qa-item">
             <h3>${i + 1}. ${qa.question}</h3>
             <p>${qa.answer}</p>
@@ -385,11 +394,11 @@ function createHTMLFile(content: string | object, metadata?: any): Blob {
 /**
  * Create CSV file
  */
-function createCSVFile(content: string | object, _metadata?: any): Blob {
+function createCSVFile(content: string | object, _metadata?: Record<string, unknown>): Blob {
   let csv = '';
   
   if (typeof content === 'object' && !Array.isArray(content)) {
-    const obj = content as any;
+    const obj = content as Record<string, unknown>;
     
     // Header
     csv += 'Section,Content\n';
@@ -412,14 +421,14 @@ function createCSVFile(content: string | object, _metadata?: any): Blob {
     }
     
     if (obj.qaPairs && Array.isArray(obj.qaPairs)) {
-      obj.qaPairs.forEach((qa: any, i: number) => {
+      obj.qaPairs.forEach((qa: { question: string; answer: string }, i: number) => {
         csv += `"Question ${i + 1}","${escapeCsv(qa.question)}"\n`;
         csv += `"Answer ${i + 1}","${escapeCsv(qa.answer)}"\n`;
       });
     }
   } else if (Array.isArray(content)) {
     // Handle array of objects
-    const array = content as any[];
+    const array = content as Record<string, unknown>[];
     if (array.length > 0) {
       // Get headers from first object
       const headers = Object.keys(array[0]);
@@ -453,7 +462,7 @@ function escapeCsv(value: string): string {
 /**
  * Download summary as text
  */
-export function downloadSummaryAsText(summary: string, metadata?: any): void {
+export function downloadSummaryAsText(summary: string, metadata?: Record<string, unknown>): void {
   downloadFile({
     format: 'txt',
     content: summary,
@@ -464,7 +473,7 @@ export function downloadSummaryAsText(summary: string, metadata?: any): void {
 /**
  * Download summary as Markdown
  */
-export function downloadSummaryAsMarkdown(data: any, metadata?: any): void {
+export function downloadSummaryAsMarkdown(data: string | SummaryData, metadata?: Record<string, unknown>): void {
   downloadFile({
     format: 'md',
     content: data,
@@ -475,7 +484,7 @@ export function downloadSummaryAsMarkdown(data: any, metadata?: any): void {
 /**
  * Download summary as JSON
  */
-export function downloadSummaryAsJSON(data: any, metadata?: any): void {
+export function downloadSummaryAsJSON(data: unknown, metadata?: Record<string, unknown>): void {
   downloadFile({
     format: 'json',
     content: data,
@@ -486,7 +495,7 @@ export function downloadSummaryAsJSON(data: any, metadata?: any): void {
 /**
  * Download summary as HTML
  */
-export function downloadSummaryAsHTML(data: any, metadata?: any): void {
+export function downloadSummaryAsHTML(data: string | SummaryData, metadata?: Record<string, unknown>): void {
   downloadFile({
     format: 'html',
     content: data,
@@ -497,7 +506,7 @@ export function downloadSummaryAsHTML(data: any, metadata?: any): void {
 /**
  * Download summary as CSV
  */
-export function downloadSummaryAsCSV(data: any, metadata?: any): void {
+export function downloadSummaryAsCSV(data: string | SummaryData, metadata?: Record<string, unknown>): void {
   downloadFile({
     format: 'csv',
     content: data,

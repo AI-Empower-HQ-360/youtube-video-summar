@@ -74,8 +74,9 @@ export const useYouTube = (): UseYouTubeReturn => {
       setError(null);
       const transcriptData = await youtubeApi.getTranscript(videoId);
       setTranscript(transcriptData);
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to fetch transcript');
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: { message?: string } } } };
+      setError(error.response?.data?.error?.message || 'Failed to fetch transcript');
       throw err;
     } finally {
       setIsLoading(false);
@@ -92,8 +93,9 @@ export const useYouTube = (): UseYouTubeReturn => {
       setError(null);
       const metadataData = await youtubeApi.getMetadata(videoId);
       setMetadata(metadataData);
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to fetch metadata');
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: { message?: string } } } };
+      setError(error.response?.data?.error?.message || 'Failed to fetch metadata');
       throw err;
     } finally {
       setIsLoading(false);

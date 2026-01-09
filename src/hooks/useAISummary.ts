@@ -53,8 +53,8 @@ export const useAISummary = (): UseAISummaryReturn => {
       setResult(analysisResult)
       setSummary(analysisResult.summary)
       setKeyPoints(analysisResult.keyPoints)
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to process video'
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to process video'
       setError(errorMessage)
       throw err
     } finally {
@@ -73,8 +73,8 @@ export const useAISummary = (): UseAISummaryReturn => {
       
       const summaryText = await quickYouTubeSummary(url)
       setSummary(summaryText)
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to generate summary'
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate summary'
       setError(errorMessage)
       throw err
     } finally {
@@ -93,8 +93,8 @@ export const useAISummary = (): UseAISummaryReturn => {
       
       const points = await generateVideoKeyPoints(url)
       setKeyPoints(points)
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to extract key points'
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to extract key points'
       setError(errorMessage)
       throw err
     } finally {
@@ -112,8 +112,8 @@ export const useAISummary = (): UseAISummaryReturn => {
       setError(null)
       
       return await askVideoQuestion(url, question)
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to answer question'
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to answer question'
       setError(errorMessage)
       throw err
     } finally {

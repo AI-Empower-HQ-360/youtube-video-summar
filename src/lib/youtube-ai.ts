@@ -111,7 +111,7 @@ export async function processYouTubeVideo(
   })
 
   // Parallel processing for independent tasks
-  const parallelTasks: Promise<any>[] = []
+  const parallelTasks: Promise<unknown>[] = []
   
   // Key points extraction
   let keyPoints: string[] = []
@@ -208,7 +208,7 @@ export async function processYouTubeVideo(
     metadata: {
       processingTime,
       timestamp: new Date().toISOString(),
-      model: summarizer.config.model || 'gpt-4-turbo-preview',
+      model: summarizer.getConfig().model || 'gpt-4-turbo-preview',
       tokensUsed: 0 // Will be calculated from agent responses
     }
   }
@@ -414,7 +414,7 @@ export async function compareVideos(urls: string[]): Promise<{
         summary
       }
     })
-  ).then(results => results.filter(Boolean) as any[])
+  ).then(results => results.filter(Boolean) as Array<{ url: string; title: string; summary: string }>)
 
   // Analyze comparison
   const combinedSummaries = summaries

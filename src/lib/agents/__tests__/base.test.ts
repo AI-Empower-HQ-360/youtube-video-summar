@@ -36,9 +36,9 @@ describe('BaseAgent', () => {
 
   describe('initialization', () => {
     it('should create agent with config', () => {
-      expect(agent.config).toEqual(config)
-      expect(agent.config.name).toBe('TestAgent')
-      expect(agent.config.temperature).toBe(0.7)
+      expect(agent.getConfig()).toEqual(config)
+      expect(agent.getConfig().name).toBe('TestAgent')
+      expect(agent.getConfig().temperature).toBe(0.7)
     })
 
     it('should initialize empty memory', () => {

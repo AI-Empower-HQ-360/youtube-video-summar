@@ -69,6 +69,7 @@ export function mockApiResponse<T>(data: T, delay = 0) {
 export function mockApiError(message: string, status = 400, delay = 0) {
   return new Promise((_, reject) => {
     setTimeout(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const error = new Error(message) as any
       error.response = { status, data: { message } }
       reject(error)
