@@ -23,13 +23,13 @@ export default defineConfig({
       output: {
         manualChunks: {
           // React and core dependencies
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'react-vendor': ['react', 'react-dom'],
           // UI libraries
           'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-tabs', '@radix-ui/react-dropdown-menu', '@radix-ui/react-slot', 'framer-motion'],
           // API and state management
           'api-vendor': ['axios', '@tanstack/react-query'],
           // Utilities
-          'utils-vendor': ['clsx', 'date-fns', 'zustand'],
+          'utils-vendor': ['clsx', 'date-fns'],
           // Icons and assets
           'icons-vendor': ['lucide-react'],
         }

@@ -122,7 +122,7 @@ export async function processYouTubeVideo(
         'key takeaways',
         'important concepts'
       ]).then(result => {
-        keyPoints = Object.values(result).flat().filter(Boolean)
+        keyPoints = Object.values(result).flat().filter(Boolean) as string[]
       })
     )
   }
@@ -131,7 +131,7 @@ export async function processYouTubeVideo(
   let themes: string[] = []
   let sentiment = 'neutral'
   if (opts.includeThemes || opts.includeSentiment) {
-    const aspects = []
+    const aspects: string[] = []
     if (opts.includeThemes) aspects.push('main themes')
     if (opts.includeSentiment) aspects.push('overall sentiment')
     
@@ -178,7 +178,7 @@ export async function processYouTubeVideo(
   if (opts.includeRecommendations && generator) {
     const recPrompt = `Based on this video summary, generate 3-5 actionable recommendations or next steps for viewers:\n\n${summary}`
     const recResult = await generator.generate(recPrompt, {
-      tone: 'helpful',
+      tone: 'friendly',
       style: 'actionable'
     })
     
@@ -273,7 +273,7 @@ export async function generateVideoKeyPoints(url: string): Promise<string[]> {
     'key point 5'
   ])
 
-  return Object.values(result).filter(Boolean)
+  return Object.values(result).filter(Boolean) as string[]
 }
 
 /**

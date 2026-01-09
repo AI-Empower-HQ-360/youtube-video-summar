@@ -17,7 +17,12 @@ export async function generateSummary(transcript: string): Promise<string> {
 }
 
 export async function generateKeyPoints(transcript: string): Promise<string[]> {
-  const prompt = (window.spark.llmPrompt as unknown)`You are an expert at extracting key information. Given this video transcript, identify the 5-8 most important takeaways, lessons, or concepts. Each point should be clear, actionable, and distinct.
+  const spark = window.spark
+  if (!spark?.llmPrompt || !spark?.llm) {
+    throw new Error('Spark LLM not available');
+  }
+  
+  const promptText = `You are an expert at extracting key information. Given this video transcript, identify the 5-8 most important takeaways, lessons, or concepts. Each point should be clear, actionable, and distinct.
 
 Transcript:
 ${transcript}
@@ -27,13 +32,18 @@ Return the result as a valid JSON object with a single property called "points" 
   "points": ["First key point here", "Second key point here", ...]
 }`;
 
-  const result = await window.spark.llm(prompt, 'gpt-4o-mini', true);
+  const result = await spark.llm(promptText, 'gpt-4o-mini', true);
   const parsed = JSON.parse(result);
   return parsed.points || [];
 }
 
 export async function generateQA(transcript: string): Promise<{ question: string; answer: string }[]> {
-  const prompt = (window.spark.llmPrompt as unknown)`You are an expert educator. Given this video transcript, create 5-7 meaningful questions that test understanding of the content, along with comprehensive answers. Questions should range from basic comprehension to deeper application.
+  const spark = window.spark
+  if (!spark?.llm) {
+    throw new Error('Spark LLM not available');
+  }
+  
+  const promptText = `You are an expert educator. Given this video transcript, create 5-7 meaningful questions that test understanding of the content, along with comprehensive answers. Questions should range from basic comprehension to deeper application.
 
 Transcript:
 ${transcript}
@@ -46,7 +56,7 @@ Return the result as a valid JSON object with a single property called "qaPairs"
   ]
 }`;
 
-  const result = await window.spark.llm(prompt, 'gpt-4o-mini', true);
+  const result = await spark.llm(promptText, 'gpt-4o-mini', true);
   const parsed = JSON.parse(result);
   return parsed.qaPairs || [];
 }

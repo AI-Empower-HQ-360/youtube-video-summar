@@ -61,7 +61,7 @@ export class RateLimiter {
 
   async execute<T>(fn: () => Promise<T>): Promise<T> {
     while (this.processing >= this.maxConcurrent) {
-      await new Promise(resolve => this.queue.push(resolve))
+      await new Promise<void>(resolve => this.queue.push(() => resolve()))
     }
 
     this.processing++
