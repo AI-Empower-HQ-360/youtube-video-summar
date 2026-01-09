@@ -1,0 +1,291 @@
+name: Auto Project Management
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened, assigned, unassigned, labeled, unlabeled]
+  pull_request:
+    types: [opened, edited, closed, reopened, assigned, unassigned, labeled, unlabeled, ready_for_review, converted_to_draft, review_requested]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  auto-manage-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto Project Management
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const projectId = 'PVT_kwHODM-O-84BMQbT';
+            const statusFieldId = 'PVTSSF_lAHODM-O-84BMQbTzg7l59M';
+            const priorityFieldId = 'PVTSSF_lAHODM-O-84BMQbTzg7l6ss';
+            
+            // Status options
+            const statusOptions = {
+              todo: 'f75ad846',
+              inProgress: '47fc9ee4',
+              done: '98236657'
+            };
+            
+            // Priority options
+            const priorityOptions = {
+              critical: 'e2484330',
+              high: '5141c038',
+              medium: 'c670bdb8',
+              low: '990b8542'
+            };
+            
+            const item = context.payload.issue || context.payload.pull_request;
+            const itemId = item.node_id;
+            const action = context.payload.action;
+            const isIssue = !!context.payload.issue;
+            const isPR = !!context.payload.pull_request;
+            
+            console.log(`Processing ${isIssue ? 'issue' : 'PR'} #${item.number}, action: ${action}`);
+            
+            // Step 1: Add to project if not already there
+            try {
+              const addMutation = `
+                mutation {
+                  addProjectV2ItemById(input: {
+                    projectId: "${projectId}"
+                    contentId: "${itemId}"
+                  }) {
+                    item {
+                      id
+                    }
+                  }
+                }
+              `;
+              
+              const addResult = await github.graphql(addMutation);
+              console.log('Added to project:', addResult.addProjectV2ItemById.item.id);
+            } catch (error) {
+              console.log('Item may already be in project or error:', error.message);
+            }
+            
+            // Step 2: Get project item ID
+            const query = `
+              query {
+                node(id: "${itemId}") {
+                  ... on Issue {
+                    number
+                    title
+                    state
+                    assignees(first: 10) {
+                      nodes {
+                        login
+                      }
+                    }
+                    labels(first: 20) {
+                      nodes {
+                        name
+                      }
+                    }
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
+                  }
+                  ... on PullRequest {
+                    number
+                    title
+                    state
+                    isDraft
+                    merged
+                    assignees(first: 10) {
+                      nodes {
+                        login
+                      }
+                    }
+                    labels(first: 20) {
+                      nodes {
+                        name
+                      }
+                    }
+                    closingIssuesReferences(first: 10) {
+                      nodes {
+                        number
+                      }
+                    }
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const result = await github.graphql(query);
+            const projectItems = result.node.projectItems.nodes;
+            const projectItem = projectItems.find(pi => pi.project.id === projectId);
+            
+            if (!projectItem) {
+              console.log('Item not found in project after add attempt');
+              return;
+            }
+            
+            console.log('Project item ID:', projectItem.id);
+            
+            // Step 3: Auto-assign if not assigned
+            if (action === 'opened' && result.node.assignees.nodes.length === 0) {
+              try {
+                await github.rest.issues.addAssignees({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: item.number,
+                  assignees: [context.actor]
+                });
+                console.log(`Auto-assigned to ${context.actor}`);
+              } catch (error) {
+                console.log('Could not auto-assign:', error.message);
+              }
+            }
+            
+            // Step 4: Determine status
+            let newStatus = null;
+            const state = result.node.state;
+            const isDraft = result.node.isDraft;
+            const merged = result.node.merged;
+            const hasAssignees = result.node.assignees.nodes.length > 0;
+            
+            if (merged || (state === 'CLOSED' && isPR)) {
+              newStatus = statusOptions.done;
+              console.log('Setting status: Done (merged/closed PR)');
+            } else if (state === 'CLOSED') {
+              newStatus = statusOptions.done;
+              console.log('Setting status: Done (closed)');
+            } else if (isDraft) {
+              newStatus = statusOptions.todo;
+              console.log('Setting status: Todo (draft)');
+            } else if (hasAssignees || action === 'assigned' || action === 'ready_for_review') {
+              newStatus = statusOptions.inProgress;
+              console.log('Setting status: In Progress (assigned/ready)');
+            } else if (action === 'opened' || action === 'reopened') {
+              newStatus = statusOptions.todo;
+              console.log('Setting status: Todo (opened)');
+            }
+            
+            // Step 5: Update status
+            if (newStatus) {
+              try {
+                const statusMutation = `
+                  mutation {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: "${projectId}"
+                      itemId: "${projectItem.id}"
+                      fieldId: "${statusFieldId}"
+                      value: { singleSelectOptionId: "${newStatus}" }
+                    }) {
+                      projectV2Item {
+                        id
+                      }
+                    }
+                  }
+                `;
+                
+                await github.graphql(statusMutation);
+                console.log('Status updated successfully');
+              } catch (error) {
+                console.log('Could not update status:', error.message);
+              }
+            }
+            
+            // Step 6: Set priority based on labels
+            const labels = result.node.labels.nodes.map(l => l.name);
+            let priority = null;
+            
+            if (labels.includes('priority: high') || labels.includes('hotfix')) {
+              priority = priorityOptions.high;
+              console.log('Setting priority: High');
+            } else if (labels.includes('priority: medium')) {
+              priority = priorityOptions.medium;
+              console.log('Setting priority: Medium');
+            } else if (labels.includes('priority: low')) {
+              priority = priorityOptions.low;
+              console.log('Setting priority: Low');
+            }
+            
+            if (priority) {
+              try {
+                const priorityMutation = `
+                  mutation {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: "${projectId}"
+                      itemId: "${projectItem.id}"
+                      fieldId: "${priorityFieldId}"
+                      value: { singleSelectOptionId: "${priority}" }
+                    }) {
+                      projectV2Item {
+                        id
+                      }
+                    }
+                  }
+                `;
+                
+                await github.graphql(priorityMutation);
+                console.log('Priority updated successfully');
+              } catch (error) {
+                console.log('Could not update priority:', error.message);
+              }
+            }
+            
+            // Step 7: Link PR to closing issues
+            if (isPR && result.node.closingIssuesReferences) {
+              const closingIssues = result.node.closingIssuesReferences.nodes;
+              console.log('PR closes issues:', closingIssues.map(i => i.number).join(', '));
+              
+              // Issues are automatically linked via "Closes #X" in PR description
+              // No additional action needed - GitHub handles this
+            }
+            
+            // Step 8: Post summary comment
+            if (action === 'opened') {
+              const emoji = isIssue ? '📋' : '🔀';
+              const type = isIssue ? 'Issue' : 'Pull Request';
+              
+              let comment = `${emoji} **Auto Project Management**\n\n`;
+              comment += `✅ Added to [VidNote - Development Roadmap](https://github.com/users/AI-Empower-HQ-360/projects/4)\n`;
+              comment += `✅ Status set to: **${newStatus === statusOptions.todo ? 'Todo' : newStatus === statusOptions.inProgress ? 'In Progress' : 'Done'}**\n`;
+              
+              if (priority) {
+                const priorityName = priority === priorityOptions.high ? 'High' : 
+                                   priority === priorityOptions.medium ? 'Medium' : 'Low';
+                comment += `✅ Priority set to: **${priorityName}**\n`;
+              }
+              
+              if (result.node.assignees.nodes.length > 0) {
+                const assignees = result.node.assignees.nodes.map(a => `@${a.login}`).join(', ');
+                comment += `✅ Assigned to: ${assignees}\n`;
+              }
+              
+              comment += `\n📊 View in [Project Board](https://github.com/users/AI-Empower-HQ-360/projects/4)`;
+              
+              try {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: item.number,
+                  body: comment
+                });
+              } catch (error) {
+                console.log('Could not post comment:', error.message);
+              }
+            }
+            
+            console.log('Auto project management complete!');
