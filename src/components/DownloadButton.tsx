@@ -55,7 +55,7 @@ export function DownloadButton({
   const handleDownload = (format: DownloadFormat) => {
     switch (format) {
       case 'txt':
-        downloadSummaryAsText(typeof data === 'string' ? data : data.summary, metadata);
+        downloadSummaryAsText(typeof data === 'string' ? data : data.summary, metadata || {});
         break;
       case 'md':
         downloadSummaryAsMarkdown(data, metadata);
