@@ -1,0 +1,113 @@
+name: Smart PR Review & Comments
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  auto-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Analyze PR and comment
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            
+            // Analyze changes
+            const stats = {
+              filesChanged: files.length,
+              additions: pr.additions,
+              deletions: pr.deletions,
+              hasTests: files.some(f => f.filename.includes('test') || f.filename.includes('spec')),
+              hasDocs: files.some(f => f.filename.endsWith('.md')),
+              hasConfig: files.some(f => f.filename.includes('config') || f.filename.includes('package.json')),
+              touchesWorkflows: files.some(f => f.filename.startsWith('.github/workflows/')),
+              touchesSrc: files.some(f => f.filename.startsWith('src/') || f.filename.startsWith('server/src/')),
+            };
+            
+            // Build review comment
+            let comment = '🤖 **Automated PR Analysis**\n\n';
+            comment += '### 📊 Change Summary\n';
+            comment += `- **Files changed:** ${stats.filesChanged}\n`;
+            comment += `- **Lines added:** ${stats.additions} ➕\n`;
+            comment += `- **Lines deleted:** ${stats.deletions} ➖\n\n`;
+            
+            comment += '### ✅ Checklist\n';
+            comment += `- [${stats.hasTests ? 'x' : ' '}] Tests included\n`;
+            comment += `- [${stats.hasDocs ? 'x' : ' '}] Documentation updated\n`;
+            comment += `- [ ] Breaking changes documented\n`;
+            comment += `- [ ] Changelog updated\n\n`;
+            
+            // Add specific recommendations
+            if (stats.additions > 500) {
+              comment += '⚠️ **Large PR detected** - Consider breaking this into smaller PRs for easier review.\n\n';
+            }
+            
+            if (stats.touchesSrc && !stats.hasTests) {
+              comment += '⚠️ **No tests found** - Consider adding tests for source code changes.\n\n';
+            }
+            
+            if (stats.touchesWorkflows) {
+              comment += '🔧 **Workflow changes detected** - Ensure all workflow changes are tested.\n\n';
+            }
+            
+            comment += '### 🚀 Quick Actions\n';
+            comment += '- To enable auto-merge: Add the `auto-merge` label\n';
+            comment += '- To request review: Assign reviewers or mention @AI-Empower-HQ-360\n';
+            comment += '- To mark as work-in-progress: Convert to draft\n';
+            
+            // Post comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: comment
+            });
+            
+            // Auto-add labels based on changes
+            const labels = [];
+            
+            if (stats.touchesSrc) {
+              labels.push('type: feature');
+            }
+            
+            if (stats.touchesWorkflows) {
+              labels.push('type: enhancement');
+            }
+            
+            if (stats.additions > 500 || stats.filesChanged > 20) {
+              labels.push('size: large');
+            } else if (stats.additions > 100 || stats.filesChanged > 5) {
+              labels.push('size: medium');
+            } else {
+              labels.push('size: small');
+            }
+            
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: labels
+              });
+            }

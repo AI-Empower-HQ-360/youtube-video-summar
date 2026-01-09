@@ -1,0 +1,149 @@
+name: Sync Project Status
+
+on:
+  issues:
+    types: [opened, closed, reopened, assigned]
+  pull_request:
+    types: [opened, closed, reopened, assigned, converted_to_draft, ready_for_review]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  sync-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update project status
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const projectId = 'PVT_kwHODM-O-84BMQbT';
+            const statusFieldId = 'PVTSSF_lAHODM-O-84BMQbTzg7l59M';
+            const priorityFieldId = 'PVTSSF_lAHODM-O-84BMQbTzg7l6ss';
+            
+            // Status option IDs
+            const statusOptions = {
+              todo: 'f75ad846',
+              inProgress: '47fc9ee4',
+              done: '98236657'
+            };
+            
+            // Priority option IDs
+            const priorityOptions = {
+              critical: 'e2484330',
+              high: '5141c038',
+              medium: 'c670bdb8',
+              low: '990b8542'
+            };
+            
+            const item = context.payload.issue || context.payload.pull_request;
+            const itemId = item.node_id;
+            const action = context.payload.action;
+            
+            // Get project item
+            const query = `
+              query {
+                node(id: "${itemId}") {
+                  ... on Issue {
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
+                  }
+                  ... on PullRequest {
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const result = await github.graphql(query);
+            const projectItems = result.node.projectItems.nodes;
+            const projectItem = projectItems.find(pi => pi.project.id === projectId);
+            
+            if (!projectItem) {
+              console.log('Item not in project');
+              return;
+            }
+            
+            // Determine new status
+            let newStatus = null;
+            
+            if (action === 'opened' || action === 'reopened') {
+              newStatus = statusOptions.todo;
+            } else if (action === 'assigned') {
+              newStatus = statusOptions.inProgress;
+            } else if (action === 'closed' && item.state === 'closed') {
+              newStatus = statusOptions.done;
+            } else if (action === 'ready_for_review') {
+              newStatus = statusOptions.inProgress;
+            } else if (action === 'converted_to_draft') {
+              newStatus = statusOptions.todo;
+            }
+            
+            if (newStatus) {
+              const mutation = `
+                mutation {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: "${projectId}"
+                    itemId: "${projectItem.id}"
+                    fieldId: "${statusFieldId}"
+                    value: { singleSelectOptionId: "${newStatus}" }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `;
+              
+              await github.graphql(mutation);
+              console.log(`Updated status for item ${projectItem.id}`);
+            }
+            
+            // Set priority based on labels
+            if (item.labels) {
+              const labels = item.labels.map(l => l.name);
+              let priority = null;
+              
+              if (labels.includes('priority: high')) {
+                priority = priorityOptions.high;
+              } else if (labels.includes('priority: medium')) {
+                priority = priorityOptions.medium;
+              } else if (labels.includes('priority: low')) {
+                priority = priorityOptions.low;
+              }
+              
+              if (priority) {
+                const mutation = `
+                  mutation {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: "${projectId}"
+                      itemId: "${projectItem.id}"
+                      fieldId: "${priorityFieldId}"
+                      value: { singleSelectOptionId: "${priority}" }
+                    }) {
+                      projectV2Item {
+                        id
+                      }
+                    }
+                  }
+                `;
+                
+                await github.graphql(mutation);
+                console.log(`Updated priority for item ${projectItem.id}`);
+              }
+            }
