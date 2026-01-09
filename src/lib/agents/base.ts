@@ -118,8 +118,9 @@ export abstract class BaseAgent {
    * Clear short-term memory
    */
   public clearMemory(): void {
-    this.memory.shortTerm = this.config?.systemPrompt
-      ? [{ role: 'system', content: this.config.systemPrompt, timestamp: new Date() }]
+    const systemPrompt = this.config.systemPrompt;
+    this.memory.shortTerm = systemPrompt
+      ? [{ role: 'system', content: systemPrompt, timestamp: new Date() }]
       : []
   }
 

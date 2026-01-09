@@ -53,21 +53,22 @@ export function DownloadButton({
   const [copied, setCopied] = useState(false);
 
   const handleDownload = (format: DownloadFormat) => {
+    const dataStr = typeof data === 'string' ? data : (data as any)?.summary || JSON.stringify(data);
     switch (format) {
       case 'txt':
-        downloadSummaryAsText(typeof data === 'string' ? data : data.summary, metadata || {});
+        downloadSummaryAsText(dataStr, metadata || {});
         break;
       case 'md':
-        downloadSummaryAsMarkdown(data, metadata);
+        downloadSummaryAsMarkdown(data as any, metadata);
         break;
       case 'json':
         downloadSummaryAsJSON(data, metadata);
         break;
       case 'html':
-        downloadSummaryAsHTML(data, metadata);
+        downloadSummaryAsHTML(data as any, metadata);
         break;
       case 'csv':
-        downloadSummaryAsCSV(data, metadata);
+        downloadSummaryAsCSV(data as any, metadata);
         break;
     }
     setIsOpen(false);
