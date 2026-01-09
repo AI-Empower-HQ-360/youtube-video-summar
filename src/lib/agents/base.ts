@@ -103,7 +103,7 @@ export abstract class BaseAgent {
   /**
    * Get conversation history
    */
-  protected getHistory(): AgentMessage[] {
+  public getHistory(): AgentMessage[] {
     return this.memory.shortTerm
   }
 
@@ -150,6 +150,13 @@ export abstract class BaseAgent {
    */
   public getIsProcessing(): boolean {
     return this.isProcessing
+  }
+
+  /**
+   * Get agent configuration
+   */
+  public getConfig(): AgentConfig {
+    return this.config
   }
 
   /**

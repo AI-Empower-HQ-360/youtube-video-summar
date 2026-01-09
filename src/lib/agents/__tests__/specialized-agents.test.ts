@@ -45,8 +45,8 @@ describe('SummarizationAgent', () => {
   })
 
   it('should create with default config', () => {
-    expect(agent.config.name).toBe('Summarization Agent')
-    expect(agent.config.temperature).toBe(0.3)
+    expect(agent.getConfig().name).toBe('Summarization Agent')
+    expect(agent.getConfig().temperature).toBe(0.3)
   })
 
   it('should summarize content', async () => {
@@ -98,8 +98,8 @@ describe('AnalysisAgent', () => {
   })
 
   it('should create with default config', () => {
-    expect(agent.config.name).toBe('Analysis Agent')
-    expect(agent.config.temperature).toBe(0.5)
+    expect(agent.getConfig().name).toBe('Analysis Agent')
+    expect(agent.getConfig().temperature).toBe(0.5)
   })
 
   it('should analyze content', async () => {
@@ -135,8 +135,8 @@ describe('ContentGenerationAgent', () => {
   })
 
   it('should create with default config', () => {
-    expect(agent.config.name).toBe('Content Generation Agent')
-    expect(agent.config.temperature).toBe(0.8)
+    expect(agent.getConfig().name).toBe('Content Generation Agent')
+    expect(agent.getConfig().temperature).toBe(0.8)
   })
 
   it('should generate content from prompt', async () => {
@@ -176,8 +176,8 @@ describe('ExtractionAgent', () => {
   })
 
   it('should create with default config', () => {
-    expect(agent.config.name).toBe('Extraction Agent')
-    expect(agent.config.temperature).toBe(0.1)
+    expect(agent.getConfig().name).toBe('Extraction Agent')
+    expect(agent.getConfig().temperature).toBe(0.1)
   })
 
   it('should extract fields from content', async () => {
@@ -216,8 +216,8 @@ describe('QAAgent', () => {
   })
 
   it('should create with default config', () => {
-    expect(agent.config.name).toBe('Q&A Agent')
-    expect(agent.config.temperature).toBe(0.4)
+    expect(agent.getConfig().name).toBe('Q&A Agent')
+    expect(agent.getConfig().temperature).toBe(0.4)
   })
 
   it('should answer question with context', async () => {
@@ -254,8 +254,8 @@ describe('TranslationAgent', () => {
   })
 
   it('should create with default config', () => {
-    expect(agent.config.name).toBe('Translation Agent')
-    expect(agent.config.temperature).toBe(0.3)
+    expect(agent.getConfig().name).toBe('Translation Agent')
+    expect(agent.getConfig().temperature).toBe(0.3)
   })
 
   it('should translate to target language', async () => {

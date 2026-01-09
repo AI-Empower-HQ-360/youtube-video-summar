@@ -28,8 +28,8 @@ describe('OpenAIAgent', () => {
 
   describe('initialization', () => {
     it('should create agent with config', () => {
-      expect(agent.config).toEqual(config)
-      expect(agent.config.model).toBe('gpt-4-turbo-preview')
+      expect(agent.getConfig()).toEqual(config)
+      expect(agent.getConfig().model).toBe('gpt-4-turbo-preview')
     })
 
     it('should use default model if not specified', () => {
@@ -37,7 +37,7 @@ describe('OpenAIAgent', () => {
         name: 'Test',
         description: 'Test'
       })
-      expect(agentWithoutModel.config.model).toBe('gpt-4-turbo-preview')
+      expect(agentWithoutModel.getConfig().model).toBe('gpt-4-turbo-preview')
     })
   })
 

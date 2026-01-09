@@ -208,7 +208,7 @@ export async function processYouTubeVideo(
     metadata: {
       processingTime,
       timestamp: new Date().toISOString(),
-      model: summarizer.config.model || 'gpt-4-turbo-preview',
+      model: summarizer.getConfig().model || 'gpt-4-turbo-preview',
       tokensUsed: 0 // Will be calculated from agent responses
     }
   }
