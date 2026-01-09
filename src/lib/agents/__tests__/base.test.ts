@@ -141,7 +141,7 @@ describe('BaseAgent', () => {
     it('should include token usage in response', async () => {
       const response = await agent.process('test')
       
-      expect(response.metadata.tokensUsed).toEqual({
+      expect(response.metadata?.tokensUsed).toEqual({
         prompt: 10,
         completion: 20,
         total: 30
@@ -151,8 +151,8 @@ describe('BaseAgent', () => {
     it('should include timestamp in response', async () => {
       const response = await agent.process('test')
       
-      expect(response.metadata.timestamp).toBeDefined()
-      expect(new Date(response.metadata.timestamp).getTime()).toBeLessThanOrEqual(Date.now())
+      expect(response.metadata?.timestamp).toBeDefined()
+      expect(response.metadata?.timestamp ? new Date(response.metadata.timestamp).getTime() : 0).toBeLessThanOrEqual(Date.now())
     })
   })
 })

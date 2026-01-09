@@ -73,7 +73,7 @@ export async function processYouTubeVideo(
   const summarizer = manager.getSummarizer()
   const analyzer = manager.getAnalyzer()
   const extractor = manager.getExtractor()
-  const qaAgent = manager.getQAAgent()
+  const qaAgent = manager.getQA()
   const generator = manager.getGenerator()
 
   if (!summarizer || !analyzer || !extractor) {
@@ -331,7 +331,7 @@ export async function askVideoQuestion(
 
   const transcript = await getVideoTranscript(videoId)
   const manager = getAgentManager()
-  const qaAgent = manager.getQAAgent()
+  const qaAgent = manager.getQA()
   
   if (!qaAgent) {
     throw new Error('Q&A agent not initialized')

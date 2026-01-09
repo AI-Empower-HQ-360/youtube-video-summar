@@ -101,6 +101,13 @@ export abstract class BaseAgent {
   }
 
   /**
+   * Add to memory (public wrapper for testing)
+   */
+  public addToMemory(role: AgentMessage['role'], content: string): void {
+    this.addMessage(role, content)
+  }
+
+  /**
    * Get conversation history
    */
   public getHistory(): AgentMessage[] {
@@ -111,7 +118,7 @@ export abstract class BaseAgent {
    * Clear short-term memory
    */
   public clearMemory(): void {
-    this.memory.shortTerm = this.config.systemPrompt
+    this.memory.shortTerm = this.config?.systemPrompt
       ? [{ role: 'system', content: this.config.systemPrompt, timestamp: new Date() }]
       : []
   }
@@ -183,7 +190,18 @@ export abstract class BaseAgent {
 // ============================================
 
 export class AgentFactory {
+  private static instance: AgentFactory | null = null
   private static agents = new Map<string, BaseAgent>()
+
+  /**
+   * Get singleton instance
+   */
+  static getInstance(): AgentFactory {
+    if (!this.instance) {
+      this.instance = new AgentFactory()
+    }
+    return this.instance
+  }
 
   /**
    * Register an agent

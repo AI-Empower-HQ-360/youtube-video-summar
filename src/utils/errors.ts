@@ -31,24 +31,25 @@ export class AppError extends Error {
  * @description Extract error message from API response
  */
 export function parseApiError(error: unknown): string {
+  const err = error as Record<string, any>;
   // Axios error with response
-  if (error.response?.data?.error?.message) {
-    return error.response.data.error.message;
+  if (err.response?.data?.error?.message) {
+    return String(err.response.data.error.message);
   }
 
   // Axios error with message
-  if (error.response?.data?.message) {
-    return error.response.data.message;
+  if (err.response?.data?.message) {
+    return String(err.response.data.message);
   }
 
   // Network error
-  if (error.request && !error.response) {
+  if (err.request && !err.response) {
     return 'Network error. Please check your connection and try again.';
   }
 
   // Generic error
-  if (error.message) {
-    return error.message;
+  if (err.message) {
+    return String(err.message);
   }
 
   return 'An unexpected error occurred. Please try again.';
@@ -59,11 +60,12 @@ export function parseApiError(error: unknown): string {
  * @description Extract error code from error object
  */
 export function getErrorCode(error: unknown): string {
-  if (error.response?.status) {
-    return `HTTP_${error.response.status}`;
+  const err = error as Record<string, any>;
+  if (err.response?.status) {
+    return `HTTP_${err.response.status}`;
   }
-  if (error.code) {
-    return error.code;
+  if (err.code) {
+    return String(err.code);
   }
   return 'UNKNOWN_ERROR';
 }
@@ -73,7 +75,8 @@ export function getErrorCode(error: unknown): string {
  * @description Check if error is a network error
  */
 export function isNetworkError(error: unknown): boolean {
-  return error.request && !error.response;
+  const err = error as Record<string, any>;
+  return !!(err.request && !err.response);
 }
 
 /**
@@ -81,7 +84,8 @@ export function isNetworkError(error: unknown): boolean {
  * @description Check if error is a timeout error
  */
 export function isTimeoutError(error: unknown): boolean {
-  return error.code === 'ECONNABORTED' || error.message?.includes('timeout');
+  const err = error as Record<string, any>;
+  return err.code === 'ECONNABORTED' || String(err.message || '').toLowerCase().includes('timeout');
 }
 
 /**
@@ -89,7 +93,8 @@ export function isTimeoutError(error: unknown): boolean {
  * @description Check if error is a rate limit error
  */
 export function isRateLimitError(error: unknown): boolean {
-  return error.response?.status === 429;
+  const err = error as Record<string, any>;
+  return err.response?.status === 429;
 }
 
 // ============================================
