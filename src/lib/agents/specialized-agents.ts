@@ -174,7 +174,7 @@ export class ExtractionAgent extends OpenAIAgent {
     })
   }
 
-  async extract(content: string, fields: string[]): Promise<Record<string, any>> {
+  async extract(content: string, fields: string[]): Promise<Record<string, unknown>> {
     const prompt = `Extract the following information from the content:
 
 Fields to extract: ${fields.join(', ')}

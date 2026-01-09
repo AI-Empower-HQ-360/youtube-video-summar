@@ -123,7 +123,7 @@ export function extractCodeBlocks(content: string): Array<{ language: string; co
   return blocks
 }
 
-export function extractJSON<T = any>(content: string): T | null {
+export function extractJSON<T = unknown>(content: string): T | null {
   try {
     const jsonMatch = content.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
@@ -156,7 +156,7 @@ export function extractList(content: string): string[] {
 export class PromptTemplate {
   constructor(private template: string) {}
 
-  format(variables: Record<string, any>): string {
+  format(variables: Record<string, unknown>): string {
     let result = this.template
 
     for (const [key, value] of Object.entries(variables)) {

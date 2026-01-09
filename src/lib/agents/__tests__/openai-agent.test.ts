@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { OpenAIAgent } from '../openai-agent'
 import type { AgentConfig } from '../base'

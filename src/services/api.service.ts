@@ -80,7 +80,7 @@ export const apiService = {
   /**
    * @label GET Request
    */
-  get: async <T>(url: string, params?: any): Promise<T> => {
+  get: async <T>(url: string, params?: Record<string, unknown>): Promise<T> => {
     const response = await apiClient.get<T>(url, { params });
     return response.data;
   },
@@ -88,7 +88,7 @@ export const apiService = {
   /**
    * @label POST Request
    */
-  post: async <T>(url: string, data?: any): Promise<T> => {
+  post: async <T>(url: string, data?: unknown): Promise<T> => {
     const response = await apiClient.post<T>(url, data);
     return response.data;
   },
@@ -96,7 +96,7 @@ export const apiService = {
   /**
    * @label PUT Request
    */
-  put: async <T>(url: string, data?: any): Promise<T> => {
+  put: async <T>(url: string, data?: unknown): Promise<T> => {
     const response = await apiClient.put<T>(url, data);
     return response.data;
   },

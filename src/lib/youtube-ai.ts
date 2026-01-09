@@ -111,7 +111,7 @@ export async function processYouTubeVideo(
   })
 
   // Parallel processing for independent tasks
-  const parallelTasks: Promise<any>[] = []
+  const parallelTasks: Promise<unknown>[] = []
   
   // Key points extraction
   let keyPoints: string[] = []
@@ -414,7 +414,7 @@ export async function compareVideos(urls: string[]): Promise<{
         summary
       }
     })
-  ).then(results => results.filter(Boolean) as any[])
+  ).then(results => results.filter(Boolean) as Array<{ url: string; title: string; summary: string }>)
 
   // Analyze comparison
   const combinedSummaries = summaries

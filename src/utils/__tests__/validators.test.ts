@@ -32,8 +32,11 @@ describe('validators', () => {
     })
 
     it('should handle edge cases', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(isValidYouTubeUrl(null as any)).toBe(false)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(isValidYouTubeUrl(undefined as any)).toBe(false)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(isValidYouTubeUrl(123 as any)).toBe(false)
     })
   })

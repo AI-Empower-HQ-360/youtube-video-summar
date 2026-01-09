@@ -16,16 +16,25 @@ import {
   type DownloadFormat
 } from '../lib/file-download';
 
+interface SummaryData {
+  summary?: string;
+  keyPoints?: string[];
+  qaPairs?: Array<{ question: string; answer: string }>;
+  [key: string]: unknown;
+}
+
+interface MetadataInfo {
+  title?: string;
+  author?: string;
+  date?: string;
+  url?: string;
+  detectedLanguage?: string;
+  [key: string]: unknown;
+}
+
 interface DownloadButtonProps {
-  data: any;
-  metadata?: {
-    title?: string;
-    author?: string;
-    date?: string;
-    url?: string;
-    detectedLanguage?: string;
-    [key: string]: any;
-  };
+  data: string | SummaryData;
+  metadata?: MetadataInfo;
   variant?: 'default' | 'outline' | 'ghost';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   showLabel?: boolean;

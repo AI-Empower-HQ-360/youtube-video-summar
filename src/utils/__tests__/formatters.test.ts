@@ -22,6 +22,7 @@ describe('formatters', () => {
     it('should handle edge cases', () => {
       expect(formatDuration(0)).toBe('0:00')
       expect(formatDuration(-10)).toBe('0:00')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(formatDuration(null as any)).toBe('0:00')
     })
 

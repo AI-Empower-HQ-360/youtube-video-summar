@@ -53,8 +53,9 @@ export const useSummary = (): UseSummaryReturn => {
       setError(null);
       const summaryData = await summaryApi.generateSummary(transcript);
       setSummary(summaryData);
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to generate summary');
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: { message?: string } } } };
+      setError(error.response?.data?.error?.message || 'Failed to generate summary');
       throw err;
     } finally {
       setIsGenerating(false);
@@ -71,8 +72,9 @@ export const useSummary = (): UseSummaryReturn => {
       setError(null);
       const points = await summaryApi.generateKeyPoints(transcript);
       setKeyPoints(points);
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to generate key points');
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: { message?: string } } } };
+      setError(error.response?.data?.error?.message || 'Failed to generate key points');
       throw err;
     } finally {
       setIsGenerating(false);
@@ -89,8 +91,9 @@ export const useSummary = (): UseSummaryReturn => {
       setError(null);
       const qa = await summaryApi.generateQA(transcript);
       setQAPairs(qa);
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to generate Q&A');
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: { message?: string } } } };
+      setError(error.response?.data?.error?.message || 'Failed to generate Q&A');
       throw err;
     } finally {
       setIsGenerating(false);
@@ -109,8 +112,9 @@ export const useSummary = (): UseSummaryReturn => {
       setSummary(data.summary);
       setKeyPoints(data.keyPoints);
       setQAPairs(data.qaPairs);
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to generate analysis');
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: { message?: string } } } };
+      setError(error.response?.data?.error?.message || 'Failed to generate analysis');
       throw err;
     } finally {
       setIsGenerating(false);
