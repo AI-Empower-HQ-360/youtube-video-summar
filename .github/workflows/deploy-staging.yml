@@ -1,0 +1,99 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - staging
+      - release/*
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Staging Environment
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.vidnote.ai
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd server && npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run type check
+        run: npm run type-check
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          NODE_ENV: staging
+          VITE_API_URL: ${{ secrets.STAGING_API_URL }}
+          VITE_OPENAI_API_KEY: ${{ secrets.STAGING_OPENAI_API_KEY }}
+          VITE_GA_MEASUREMENT_ID: ${{ secrets.STAGING_GA_MEASUREMENT_ID }}
+
+      - name: Build backend
+        run: |
+          cd server
+          npm run build
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          BASE_URL: https://staging.vidnote.ai
+
+      - name: Deploy to Staging
+        run: |
+          echo "🚀 Deploying to staging environment..."
+          # Add your deployment commands here
+        env:
+          DEPLOY_TOKEN: ${{ secrets.STAGING_DEPLOY_TOKEN }}
+
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests..."
+          sleep 15
+          curl -f https://staging.vidnote.ai/health || exit 1
+          curl -f https://staging.vidnote.ai/api/health || exit 1
+
+      - name: Performance audit
+        run: |
+          npx lighthouse https://staging.vidnote.ai \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --chrome-flags="--headless" \
+            --output=json \
+            --output-path=./lighthouse-report.json
+
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: lighthouse-report.json
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ Staging deployment successful"
+          else
+            echo "❌ Staging deployment failed"
+          fi
