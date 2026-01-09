@@ -27,12 +27,12 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@064fe7f3312418007dea2b49a19844a9ee378f49 # v4
         with:
           ref: ${{ github.event.inputs.version || github.ref }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -77,7 +77,7 @@ jobs:
             server/package-lock.json
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
         with:
           name: production-build
           path: deployment-${{ github.sha }}.tar.gz
@@ -139,7 +139,7 @@ jobs:
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/create-release@v1
+        uses: actions/create-release@89e8dc236279a907f495cdc4ebff2056b7036b3d # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
