@@ -129,7 +129,7 @@ export function extractJSON<T = any>(content: string): T | null {
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0])
     }
-  } catch (e) {
+  } catch {
     // Failed to parse
   }
   return null

@@ -158,7 +158,7 @@ class ChatService {
         { context }
       );
       return response.suggestions;
-    } catch (error) {
+    } catch {
       return this.getDefaultSuggestions();
     }
   }

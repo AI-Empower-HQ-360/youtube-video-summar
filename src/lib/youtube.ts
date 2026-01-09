@@ -51,7 +51,7 @@ export async function getVideoTranscript(videoId: string): Promise<string> {
       .replace(/&gt;/g, '>');
 
     return transcript;
-  } catch (error) {
+  } catch {
     throw new Error('Failed to fetch transcript. Make sure the video has captions enabled.');
   }
 }
@@ -67,7 +67,7 @@ export async function getVideoInfo(videoId: string): Promise<{ title: string; th
     const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
     
     return { title, thumbnail };
-  } catch (error) {
+  } catch {
     return {
       title: 'Unknown Video',
       thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
