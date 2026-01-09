@@ -33,10 +33,10 @@ interface MetadataInfo {
 }
 
 interface DownloadButtonProps {
-  data: string | SummaryData;
+  data: unknown;
   metadata?: MetadataInfo;
   variant?: 'default' | 'outline' | 'ghost';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
+  size?: 'default' | 'sm' | 'default' | 'lg' | 'icon';
   showLabel?: boolean;
   className?: string;
 }
