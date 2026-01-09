@@ -7,9 +7,10 @@
 Created three comprehensive deployment workflows with full commit SHA pinning for security compliance:
 
 #### **Development Workflow** (.github/workflows/deploy-development.yml)
+
 - **Branch**: `develop`
-- **URL**: https://dev.vidnote.ai
-- **Triggers**: 
+- **URL**: <https://dev.vidnote.ai>
+- **Triggers**:
   - Push to develop branch
   - Manual workflow dispatch
 - **Features**:
@@ -18,8 +19,9 @@ Created three comprehensive deployment workflows with full commit SHA pinning fo
   - Auto-deployment enabled
 
 #### **Staging Workflow** (.github/workflows/deploy-staging.yml)
+
 - **Branch**: `staging`
-- **URL**: https://staging.vidnote.ai
+- **URL**: <https://staging.vidnote.ai>
 - **Triggers**:
   - Push to staging branch
   - Push to release/* branches
@@ -32,8 +34,9 @@ Created three comprehensive deployment workflows with full commit SHA pinning fo
   - Auto-deployment enabled
 
 #### **Production Workflow** (.github/workflows/deploy-production.yml)
+
 - **Branch**: `main`
-- **URL**: https://vidnote.ai
+- **URL**: <https://vidnote.ai>
 - **Triggers**:
   - Push to main branch
   - Version tags (v*.*.*)
@@ -58,38 +61,41 @@ Created and configured GitHub environments with appropriate protection rules:
 
 | Environment | ID | URL | Protection Rules |
 |-------------|----|----|------------------|
-| Development | 11160406251 | https://dev.vidnote.ai | None |
-| Staging | 11160409212 | https://staging.vidnote.ai | None |
-| Production | 11160412362 | https://vidnote.ai | ✅ Protected branches only |
-| GitHub Pages | 11117638774 | https://ai-empower-hq-360.github.io/youtube-video-summar | Custom |
+| Development | 11160406251 | <https://dev.vidnote.ai> | None |
+| Staging | 11160409212 | <https://staging.vidnote.ai> | None |
+| Production | 11160412362 | <https://vidnote.ai> | ✅ Protected branches only |
+| GitHub Pages | 11117638774 | <https://ai-empower-hq-360.github.io/youtube-video-summar> | Custom |
 
 ### 3. ✅ Environment Secrets Configured
 
 Set up environment-specific secrets for all three deployment environments:
 
 #### Development Environment
-- `VITE_API_BASE_URL` = https://api-dev.vidnote.ai
+
+- `VITE_API_BASE_URL` = <https://api-dev.vidnote.ai>
 - `VITE_OPENAI_API_KEY` = REPLACE_WITH_DEV_OPENAI_KEY
 - `VITE_OPENAI_MODEL` = gpt-4-turbo-preview
 - `NODE_ENV` = development
-- `ALLOWED_ORIGINS` = https://dev.vidnote.ai
+- `ALLOWED_ORIGINS` = <https://dev.vidnote.ai>
 
 #### Staging Environment
-- `VITE_API_BASE_URL` = https://api-staging.vidnote.ai
+
+- `VITE_API_BASE_URL` = <https://api-staging.vidnote.ai>
 - `VITE_OPENAI_API_KEY` = REPLACE_WITH_STAGING_OPENAI_KEY
 - `VITE_OPENAI_MODEL` = gpt-4-turbo-preview
 - `VITE_GA_MEASUREMENT_ID` = REPLACE_WITH_STAGING_GA_ID
 - `NODE_ENV` = staging
-- `ALLOWED_ORIGINS` = https://staging.vidnote.ai
+- `ALLOWED_ORIGINS` = <https://staging.vidnote.ai>
 
 #### Production Environment
-- `VITE_API_BASE_URL` = https://api.vidnote.ai
+
+- `VITE_API_BASE_URL` = <https://api.vidnote.ai>
 - `VITE_OPENAI_API_KEY` = REPLACE_WITH_PROD_OPENAI_KEY
 - `VITE_OPENAI_MODEL` = gpt-4-turbo-preview
 - `VITE_GA_MEASUREMENT_ID` = REPLACE_WITH_PROD_GA_ID
 - `VITE_POSTHOG_KEY` = REPLACE_WITH_PROD_POSTHOG_KEY
 - `NODE_ENV` = production
-- `ALLOWED_ORIGINS` = https://vidnote.ai
+- `ALLOWED_ORIGINS` = <https://vidnote.ai>
 - `VITE_ENABLE_ANALYTICS` = true
 
 ⚠️ **IMPORTANT**: Replace all `REPLACE_WITH_*` placeholder values with actual credentials.
@@ -123,6 +129,7 @@ uses: actions/checkout@064fe7f3312418007dea2b49a19844a9ee378f49 # v4
 ```
 
 **Actions Updated:**
+
 - `actions/checkout@v4` → `@064fe7f3312418007dea2b49a19844a9ee378f49`
 - `actions/setup-node@v4` → `@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5`
 - `actions/upload-artifact@v4` → `@b7c566a772e6b6bfb58ed0dc250532a479d7789f`
@@ -266,7 +273,7 @@ gh api repos/AI-Empower-HQ-360/youtube-video-summar/environments/production
 
 ## 📝 Next Steps
 
-### Immediate Actions Required:
+### Immediate Actions Required
 
 1. **Replace Placeholder Secrets** ⚠️
    - Update all `REPLACE_WITH_*` values in environment secrets
@@ -290,9 +297,10 @@ gh api repos/AI-Empower-HQ-360/youtube-video-summar/environments/production
    - Create PR from staging to main
    - Verify auto-deployment to production environment
 
-### Optional Enhancements:
+### Optional Enhancements
 
-4. **Add Manual Approval for Production**
+1. **Add Manual Approval for Production**
+
    ```bash
    gh api \
      --method POST \
@@ -302,7 +310,8 @@ gh api repos/AI-Empower-HQ-360/youtube-video-summar/environments/production
      -f 'reviewers[][id]=USER_ID'
    ```
 
-5. **Add Wait Timer for Production**
+2. **Add Wait Timer for Production**
+
    ```bash
    gh api \
      --method PUT \
@@ -311,12 +320,12 @@ gh api repos/AI-Empower-HQ-360/youtube-video-summar/environments/production
      -F wait_timer=300  # 5 minutes
    ```
 
-6. **Configure Branch Protection Rules**
+3. **Configure Branch Protection Rules**
    - Require PR reviews before merging to main
    - Require status checks to pass
    - Require branches to be up to date
 
-7. **Set Up Monitoring & Alerts**
+4. **Set Up Monitoring & Alerts**
    - Configure Datadog/New Relic for monitoring
    - Set up error tracking (Sentry)
    - Configure uptime monitoring
@@ -347,4 +356,3 @@ gh api repos/AI-Empower-HQ-360/youtube-video-summar/environments/production
 **Setup Completed**: January 9, 2026  
 **Status**: ✅ Ready for deployment configuration  
 **Next Action**: Replace placeholder secrets with actual credentials
-

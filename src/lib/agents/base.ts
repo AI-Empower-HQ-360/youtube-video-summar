@@ -128,6 +128,9 @@ export abstract class BaseAgent {
    * Update context
    */
   public setContext(key: string, value: unknown): void {
+    if (!this.memory.context) {
+      this.memory.context = {}
+    }
     this.memory.context[key] = value
   }
 
@@ -135,7 +138,7 @@ export abstract class BaseAgent {
    * Get context
    */
   public getContext(key: string): unknown {
-    return this.memory.context[key]
+    return this.memory.context?.[key]
   }
 
   // ============================================

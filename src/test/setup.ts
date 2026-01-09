@@ -26,7 +26,8 @@ Object.defineProperty(window, 'matchMedia', {
 })
 
 // Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
+const globalScope = globalThis as unknown as Record<string, unknown>
+globalScope['IntersectionObserver'] = class IntersectionObserver {
   constructor() {}
   disconnect() {}
   observe() {}
@@ -38,7 +39,7 @@ global.IntersectionObserver = class IntersectionObserver {
 } as any
 
 // Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
+globalScope['ResizeObserver'] = class ResizeObserver {
   constructor() {}
   disconnect() {}
   observe() {}

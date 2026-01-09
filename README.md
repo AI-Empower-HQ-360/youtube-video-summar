@@ -1,6 +1,6 @@
 # ✨ VidNote
 
-![Last Updated](https://img.shields.io/badge/Updated-2026-01-08-blue) ![Languages](https://img.shields.io/badge/Languages-50+-green) ![AI Powered](https://img.shields.io/badge/AI-Powered-purple) [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-green)](https://ai-empower-hq-360.github.io/youtube-video-summar/) - Turn YouTube Videos Into Instant Knowledge
+![Last Updated](https://img.shields.io/badge/Updated-2026-01-08-blue) ![Languages](https://img.shields.io/badge/Languages-50+-green) ![AI Powered](https://img.shields.io/badge/AI-Powered-purple) ![GitHub Pages Deploy](https://github.com/AI-Empower-HQ-360/youtube-video-summar/actions/workflows/deploy.yml/badge.svg) [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-green)](https://ai-empower-hq-360.github.io/youtube-video-summar/) - Turn YouTube Videos Into Instant Knowledge
 
 **VidNote** is an AI-powered web application that transforms any YouTube video into digestible summaries, key points, and Q&A in seconds. **Now with support for 50+ languages!** Perfect for students, professionals, and anyone who wants to learn faster.
 

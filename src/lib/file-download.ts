@@ -141,10 +141,10 @@ function createMarkdownFile(content: string | object, metadata?: Record<string, 
   }
   
   if (metadata) {
-    if (metadata.author) markdown += `**Author:** ${metadata.author}  \n`;
-    if (metadata.date) markdown += `**Date:** ${metadata.date}  \n`;
-    if (metadata.url) markdown += `**Source:** [${metadata.url}](${metadata.url})  \n`;
-    if (metadata.detectedLanguage) markdown += `**Language:** ${metadata.detectedLanguage.toUpperCase()}  \n`;
+    if (metadata.author) markdown += `**Author:** ${String(metadata.author)}  \n`;
+    if (metadata.date) markdown += `**Date:** ${String(metadata.date)}  \n`;
+    if (metadata.url) markdown += `**Source:** [${String(metadata.url)}](${String(metadata.url)})  \n`;
+    if (metadata.detectedLanguage) markdown += `**Language:** ${String(metadata.detectedLanguage).toUpperCase()}  \n`;
     markdown += '\n---\n\n';
   }
   
@@ -405,12 +405,12 @@ function createCSVFile(content: string | object, _metadata?: Record<string, unkn
     
     // Add rows
     if (obj.summary) {
-      csv += `"Summary","${escapeCsv(obj.summary)}"\n`;
+      csv += `"Summary","${escapeCsv(String(obj.summary))}"\n`;
     }
     
     if (obj.keyPoints && Array.isArray(obj.keyPoints)) {
-      obj.keyPoints.forEach((point: string, i: number) => {
-        csv += `"Key Point ${i + 1}","${escapeCsv(point)}"\n`;
+      obj.keyPoints.forEach((point: unknown, i: number) => {
+        csv += `"Key Point ${i + 1}","${escapeCsv(String(point))}"\n`;
       });
     }
     
@@ -487,7 +487,7 @@ export function downloadSummaryAsMarkdown(data: string | SummaryData, metadata?:
 export function downloadSummaryAsJSON(data: unknown, metadata?: Record<string, unknown>): void {
   downloadFile({
     format: 'json',
-    content: data,
+    content: data as string | object,
     metadata
   });
 }
