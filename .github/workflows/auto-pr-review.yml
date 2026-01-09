@@ -17,6 +17,106 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Bot Review Team Analysis
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            // Bot Reviewer Personas
+            const bots = {
+              jon: {
+                name: 'Jon',
+                emoji: '👨‍💻',
+                role: 'Security & Best Practices Lead',
+                focus: ['security', 'auth', 'dependencies', 'env', 'secrets']
+              },
+              sara: {
+                name: 'Sara',
+                emoji: '👩‍💻',
+                role: 'Code Quality & Architecture Expert',
+                focus: ['services', 'controllers', 'utils', 'lib', 'hooks']
+              },
+              alex: {
+                name: 'Alex',
+                emoji: '🚀',
+                role: 'Performance & Optimization Specialist',
+                focus: ['api', 'query', 'database', 'cache', 'performance']
+              },
+              emma: {
+                name: 'Emma',
+                emoji: '📝',
+                role: 'Documentation & Testing Guardian',
+                focus: ['test', 'spec', 'md', 'docs', 'readme']
+              },
+              mike: {
+                name: 'Mike',
+                emoji: '🎨',
+                role: 'UI/UX & Accessibility Advocate',
+                focus: ['component', 'tsx', 'css', 'style', 'ui']
+              },
+              lisa: {
+                name: 'Lisa',
+                emoji: '🔧',
+                role: 'DevOps & Infrastructure Expert',
+                focus: ['workflow', 'docker', 'deploy', 'ci', 'infra']
+              }
+            };
+            
+            // Assign bots based on file changes
+            const assignBots = (files) => {
+              const assigned = new Set();
+              
+              files.forEach(file => {
+                const path = file.filename.toLowerCase();
+                
+                // Jon - Security
+                if (path.includes('auth') || path.includes('security') || 
+                    path.includes('password') || path.includes('.env') ||
+                    path.includes('secret') || path === 'package.json') {
+                  assigned.add('jon');
+                }
+                
+                // Sara - Code Quality
+                if (path.includes('service') || path.includes('controller') ||
+                    path.includes('utils') || path.includes('lib') ||
+                    path.includes('hooks')) {
+                  assigned.add('sara');
+                }
+                
+                // Alex - Performance
+                if (path.includes('api') || path.includes('query') ||
+                    path.includes('database') || path.includes('cache') ||
+                    path.includes('index')) {
+                  assigned.add('alex');
+                }
+                
+                // Emma - Documentation & Testing
+                if (path.includes('test') || path.includes('spec') ||
+                    path.endsWith('.md') || path.includes('docs')) {
+                  assigned.add('emma');
+                }
+                
+                // Mike - UI/UX
+                if (path.includes('component') || path.endsWith('.tsx') ||
+                    path.endsWith('.css') || path.includes('style') ||
+                    path.includes('ui')) {
+                  assigned.add('mike');
+                }
+                
+                // Lisa - DevOps
+                if (path.includes('.github/workflows') || path.includes('docker') ||
+                    path.includes('deploy') || path.includes('infrastructure')) {
+                  assigned.add('lisa');
+                }
+              });
+              
+              // Always assign Sara for general review if no specific bot assigned
+              if (assigned.size === 0) {
+                assigned.add('sara');
+              }
+              
+              return Array.from(assigned);
+            };
+
       - name: Analyze PR and comment
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
@@ -33,6 +133,99 @@ jobs:
               pull_number: context.payload.pull_request.number
             });
             
+            // Bot assignment logic
+            const bots = {
+              jon: {
+                name: 'Jon',
+                emoji: '👨‍💻',
+                role: 'Security & Best Practices Lead',
+                focus: ['security', 'auth', 'dependencies', 'env', 'secrets']
+              },
+              sara: {
+                name: 'Sara',
+                emoji: '👩‍💻',
+                role: 'Code Quality & Architecture Expert',
+                focus: ['services', 'controllers', 'utils', 'lib', 'hooks']
+              },
+              alex: {
+                name: 'Alex',
+                emoji: '🚀',
+                role: 'Performance & Optimization Specialist',
+                focus: ['api', 'query', 'database', 'cache', 'performance']
+              },
+              emma: {
+                name: 'Emma',
+                emoji: '📝',
+                role: 'Documentation & Testing Guardian',
+                focus: ['test', 'spec', 'md', 'docs', 'readme']
+              },
+              mike: {
+                name: 'Mike',
+                emoji: '🎨',
+                role: 'UI/UX & Accessibility Advocate',
+                focus: ['component', 'tsx', 'css', 'style', 'ui']
+              },
+              lisa: {
+                name: 'Lisa',
+                emoji: '🔧',
+                role: 'DevOps & Infrastructure Expert',
+                focus: ['workflow', 'docker', 'deploy', 'ci', 'infra']
+              }
+            };
+            
+            // Assign bots based on file changes
+            const assignedBots = new Set();
+            
+            files.forEach(file => {
+              const path = file.filename.toLowerCase();
+              
+              // Jon - Security
+              if (path.includes('auth') || path.includes('security') || 
+                  path.includes('password') || path.includes('.env') ||
+                  path.includes('secret') || path === 'package.json' || path === 'package-lock.json') {
+                assignedBots.add('jon');
+              }
+              
+              // Sara - Code Quality
+              if (path.includes('service') || path.includes('controller') ||
+                  path.includes('utils') || path.includes('lib') ||
+                  path.includes('hooks') || path.includes('src/')) {
+                assignedBots.add('sara');
+              }
+              
+              // Alex - Performance
+              if (path.includes('api') || path.includes('query') ||
+                  path.includes('database') || path.includes('cache') ||
+                  path.includes('index.ts') || path.includes('index.js')) {
+                assignedBots.add('alex');
+              }
+              
+              // Emma - Documentation & Testing
+              if (path.includes('test') || path.includes('spec') ||
+                  path.endsWith('.md') || path.includes('docs/')) {
+                assignedBots.add('emma');
+              }
+              
+              // Mike - UI/UX
+              if (path.includes('component') || path.endsWith('.tsx') ||
+                  path.endsWith('.css') || path.includes('style') ||
+                  path.includes('ui/')) {
+                assignedBots.add('mike');
+              }
+              
+              // Lisa - DevOps
+              if (path.includes('.github/workflows') || path.includes('docker') ||
+                  path.includes('deploy') || path.includes('infrastructure/') ||
+                  path.includes('.yml')) {
+                assignedBots.add('lisa');
+              }
+            });
+            
+            // Always assign Sara if no specific bot assigned
+            if (assignedBots.size === 0) {
+              assignedBots.add('sara');
+            }
+            
             // Analyze changes
             const stats = {
               filesChanged: files.length,
@@ -43,16 +236,127 @@ jobs:
               hasConfig: files.some(f => f.filename.includes('config') || f.filename.includes('package.json')),
               touchesWorkflows: files.some(f => f.filename.startsWith('.github/workflows/')),
               touchesSrc: files.some(f => f.filename.startsWith('src/') || f.filename.startsWith('server/src/')),
+              touchesSecurity: files.some(f => f.filename.includes('auth') || f.filename.includes('security')),
+              touchesUI: files.some(f => f.filename.includes('component') || f.filename.endsWith('.tsx')),
             };
             
-            // Build review comment
-            let comment = '🤖 **Automated PR Analysis**\n\n';
-            comment += '### 📊 Change Summary\n';
-            comment += `- **Files changed:** ${stats.filesChanged}\n`;
-            comment += `- **Lines added:** ${stats.additions} ➕\n`;
-            comment += `- **Lines deleted:** ${stats.deletions} ➖\n\n`;
+            // Build review comment with bot reviews
+            let comment = '## 🤖 Automated Review Team\n\n';
+            comment += `**Assigned Reviewers**: ${Array.from(assignedBots).map(id => `${bots[id].emoji} ${bots[id].name}`).join(', ')}\n\n`;
+            comment += '---\n\n';
             
-            comment += '### ✅ Checklist\n';
+            // Bot-specific reviews
+            Array.from(assignedBots).forEach(botId => {
+              const bot = bots[botId];
+              comment += `### ${bot.emoji} ${bot.name} - ${bot.role}\n\n`;
+              
+              // Jon - Security Review
+              if (botId === 'jon') {
+                if (stats.touchesSecurity) {
+                  comment += '🔴 **Priority**: Critical - Security changes detected\n\n';
+                  comment += '**Checklist**:\n';
+                  comment += '- [ ] Authentication logic reviewed\n';
+                  comment += '- [ ] Authorization checks in place\n';
+                  comment += '- [ ] Input validation implemented\n';
+                  comment += '- [ ] No sensitive data in logs\n';
+                  comment += '- [ ] Secrets properly managed\n\n';
+                } else if (files.some(f => f.filename.includes('package'))) {
+                  comment += '🟡 **Dependency Review**\n\n';
+                  comment += '- Scanning for known vulnerabilities...\n';
+                  comment += '- Recommend running `npm audit` before merging\n\n';
+                } else {
+                  comment += '✅ **No critical security concerns detected**\n\n';
+                }
+                comment += '_"Security is not optional."_ - Jon\n\n';
+              }
+              
+              // Sara - Code Quality
+              if (botId === 'sara') {
+                if (stats.additions > 200) {
+                  comment += '🟡 **Code Complexity**: Significant changes detected\n\n';
+                  comment += '**Suggestions**:\n';
+                  comment += '- Consider breaking into smaller components\n';
+                  comment += '- Review for proper separation of concerns\n';
+                  comment += '- Ensure SOLID principles are followed\n\n';
+                } else {
+                  comment += '✅ **Code size looks manageable**\n\n';
+                }
+                comment += '_"Let\'s make this code maintainable."_ - Sara\n\n';
+              }
+              
+              // Alex - Performance
+              if (botId === 'alex') {
+                if (stats.touchesSrc && stats.additions > 100) {
+                  comment += '🚀 **Performance Considerations**\n\n';
+                  comment += '**Review Points**:\n';
+                  comment += '- Check for unnecessary re-renders\n';
+                  comment += '- Validate API call efficiency\n';
+                  comment += '- Consider caching opportunities\n';
+                  comment += '- Review async/await patterns\n\n';
+                } else {
+                  comment += '✅ **No major performance concerns**\n\n';
+                }
+                comment += '_"Every millisecond counts."_ - Alex\n\n';
+              }
+              
+              // Emma - Documentation & Testing
+              if (botId === 'emma') {
+                if (!stats.hasTests && stats.touchesSrc) {
+                  comment += '🔴 **Missing Tests!**\n\n';
+                  comment += '- No test files detected for source code changes\n';
+                  comment += '- Please add unit tests before merging\n';
+                  comment += '- Target: Maintain >80% coverage\n\n';
+                } else if (stats.hasTests) {
+                  comment += '✅ **Tests included - Great job!**\n\n';
+                }
+                
+                if (!stats.hasDocs && (stats.additions > 200 || stats.filesChanged > 10)) {
+                  comment += '⚠️ **Documentation Update Recommended**\n\n';
+                  comment += '- Consider updating relevant documentation\n';
+                  comment += '- Add code comments for complex logic\n\n';
+                }
+                comment += '_"Good tests prevent bugs."_ - Emma\n\n';
+              }
+              
+              // Mike - UI/UX
+              if (botId === 'mike') {
+                if (stats.touchesUI) {
+                  comment += '🎨 **UI/UX Review**\n\n';
+                  comment += '**Checklist**:\n';
+                  comment += '- [ ] Mobile responsive design verified\n';
+                  comment += '- [ ] Accessibility standards met (WCAG)\n';
+                  comment += '- [ ] Proper ARIA labels added\n';
+                  comment += '- [ ] Keyboard navigation works\n';
+                  comment += '- [ ] Loading states implemented\n\n';
+                } else {
+                  comment += '✅ **No UI changes detected**\n\n';
+                }
+                comment += '_"Everyone deserves a great experience."_ - Mike\n\n';
+              }
+              
+              // Lisa - DevOps
+              if (botId === 'lisa') {
+                if (stats.touchesWorkflows) {
+                  comment += '🔧 **Infrastructure Review**\n\n';
+                  comment += '**Critical Checks**:\n';
+                  comment += '- [ ] Workflow syntax validated\n';
+                  comment += '- [ ] Actions pinned to commit SHAs\n';
+                  comment += '- [ ] Secrets properly referenced\n';
+                  comment += '- [ ] Resource limits set\n\n';
+                } else {
+                  comment += '✅ **No infrastructure changes**\n\n';
+                }
+                comment += '_"Deploy with confidence."_ - Lisa\n\n';
+              }
+            });
+            
+            comment += '---\n\n';
+            comment += '### 📊 Change Summary\n';
+            comment += `- **Files changed**: ${stats.filesChanged}\n`;
+            comment += `- **Lines added**: ${stats.additions} ➕\n`;
+            comment += `- **Lines deleted**: ${stats.deletions} ➖\n\n`;
+            
+            comment += '### ✅ General Checklist\n';
             comment += `- [${stats.hasTests ? 'x' : ' '}] Tests included\n`;
             comment += `- [${stats.hasDocs ? 'x' : ' '}] Documentation updated\n`;
             comment += `- [ ] Breaking changes documented\n`;
@@ -73,8 +377,11 @@ jobs:
             
             comment += '### 🚀 Quick Actions\n';
             comment += '- To enable auto-merge: Add the `auto-merge` label\n';
-            comment += '- To request review: Assign reviewers or mention @AI-Empower-HQ-360\n';
-            comment += '- To mark as work-in-progress: Convert to draft\n';
+            comment += '- To request human review: Assign reviewers or mention @AI-Empower-HQ-360\n';
+            comment += '- To mark as work-in-progress: Convert to draft\n\n';
+            
+            comment += '---\n';
+            comment += '_💡 See [Bot Reviewers Guide](.github/BOT_REVIEWERS.md) for details about each reviewer._\n';
             
             // Post comment
             await github.rest.issues.createComment({
