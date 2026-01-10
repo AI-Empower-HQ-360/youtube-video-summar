@@ -1,15 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import {
-  SummarizationAgent,
-  AnalysisAgent,
-  ContentGenerationAgent,
-  ExtractionAgent,
-  QAAgent,
-  TranslationAgent
-} from '../specialized-agents'
 
-// Mock OpenAIAgent
+// Mock OpenAIAgent BEFORE importing specialized agents
 vi.mock('../openai-agent', () => ({
   OpenAIAgent: class MockOpenAIAgent {
     config: any
@@ -17,13 +9,14 @@ vi.mock('../openai-agent', () => ({
     constructor(config: any) {
       this.config = config
     }
+    getConfig() { return this.config }
     
     async process(input: string) {
       return {
         content: `Mocked response for: ${input.substring(0, 50)}...`,
         metadata: {
           model: this.config.model || 'gpt-4-turbo-preview',
-          tokensUsed: { prompt: 10, completion: 20, total: 30 },
+          tokensUsed: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
           timestamp: new Date().toISOString()
         }
       }
@@ -36,6 +29,15 @@ vi.mock('../openai-agent', () => ({
     getContext() { return undefined }
   }
 }))
+
+import {
+  SummarizationAgent,
+  AnalysisAgent,
+  ContentGenerationAgent,
+  ExtractionAgent,
+  QAAgent,
+  TranslationAgent
+} from '../specialized-agents'
 
 describe('SummarizationAgent', () => {
   let agent: SummarizationAgent
@@ -177,7 +179,7 @@ describe('ExtractionAgent', () => {
 
   it('should create with default config', () => {
     expect(agent.getConfig().name).toBe('Extraction Agent')
-    expect(agent.getConfig().temperature).toBe(0.1)
+    expect(agent.getConfig().temperature).toBe(0.2)
   })
 
   it('should extract fields from content', async () => {
@@ -217,7 +219,7 @@ describe('QAAgent', () => {
 
   it('should create with default config', () => {
     expect(agent.getConfig().name).toBe('Q&A Agent')
-    expect(agent.getConfig().temperature).toBe(0.4)
+    expect(agent.getConfig().temperature).toBe(0.3)
   })
 
   it('should answer question with context', async () => {

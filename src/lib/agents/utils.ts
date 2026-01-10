@@ -99,9 +99,11 @@ export function truncateToTokenLimit(text: string, maxTokens: number): string {
   }
 
   const ratio = maxTokens / estimatedTokens
-  const targetLength = Math.floor(text.length * ratio)
+  // Account for the ellipsis adding extra characters (~1 token)
+  const targetLength = Math.max(0, Math.floor(text.length * ratio) - 3)
   
-  return text.substring(0, targetLength) + '...'
+  const truncated = text.substring(0, targetLength)
+  return truncated.endsWith('...') ? truncated : truncated + '...'
 }
 
 // ============================================
@@ -140,7 +142,9 @@ export function extractList(content: string): string[] {
   const listItems: string[] = []
 
   for (const line of lines) {
-    const match = line.match(/^[\s]*[-*•]\s*(.+)$/)
+    const matchBullet = line.match(/^[\s]*[-*•]\s*(.+)$/)
+    const matchNumber = line.match(/^[\s]*\d+\.\s*(.+)$/)
+    const match = matchBullet || matchNumber
     if (match) {
       listItems.push(match[1].trim())
     }

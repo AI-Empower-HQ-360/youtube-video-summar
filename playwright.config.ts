@@ -4,6 +4,9 @@ import { defineConfig, devices } from '@playwright/test';
  * Playwright E2E Test Configuration
  * @see https://playwright.dev/docs/test-configuration
  */
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'https://ai-empower-hq-360.github.io/youtube-video-summar'
+const useRemote = baseURL.startsWith('http') && !baseURL.includes('localhost')
+
 export default defineConfig({
   testDir: './e2e',
   
@@ -30,7 +33,7 @@ export default defineConfig({
   /* Shared settings for all the projects below */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://ai-empower-hq-360.github.io/youtube-video-summar',
+    baseURL,
     
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
@@ -84,7 +87,7 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
+  webServer: useRemote ? undefined : {
     command: 'npm run dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,

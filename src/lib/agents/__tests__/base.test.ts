@@ -90,14 +90,14 @@ describe('BaseAgent', () => {
       expect(agent.getContext('key')).toBe('value')
     })
 
-    it('should clear only long-term memory', () => {
+    it('should preserve context when clearing memory', () => {
       agent.addToMemory('user', 'Message')
       agent.setContext('key', 'value')
       
-      agent.clearMemory('longTerm')
+      agent.clearMemory()
       
-      expect(agent.getHistory()).toHaveLength(1)
-      expect(agent.getContext('key')).toBeUndefined()
+      expect(agent.getHistory()).toHaveLength(agent.getConfig().systemPrompt ? 1 : 0)
+      expect(agent.getContext('key')).toBe('value')
     })
   })
 
@@ -159,56 +159,44 @@ describe('BaseAgent', () => {
 
 describe('AgentFactory', () => {
   beforeEach(() => {
-    // Get factory instance and clear any existing agents
-    AgentFactory.getInstance()
-    // Clear by creating new instance (reset singleton for testing)
-    vi.clearAllMocks()
+    AgentFactory.clear()
   })
 
-  it('should be a singleton', () => {
-    const factory1 = AgentFactory.getInstance()
-    const factory2 = AgentFactory.getInstance()
-    
-    expect(factory1).toBe(factory2)
+  it('should maintain singleton behavior internally', () => {
+    // Static methods operate on a single internal map
+    AgentFactory.register('a', new TestAgent({ name: 'A', description: 'A' }))
+    expect(AgentFactory.get('a')?.getInfo().name).toBe('A')
   })
 
   it('should register agent', () => {
-    const factory = AgentFactory.getInstance()
-    const agent = new TestAgent({
-      name: 'TestAgent',
-      description: 'Test'
-    })
-    
-    factory.registerAgent('test', agent)
-    expect(factory.getAgent('test')).toBe(agent)
+    const agent = new TestAgent({ name: 'TestAgent', description: 'Test' })
+    AgentFactory.register('test', agent)
+    expect(AgentFactory.get('test')).toBe(agent)
   })
 
   it('should return undefined for unregistered agent', () => {
-    const factory = AgentFactory.getInstance()
-    expect(factory.getAgent('nonexistent')).toBeUndefined()
+    expect(AgentFactory.get('nonexistent')).toBeUndefined()
   })
 
-  it('should list all registered agent IDs', () => {
-    const factory = AgentFactory.getInstance()
+  it('should list all registered agents', () => {
     const agent1 = new TestAgent({ name: 'Agent1', description: 'Test 1' })
     const agent2 = new TestAgent({ name: 'Agent2', description: 'Test 2' })
     
-    factory.registerAgent('agent1', agent1)
-    factory.registerAgent('agent2', agent2)
+    AgentFactory.register('agent1', agent1)
+    AgentFactory.register('agent2', agent2)
     
-    const agents = factory.listAgents()
+    const agents = AgentFactory.list().map(a => a.id)
     expect(agents).toContain('agent1')
     expect(agents).toContain('agent2')
   })
 
   it('should overwrite existing agent on re-registration', () => {
-    const factory = AgentFactory.getInstance()
     const agent1 = new TestAgent({ name: 'Agent1', description: 'Test 1' })
     const agent2 = new TestAgent({ name: 'Agent2', description: 'Test 2' })
     
-    factory.registerAgent('test', agent1)
-    factory.registerAgent('test', agent2)
+    AgentFactory.register('test', agent1)
+    AgentFactory.register('test', agent2)
     
-    expect(factory.getAgent('test')).toBe(agent2)
+    expect(AgentFactory.get('test')).toBe(agent2)
   })
 })

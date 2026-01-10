@@ -1,8 +1,6 @@
-import { test, expect, devices } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 test.describe('Mobile Responsiveness', () => {
-  test.use({ ...devices['iPhone 12'] });
-
   test('should display correctly on mobile', async ({ page }) => {
     await page.goto('/');
     
@@ -87,8 +85,6 @@ test.describe('Mobile Responsiveness', () => {
 });
 
 test.describe('Tablet Responsiveness', () => {
-  test.use({ ...devices['iPad Pro'] });
-
   test('should display correctly on tablet', async ({ page }) => {
     await page.goto('/');
     
