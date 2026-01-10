@@ -29,6 +29,23 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# Backup files
+*.bak
+backups/
+
+# Environment-specific secrets
+.env
+.env.*
+*.key
+*.pem
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
 # Environment files
 .env
 .env.local

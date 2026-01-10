@@ -1,8 +1,15 @@
 # YouTube Video Summarizer - GCP Infrastructure
 
-This directory contains the Google Cloud Platform (GCP) infrastructure configuration for the YouTube Video Summarizer application.
+This directory contains the complete Google Cloud Platform (GCP) infrastructure configuration for the YouTube Video Summarizer application, managed with Terraform.
 
-## Architecture Overview
+## 📚 Documentation
+
+- **[QUICKSTART.md](QUICKSTART.md)** - 10-minute deployment guide (START HERE!)
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Complete system architecture and components
+- **[MAINTENANCE.md](MAINTENANCE.md)** - Operations, troubleshooting, and maintenance
+- **This README** - Overview and reference
+
+## 🏗️ Infrastructure Overview
 
 The application is deployed using the following GCP services:
 
@@ -30,7 +37,9 @@ All GCP resources are tagged with the following labels for organization and cost
 - `deployed-by`: Set by Cloud Build to track deployment source
 - `commit-sha`: Git commit SHA for version tracking
 
-## Prerequisites
+## 🚀 Quick Start
+
+### Prerequisites
 
 1. **GCP Account**: Active Google Cloud Platform account
 2. **GCP Project**: Create a new project or use existing one
@@ -39,7 +48,11 @@ All GCP resources are tagged with the following labels for organization and cost
    - [Terraform](https://www.terraform.io/downloads) - v1.0.0+
    - [Docker](https://docs.docker.com/get-docker/) - v20.0.0+
 
-4. **Permissions**: Your GCP user/service account needs:
+4. **API Keys**:
+   - YouTube API key ([Get one here](https://console.cloud.google.com/apis/credentials))
+   - OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+
+5. **Permissions**: Your GCP user/service account needs:
    - Cloud Run Admin
    - Artifact Registry Admin
    - Storage Admin
@@ -47,57 +60,47 @@ All GCP resources are tagged with the following labels for organization and cost
    - Cloud Build Editor
    - Service Usage Admin
 
-## Quick Start
-
-### 1. Initial Setup
+### Deployment (3 Commands)
 
 ```bash
-# Navigate to the infrastructure directory
-cd infrastructure/gcp
+# 1. Initial setup
+./deploy-enhanced.sh setup
 
-# Authenticate with GCP
-gcloud auth login
-gcloud config set project YOUR_PROJECT_ID
+# 2. Configure secrets
+./deploy-enhanced.sh secrets
 
-# Copy and configure variables
-cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your values
+# 3. Deploy to dev
+./deploy-enhanced.sh deploy dev
 ```
 
-### 2. Configure API Keys
+For detailed step-by-step instructions, see **[QUICKSTART.md](QUICKSTART.md)**.
 
-```bash
-# Set up secrets (YouTube API Key and OpenAI API Key)
-./deploy.sh secrets
+## 📁 File Structure
+
+```
+infrastructure/gcp/
+├── main.tf                    # Main Terraform configuration
+├── variables.tf               # Input variables
+├── outputs.tf                 # Output values
+├── backend.tf                 # Terraform backend config (GCS)
+├── cloudbuild.yaml            # CI/CD pipeline config
+├── deploy.sh                  # Original deployment script
+├── deploy-enhanced.sh         # Enhanced deployment script (recommended)
+├── lifecycle.json             # GCS bucket lifecycle policy
+├── terraform.tfvars.example   # Example variables file
+├── environments/              # Environment-specific configs
+│   ├── dev.tfvars            # Development environment
+│   ├── staging.tfvars        # Staging environment
+│   └── production.tfvars     # Production environment
+├── README.md                  # This file
+├── QUICKSTART.md             # Quick deployment guide
+├── ARCHITECTURE.md           # System architecture docs
+└── MAINTENANCE.md            # Operations guide
 ```
 
-### 3. Deploy Infrastructure
+## 🎯 What Gets Deployed
 
-```bash
-# Make deploy script executable
-chmod +x deploy.sh
-
-# Initialize and deploy
-./deploy.sh deploy dev
-```
-
-## Deployment Script Usage
-
-The `deploy.sh` script provides several commands:
-
-```bash
-# Initialize Terraform
-./deploy.sh init
-
-# Set up API secrets
-./deploy.sh secrets
-
-# Deploy to specific environment
-./deploy.sh deploy dev        # Development
-./deploy.sh deploy staging    # Staging
-./deploy.sh deploy production # Production
-
-# Build and push Docker image
+### Core Services (Always)
 ./deploy.sh build
 
 # Destroy infrastructure

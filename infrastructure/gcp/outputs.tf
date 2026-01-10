@@ -24,3 +24,23 @@ output "openai_secret_name" {
   description = "Name of the OpenAI API key secret"
   value       = google_secret_manager_secret.openai_api_key.secret_id
 }
+
+output "frontend_cdn_ip" {
+  description = "IP address of the frontend CDN load balancer"
+  value       = var.enable_cdn ? google_compute_global_address.frontend_ip[0].address : "CDN not enabled"
+}
+
+output "project_id" {
+  description = "GCP Project ID"
+  value       = var.project_id
+}
+
+output "region" {
+  description = "GCP Region"
+  value       = var.region
+}
+
+output "environment" {
+  description = "Environment name"
+  value       = var.environment
+}
