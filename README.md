@@ -116,12 +116,65 @@ VidNote features a modern, dark-themed interface with:
 
 ## 🛠️ Tech Stack
 
+### Frontend
 - **React 19** with TypeScript
 - **Tailwind CSS v4** for styling
 - **Shadcn UI** components
-- **Spark AI Runtime** for LLM processing
-- **YouTube Transcript API** for caption extraction
 - **Framer Motion** for animations
+- **Vite** for building
+
+### Backend
+- **Node.js + Express** (ESM modules)
+- **YouTube Transcript API** for caption extraction
+- **Spark AI Runtime / OpenAI** for LLM processing
+
+### Infrastructure (GCP)
+- **Cloud Run** for backend hosting (auto-scaling 0-50 instances)
+- **Cloud Storage** for frontend hosting
+- **Artifact Registry** for Docker images
+- **Secret Manager** for API keys
+- **Cloud Build** for CI/CD
+- **Cloud Monitoring** for alerts & dashboards
+
+---
+
+## ☁️ Deployment
+
+VidNote can be deployed to Google Cloud Platform with production-ready infrastructure.
+
+### Quick Deploy to GCP
+
+```bash
+# 1. Set up GCP project
+export GCP_PROJECT_ID="your-project-id"
+export GCP_REGION="us-central1"
+
+# 2. Deploy infrastructure
+cd infrastructure/gcp
+./deploy-enhanced.sh dev
+
+# 3. Build and deploy application
+# Automatically deployed via GitHub Actions on push to main
+```
+
+### Available Environments
+- **Development** - Auto-deploys on merge to `main`, minimal resources
+- **Staging** - Manual deployment, production-like testing
+- **Production** - Manual deployment with approval, high availability
+
+### Infrastructure Features
+- 🔄 Auto-scaling based on traffic (0-50 instances)
+- 💰 Cost-optimized ($5-20/month for dev, $25-100/month for production)
+- 🔐 Secrets managed securely via Secret Manager
+- 📊 Monitoring & alerting with Cloud Monitoring
+- 🚀 CI/CD via GitHub Actions
+- 🌐 Optional CDN for global distribution
+
+### Deployment Documentation
+- **[QUICKSTART.md](infrastructure/gcp/QUICKSTART.md)** - 10-minute deployment guide
+- **[ARCHITECTURE.md](infrastructure/gcp/ARCHITECTURE.md)** - Complete system design
+- **[MAINTENANCE.md](infrastructure/gcp/MAINTENANCE.md)** - Operations & troubleshooting
+- **[CI/CD Setup](.github/CICD_SETUP.md)** - GitHub Actions configuration
 
 ---
 

@@ -1,0 +1,186 @@
+name: Infrastructure Drift Detection
+
+on:
+  schedule:
+    # Run daily at 9 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to check'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_REGION: ${{ secrets.GCP_REGION || 'us-central1' }}
+  TERRAFORM_VERSION: '1.6.0'
+
+jobs:
+  drift-detection:
+    name: Check for Infrastructure Drift
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [dev, staging, production]
+    
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+      
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+      
+      - name: Terraform Init
+        working-directory: infrastructure/gcp
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.GCP_TERRAFORM_STATE_BUCKET }}" \
+            -backend-config="prefix=terraform/state/${{ matrix.environment }}"
+      
+      - name: Terraform Plan (Drift Check)
+        id: plan
+        working-directory: infrastructure/gcp
+        run: |
+          terraform plan \
+            -var-file="environments/${{ matrix.environment }}.tfvars" \
+            -var="project_id=${{ env.GCP_PROJECT_ID }}" \
+            -var="region=${{ env.GCP_REGION }}" \
+            -detailed-exitcode \
+            -no-color \
+            -out=tfplan 2>&1 | tee plan_output.txt
+          
+          # Exit code 2 means there are changes (drift detected)
+          exit ${PIPESTATUS[0]}
+        continue-on-error: true
+      
+      - name: Check for Drift
+        id: drift
+        if: steps.plan.outcome == 'failure'
+        run: |
+          echo "drift_detected=true" >> $GITHUB_OUTPUT
+          echo "### ⚠️ Infrastructure Drift Detected in ${{ matrix.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The actual infrastructure state differs from Terraform configuration." >> $GITHUB_STEP_SUMMARY
+      
+      - name: Create Issue on Drift
+        if: steps.drift.outputs.drift_detected == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const planOutput = fs.readFileSync('infrastructure/gcp/plan_output.txt', 'utf8');
+            
+            const body = `## 🚨 Infrastructure Drift Detected
+            
+            **Environment:** ${{ matrix.environment }}
+            **Detected:** ${new Date().toISOString()}
+            
+            ### What is Infrastructure Drift?
+            The actual cloud infrastructure differs from what's defined in Terraform. This can happen when:
+            - Manual changes were made in GCP Console
+            - Another process modified resources
+            - Configuration was updated but not applied
+            
+            ### Action Required
+            Review the changes below and either:
+            1. Apply the Terraform configuration to restore desired state
+            2. Update Terraform to match actual state (if changes were intentional)
+            
+            ### Detected Changes
+            <details>
+            <summary>Click to see Terraform Plan Output</summary>
+            
+            \`\`\`terraform
+            ${planOutput.substring(0, 60000)}
+            \`\`\`
+            
+            </details>
+            
+            ### Next Steps
+            1. Review the plan output above
+            2. Run \`./infrastructure/gcp/verify.sh\` locally to investigate
+            3. Apply changes: \`cd infrastructure/gcp && terraform apply\`
+            4. Or update Terraform to match actual state if changes were intentional
+            
+            ---
+            *🤖 Automated drift detection - runs daily at 9 AM UTC*`;
+            
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'infrastructure,drift-detection'
+            });
+            
+            const existingIssue = issues.data.find(issue => 
+              issue.title.includes(`Infrastructure Drift - ${{ matrix.environment }}`)
+            );
+            
+            if (existingIssue) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: `**New drift detected at ${new Date().toISOString()}**\n\n${body}`
+              });
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚨 Infrastructure Drift - ${{ matrix.environment }} - ${new Date().toISOString().split('T')[0]}`,
+                body: body,
+                labels: ['infrastructure', 'drift-detection', 'priority-high', '${{ matrix.environment }}']
+              });
+            }
+      
+      - name: Send Slack Notification
+        if: steps.drift.outputs.drift_detected == 'true' && secrets.SLACK_WEBHOOK_URL
+        run: |
+          curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "text": "🚨 Infrastructure Drift Detected",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Infrastructure Drift Detected*\n\n*Environment:* ${{ matrix.environment }}\n*Time:* '$(date -u)'\n\nThe actual infrastructure differs from Terraform configuration. Please review and take action."
+                  }
+                }
+              ]
+            }'
+      
+      - name: Summary
+        if: steps.drift.outputs.drift_detected != 'true'
+        run: |
+          echo "### ✅ No Drift Detected in ${{ matrix.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "Infrastructure matches Terraform configuration." >> $GITHUB_STEP_SUMMARY
