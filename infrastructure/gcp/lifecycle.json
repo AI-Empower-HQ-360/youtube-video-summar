@@ -1,0 +1,17 @@
+# GCS Bucket Lifecycle Policy
+# Keeps only the last 10 versions of state files
+
+{
+  "lifecycle": {
+    "rule": [
+      {
+        "action": {
+          "type": "Delete"
+        },
+        "condition": {
+          "numNewerVersions": 10
+        }
+      }
+    ]
+  }
+}

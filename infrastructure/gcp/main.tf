@@ -24,6 +24,11 @@ resource "google_project_service" "required_apis" {
     "artifactregistry.googleapis.com",
     "compute.googleapis.com",
     "storage.googleapis.com",
+    "secretmanager.googleapis.com",
+    "monitoring.googleapis.com",
+    "logging.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "iam.googleapis.com",
   ])
 
   service            = each.key
@@ -122,14 +127,14 @@ resource "google_cloud_run_v2_service" "api_service" {
 
       resources {
         limits = {
-          cpu    = "1000m"
-          memory = "512Mi"
+          cpu    = var.cpu_limit
+          memory = var.memory_limit
         }
       }
     }
 
     scaling {
-      min_instance_count = var.environment == "production" ? 1 : 0
+      min_instance_count = var.min_instances
       max_instance_count = var.max_instances
     }
 
@@ -213,8 +218,8 @@ resource "google_cloudbuild_trigger" "deploy_trigger" {
   description = "Deploy YouTube video summarizer on push to main"
 
   github {
-    owner = "AI-Empower-HQ-360"
-    name  = "youtube-video-summar"
+    owner = var.github_owner
+    name  = var.github_repo
     push {
       branch = "^main$"
     }
@@ -230,4 +235,129 @@ resource "google_cloudbuild_trigger" "deploy_trigger" {
   tags = ["youtube-summarizer", "deploy", var.environment]
 
   depends_on = [google_project_service.required_apis]
+}
+
+# ============================================
+# MONITORING & ALERTING
+# ============================================
+
+# Notification channel for alerts
+resource "google_monitoring_notification_channel" "email" {
+  count        = var.alert_email != "" ? 1 : 0
+  display_name = "Email Notification Channel"
+  type         = "email"
+  labels = {
+    email_address = var.alert_email
+  }
+  enabled = true
+}
+
+# Alert policy for high error rate
+resource "google_monitoring_alert_policy" "error_rate" {
+  count        = var.enable_monitoring ? 1 : 0
+  display_name = "High Error Rate - ${var.environment}"
+  combiner     = "OR"
+  conditions {
+    display_name = "Error rate above threshold"
+    condition_threshold {
+      filter          = "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"${google_cloud_run_v2_service.api_service.name}\""
+      duration        = "300s"
+      comparison      = "COMPARISON_GT"
+      threshold_value = 0.05
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_RATE"
+      }
+    }
+  }
+
+  notification_channels = var.alert_email != "" ? [google_monitoring_notification_channel.email[0].id] : []
+
+  alert_strategy {
+    auto_close = "604800s" # 7 days
+  }
+
+  labels = {
+    app         = "youtube-video-summarizer"
+    environment = var.environment
+    severity    = "critical"
+  }
+}
+
+# Alert policy for high latency
+resource "google_monitoring_alert_policy" "latency" {
+  count        = var.enable_monitoring ? 1 : 0
+  display_name = "High Latency - ${var.environment}"
+  combiner     = "OR"
+  conditions {
+    display_name = "Request latency above threshold"
+    condition_threshold {
+      filter          = "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"${google_cloud_run_v2_service.api_service.name}\" AND metric.type = \"run.googleapis.com/request_latencies\""
+      duration        = "300s"
+      comparison      = "COMPARISON_GT"
+      threshold_value = 5000 # 5 seconds
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_DELTA"
+      }
+    }
+  }
+
+  notification_channels = var.alert_email != "" ? [google_monitoring_notification_channel.email[0].id] : []
+
+  labels = {
+    app         = "youtube-video-summarizer"
+    environment = var.environment
+    severity    = "warning"
+  }
+}
+
+# ============================================
+# CDN & LOAD BALANCER
+# ============================================
+
+# Reserve external IP for load balancer
+resource "google_compute_global_address" "frontend_ip" {
+  count = var.enable_cdn ? 1 : 0
+  name  = "youtube-summarizer-frontend-ip"
+}
+
+# Backend bucket for CDN
+resource "google_compute_backend_bucket" "frontend_backend" {
+  count       = var.enable_cdn ? 1 : 0
+  name        = "youtube-summarizer-frontend-backend"
+  bucket_name = google_storage_bucket.static_assets.name
+  enable_cdn  = true
+
+  cdn_policy {
+    cache_mode        = "CACHE_ALL_STATIC"
+    client_ttl        = 3600
+    default_ttl       = 3600
+    max_ttl           = 86400
+    negative_caching  = true
+    serve_while_stale = 86400
+  }
+}
+
+# URL map for load balancer
+resource "google_compute_url_map" "frontend_lb" {
+  count           = var.enable_cdn ? 1 : 0
+  name            = "youtube-summarizer-frontend-lb"
+  default_service = google_compute_backend_bucket.frontend_backend[0].id
+}
+
+# HTTP proxy
+resource "google_compute_target_http_proxy" "frontend_proxy" {
+  count   = var.enable_cdn ? 1 : 0
+  name    = "youtube-summarizer-http-proxy"
+  url_map = google_compute_url_map.frontend_lb[0].id
+}
+
+# Global forwarding rule
+resource "google_compute_global_forwarding_rule" "frontend_forwarding_rule" {
+  count      = var.enable_cdn ? 1 : 0
+  name       = "youtube-summarizer-forwarding-rule"
+  target     = google_compute_target_http_proxy.frontend_proxy[0].id
+  port_range = "80"
+  ip_address = google_compute_global_address.frontend_ip[0].address
 }

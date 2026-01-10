@@ -1,0 +1,175 @@
+# Cursor AI Rules - YouTube Video Summarizer
+
+## Architecture & Patterns
+
+### Fullstack Structure
+- **Frontend**: React 19 + Vite + TypeScript (ESM)
+  - State: React hooks + TanStack Query for server state
+  - API: Use `apiClient` from `src/services/api.service.ts` (axios with interceptors)
+  - UI: Radix primitives + Tailwind CSS + Framer Motion
+  - Config: Access env via `src/config/env.ts`, never use `import.meta.env.VITE_*` directly
+
+- **Backend**: Node.js Express (ESM, port 3001)
+  - Structure: Thin routes → Services (business logic) → Utils
+  - Error handling: Throw `ApiError(statusCode, message, details)` from services, caught by errorHandler.js
+  - Routes: `server/src/routes/` (youtube, summary, chat, health)
+  - Services: `server/src/services/` (youtube.service.js, summary.service.js)
+
+### Core Data Flow: YouTube → Summary
+1. Frontend: URL validation via `useAISummary` hook
+2. `src/lib/youtube-ai.ts`: Orchestrates agents (summarization, Q&A, analysis)
+3. `server/src/services/youtube.service.js`: Extracts transcript via `youtube-transcript` or `youtubei.js`
+4. AI processing: Uses GitHub Spark LLM (`window.spark.llm()`) or OpenAI (configured via env)
+5. Response: `{ videoId, title, summary, keyPoints, themes, sentiment, qaPairs, recommendations, metadata }`
+
+## Critical Patterns
+
+### API Client (CRITICAL!)
+✅ ALWAYS use `apiClient` from `src/services/api.service.ts`:
+```typescript
+import { apiClient } from '@/services/api.service';
+const response = await apiClient.post('/summarize', { url });
+```
+
+❌ NEVER use direct axios - breaks auth interceptors and error handling:
+```typescript
+import axios from 'axios';
+await axios.post('http://localhost:3001/api/...'); // ❌ WRONG
+```
+
+### Component Structure
+- **Page Components**: `src/components/*Page.tsx` - routing & high-level state
+- **Feature Components**: Smaller Radix UI primitives from `src/components/ui/`
+- **Custom Hooks**: Business logic in `src/hooks/` (useAISummary, useQuery, etc.)
+- **State Management**: React hooks + TanStack Query; avoid Redux
+- **Styling**: Tailwind classes in JSX; no CSS modules
+
+### Environment Variables
+- **Frontend**: Access ONLY via typed object in `src/config/env.ts` (e.g., `env.OPENAI_API_KEY`)
+- **Backend**: Use `dotenv` in `server/src/index.js`, access via `process.env`
+- Never use `import.meta.env.VITE_*` directly in component code
+
+### Code Documentation (Mandatory)
+Use JSDoc with `@label` and `@description` tags for all exports:
+```typescript
+/**
+ * @label Validate YouTube URL
+ * @description Check if URL is a valid YouTube URL
+ */
+export function validateYouTubeUrl(url: string): boolean { ... }
+```
+
+Use section grouping: `// ============================================` with headings (TYPES, SERVICE, HOOKS, etc.)
+
+### Error Handling
+- **Frontend**: Try/catch in hooks → display via toast (`from 'sonner'`)
+- **Backend**: Throw `ApiError(statusCode, message, details)` in services → caught by errorHandler.js
+- Response format: `{ statusCode, message, details, timestamp }`
+
+## Integration Points
+
+### GitHub Spark (Important!)
+- AI Access: `src/lib/ai.ts` uses `window.spark.llm()` for LLM calls
+- Data Storage: `useKV()` hook from `@github/spark/hooks` for persistent storage
+- Example: `const result = await window.spark.llm(prompt, 'gpt-4o-mini', true);`
+- **Note**: This is GitHub's edge-hosted LLM—configure via `GITHUB_TOKEN`, not `OPENAI_API_KEY`
+
+### YouTube Transcript Extraction
+- Libraries: `youtube-transcript` (primary) + `youtubei.js` (fallback)
+- Backend: `server/src/services/youtube.service.js` (`getVideoTranscript()`, `getVideoInfo()`)
+- Frontend: `src/lib/youtube.ts` for client-side validation
+- Handles: Public videos with captions, multiple language tracks, various URL formats
+
+### AI Agents Framework
+- Base class: `src/lib/agents/base.ts`
+- Manager: `src/lib/agents/manager.ts` (registers/executes agents)
+- Specialized: Summarization, Analysis, Q&A in `src/lib/agents/specialized-agents.ts`
+- Orchestrator: Parallel, Pipeline, Workflow modes in `src/lib/agents/orchestrator.ts`
+
+### Multi-Language & RTL Support
+- 50+ languages supported (see MULTI_LANGUAGE_GUIDE.md)
+- Language selector: `src/components/LanguageSelector.tsx`
+- RTL auto-applied for Arabic, Hebrew, Persian (via `text-direction: rtl`)
+
+## Development Workflows
+
+### Setup (First Time)
+```bash
+./setup.sh                    # Install deps, generate .env files
+# Edit .env.local (frontend) and server/.env (backend) with API keys
+./start.sh                    # Start both servers (5173, 3001)
+```
+
+### Essential Commands
+```bash
+npm run dev                   # Frontend dev server (5173)
+npm run dev (in server/)      # Backend dev server (3001)
+npm run build                 # TypeScript + Vite build
+npm run lint:fix              # Auto-fix ESLint
+npm run type-check            # Full TypeScript check
+npm run test                  # Unit tests (Vitest)
+npm run test:e2e              # E2E tests (Playwright)
+npm run test:e2e:debug        # E2E in debug mode
+```
+
+### Port Management
+- Frontend: 5173, Backend: 3001
+- Kill stuck process: `lsof -i :3001` then `kill -9 <PID>`
+- `start.sh` auto-checks ports before starting
+
+### Testing
+- **Unit Tests**: Vitest + jsdom, `@/` alias points to `src/`
+- **E2E Tests**: Playwright in `e2e/`
+- **Debug**: `npm run test:e2e:debug` for step-through
+
+## Common Tasks
+
+### Add New API Endpoint
+1. Create route in `server/src/routes/`
+2. Add service in `server/src/services/`
+3. Create frontend wrapper in `src/services/*.api.ts`
+4. Use in component via TanStack Query or custom hook
+
+### Update AI Model
+- Change `OPENAI_MODEL` in `src/config/env.ts`
+- Modify prompt in `server/src/services/summary.service.js`
+- Test with different video lengths and languages
+
+### Add New Language
+- Update list in MULTI_LANGUAGE_GUIDE.md
+- Add to `LanguageSelector` options
+- Backend automatically supports all YouTube transcript languages
+
+## Key Files Reference
+
+- **Frontend Entry**: `src/main.tsx` → `src/App.tsx`
+- **Backend Entry**: `server/src/index.js` → `server/src/routes/index.js`
+- **Main Hook**: `src/hooks/useAISummary.ts`
+- **AI Orchestration**: `src/lib/youtube-ai.ts`
+- **Agent Manager**: `src/lib/agents/manager.ts`
+- **API Service**: `src/services/api.service.ts`
+- **Environment**: `src/config/env.ts`
+
+## Deployment
+
+### GitHub Pages (Frontend)
+- Auto-deploy: `.github/workflows/deploy.yml` on push to main
+- Build: `npm run build` → `dist/`
+- Base path: `/youtube-video-summar` (in vite.config.ts)
+
+### Full Stack (GCP)
+- Terraform: `infrastructure/gcp/`
+- Deploy: `./infrastructure/gcp/deploy.sh`
+
+### Docker
+```bash
+docker-compose up       # Frontend + Backend + Nginx
+```
+
+## Important Notes
+
+- **Always use `apiClient`** for backend calls - it handles auth and errors
+- **Never access env vars directly** - use `src/config/env.ts`
+- **Mandatory JSDoc** with `@label` and `@description` on all exports
+- **GitHub Spark is primary LLM** - uses `window.spark.llm()`, not OpenAI SDK
+- **80-char limit for comments**, but code can be longer for readability
