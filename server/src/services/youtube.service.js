@@ -4,8 +4,10 @@
  */
 
 import axios from 'axios';
+import { YoutubeTranscript } from 'youtube-transcript';
 import { Innertube } from 'youtubei.js';
 import { ApiError } from '../utils/ApiError.js';
+import { transcribeWithLocalWhisper, isLocalWhisperAvailable } from './transcription.service.js';
 
 // ============================================
 // SERVICE FUNCTIONS
@@ -80,6 +82,23 @@ export async function getVideoTranscript(videoId) {
 
       return transcript;
     } catch (fallbackError) {
+      // Try local Whisper transcription as final fallback (FREE!)
+      if (isLocalWhisperAvailable()) {
+        console.log('🎙️  No captions available - using FREE local Whisper transcription...');
+        try {
+          const result = await transcribeWithLocalWhisper(videoId);
+          console.log(`✅ Local transcription successful (${result.method})`);
+          return result.text;
+        } catch (whisperError) {
+          console.error('❌ Local Whisper failed:', whisperError.message);
+          throw new ApiError(
+            500, 
+            `No captions available and transcription failed: ${whisperError.message}`
+          );
+        }
+      }
+      
+      // If local Whisper not available, throw original error
       if (error.message?.includes('Transcript is disabled')) {
         throw new ApiError(404, 'Captions are disabled for this video');
       } else if (error.message?.includes('No transcript found')) {
