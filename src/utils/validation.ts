@@ -37,7 +37,7 @@ export function isPhoneNumber(phone: string): boolean {
   if (!phone || typeof phone !== 'string') return false;
   
   // Remove common formatting characters
-  const cleaned = phone.replace(/[\s\-\(\)\+]/g, '');
+  const cleaned = phone.replace(/[\s\-()+ ]/g, '');
   
   // Check if remaining string is 10-11 digits
   const phoneRegex = /^\d{10,11}$/;
