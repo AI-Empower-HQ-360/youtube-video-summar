@@ -17,60 +17,19 @@ export async function generateSummary(transcript: string): Promise<string> {
 }
 
 export async function generateKeyPoints(transcript: string): Promise<string[]> {
-  const spark = window.spark
-  if (!spark?.llmPrompt || !spark?.llm) {
-    throw new Error('Spark LLM not available');
-  }
-  
-  const promptText = `You are an expert at extracting key information. Given this video transcript, identify the 5-8 most important takeaways, lessons, or concepts. Each point should be clear, actionable, and distinct.
-
-Transcript:
-${transcript}
-
-Return the result as a valid JSON object with a single property called "points" that contains the list. Format:
-{
-  "points": ["First key point here", "Second key point here", ...]
-}`;
-
-  const result = await spark.llm(promptText, 'gpt-4o-mini', true);
-  const parsed = JSON.parse(result);
-  return parsed.points || [];
+  // Use the new API service instead
+  const { summaryApi } = await import('../services/summary.api');
+  return await summaryApi.generateKeyPoints(transcript);
 }
 
 export async function generateQA(transcript: string): Promise<{ question: string; answer: string }[]> {
-  const spark = window.spark
-  if (!spark?.llm) {
-    throw new Error('Spark LLM not available');
-  }
-  
-  const promptText = `You are an expert educator. Given this video transcript, create 5-7 meaningful questions that test understanding of the content, along with comprehensive answers. Questions should range from basic comprehension to deeper application.
-
-Transcript:
-${transcript}
-
-Return the result as a valid JSON object with a single property called "qaPairs" that contains the list. Format:
-{
-  "qaPairs": [
-    {"question": "Question text here?", "answer": "Detailed answer here"},
-    ...more pairs
-  ]
-}`;
-
-  const result = await spark.llm(promptText, 'gpt-4o-mini', true);
-  const parsed = JSON.parse(result);
-  return parsed.qaPairs || [];
+  // Use the new API service instead
+  const { summaryApi } = await import('../services/summary.api');
+  return await summaryApi.generateQA(transcript);
 }
 
 export async function generateAllContent(transcript: string): Promise<GeneratedContent> {
-  const [summary, keyPoints, qaPairs] = await Promise.all([
-    generateSummary(transcript),
-    generateKeyPoints(transcript),
-    generateQA(transcript)
-  ]);
-
-  return {
-    summary,
-    keyPoints,
-    qaPairs
-  };
+  // Use the new API service for complete analysis
+  const { summaryApi } = await import('../services/summary.api');
+  return await summaryApi.generateComplete(transcript);
 }

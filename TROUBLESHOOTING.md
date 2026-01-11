@@ -6,9 +6,9 @@
 
 The application has **three different AI processing methods** and needs proper configuration:
 
-1. **GitHub Spark LLM** (Frontend-based, used in `src/lib/ai.ts`)
-   - Requires `window.spark` to be available
-   - Status: ✅ Package installed (`@github/spark`)
+1. **Google Cloud Vertex AI** (API-based, used in `services/summary.api.ts`)
+   - Requires GCP project and API keys
+   - Status: ✅ Package installed (`@google-cloud/vertexai`)
    - Status: ✅ Imported in `src/main.tsx`
    - Needs: GitHub token in environment
 
@@ -29,7 +29,7 @@ The application has **three different AI processing methods** and needs proper c
 
 ### Steps to Fix
 
-#### Option 1: Use GitHub Spark (Frontend)
+#### Option 1: Use Google Cloud Vertex AI (Recommended)
 
 1. Add GitHub token to environment:
 
@@ -80,12 +80,12 @@ curl http://localhost:3001/api/summary/generate \
 ✅ YouTube API Key: Configured  
 ✅ Backend Server: Running on port 3001  
 ✅ Frontend Server: Running on port 5173  
-⚠️ GitHub Spark Token: Not configured  
+⚠️ Google Cloud API Key: Not configured  
 ⚠️ OpenAI API: Not implemented (placeholder)  
 
 ### Next Steps
 
-1. Choose AI provider (Spark or OpenAI)
+1. Choose AI provider (GCP Vertex AI or OpenAI)
 2. Add required API key
 3. Implement or configure AI service
 4. Test with YouTube video

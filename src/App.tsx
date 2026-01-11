@@ -40,7 +40,7 @@ import PrivacyPolicyPage from '@/components/PrivacyPolicyPage';
 import TermsOfServicePage from '@/components/TermsOfServicePage';
 import CookiePolicyPage from '@/components/CookiePolicyPage';
 import ContactPage from '@/components/ContactPage';
-import { useKV } from '@github/spark/hooks';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,7 +72,7 @@ export default function App() {
   const [showCookies, setShowCookies] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: string; period: string } | null>(null);
-  const [currentUser, setCurrentUser] = useKV<{ email: string; name: string } | null>('vidnote-current-user', null);
+  const [currentUser, setCurrentUser] = useLocalStorage<{ email: string; name: string } | null>('vidnote-current-user', null);
 
   const handleSignOut = () => {
     setCurrentUser(null);

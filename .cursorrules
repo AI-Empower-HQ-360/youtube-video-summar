@@ -19,7 +19,7 @@
 1. Frontend: URL validation via `useAISummary` hook
 2. `src/lib/youtube-ai.ts`: Orchestrates agents (summarization, Q&A, analysis)
 3. `server/src/services/youtube.service.js`: Extracts transcript via `youtube-transcript` or `youtubei.js`
-4. AI processing: Uses GitHub Spark LLM (`window.spark.llm()`) or OpenAI (configured via env)
+4. AI processing: Uses GCP Vertex AI or OpenAI API (configured via env)
 5. Response: `{ videoId, title, summary, keyPoints, themes, sentiment, qaPairs, recommendations, metadata }`
 
 ## Critical Patterns
@@ -68,11 +68,11 @@ Use section grouping: `// ============================================` with hea
 
 ## Integration Points
 
-### GitHub Spark (Important!)
-- AI Access: `src/lib/ai.ts` uses `window.spark.llm()` for LLM calls
-- Data Storage: `useKV()` hook from `@github/spark/hooks` for persistent storage
-- Example: `const result = await window.spark.llm(prompt, 'gpt-4o-mini', true);`
-- **Note**: This is GitHub's edge-hosted LLM—configure via `GITHUB_TOKEN`, not `OPENAI_API_KEY`
+### GitHub Spark (Important!) - DEPRECATED
+- AI Access: `services/summary.api.ts` uses GCP Vertex AI for LLM calls via backend API
+- Data Storage: `useLocalStorage()` hook from `@/hooks/useLocalStorage` for persistent storage
+- Example: Uses backend API service for LLM calls (see `services/summary.api.ts`)
+- **Note**: Previously used GitHub Spark, now migrated to GCP Vertex AI
 
 ### YouTube Transcript Extraction
 - Libraries: `youtube-transcript` (primary) + `youtubei.js` (fallback)
@@ -171,5 +171,5 @@ docker-compose up       # Frontend + Backend + Nginx
 - **Always use `apiClient`** for backend calls - it handles auth and errors
 - **Never access env vars directly** - use `src/config/env.ts`
 - **Mandatory JSDoc** with `@label` and `@description` on all exports
-- **GitHub Spark is primary LLM** - uses `window.spark.llm()`, not OpenAI SDK
+- **GCP Vertex AI is primary LLM** - uses backend API, not direct SDK calls
 - **80-char limit for comments**, but code can be longer for readability

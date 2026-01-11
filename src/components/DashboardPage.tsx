@@ -26,7 +26,7 @@ import {
   CheckCircle,
   TrendUp
 } from '@phosphor-icons/react';
-import { useKV } from '@github/spark/hooks';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { format } from 'date-fns';
 
 interface DashboardPageProps {
@@ -44,10 +44,10 @@ interface VideoHistory {
 }
 
 export default function DashboardPage({ onBack, user }: DashboardPageProps) {
-  const [videoHistory] = useKV<VideoHistory[]>('vidnote-history', []);
-  const [userPlan] = useKV<'free' | 'basic' | 'pro'>('vidnote-user-plan', 'free');
-  const [videosProcessedToday] = useKV<number>('vidnote-videos-today', 0);
-  const [totalVideosProcessed] = useKV<number>('vidnote-total-videos', 0);
+  const [videoHistory] = useLocalStorage<VideoHistory[]>('vidnote-history', []);
+  const [userPlan] = useLocalStorage<'free' | 'basic' | 'pro'>('vidnote-user-plan', 'free');
+  const [videosProcessedToday] = useLocalStorage<number>('vidnote-videos-today', 0);
+  const [totalVideosProcessed] = useLocalStorage<number>('vidnote-total-videos', 0);
   const [, setDeleteVideoId] = useState<string | null>(null);
 
   const [editName, setEditName] = useState(user?.name || '');
