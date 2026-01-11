@@ -6,6 +6,7 @@
 import axios from 'axios';
 import { YoutubeTranscript } from 'youtube-transcript';
 import { Innertube } from 'youtubei.js';
+import { YoutubeTranscript } from 'youtube-transcript';
 import { ApiError } from '../utils/ApiError.js';
 import { transcribeWithLocalWhisper, isLocalWhisperAvailable } from './transcription.service.js';
 
