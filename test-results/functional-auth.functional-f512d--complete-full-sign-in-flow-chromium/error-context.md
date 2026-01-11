@@ -1,0 +1,54 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - region "Notifications alt+T"
+  - generic [ref=e4]:
+    - button "Back to Home" [ref=e5]:
+      - img
+      - text: Back to Home
+    - generic [ref=e6]:
+      - img [ref=e7]
+      - heading "VidNote" [level=1] [ref=e9]
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: Welcome
+        - generic [ref=e13]: Sign in to your account or create a new one
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - tablist [ref=e16]:
+            - tab "Sign In" [selected] [ref=e17]
+            - tab "Sign Up" [ref=e18]
+          - tabpanel "Sign In" [ref=e19]:
+            - generic [ref=e20]:
+              - generic [ref=e21]:
+                - generic [ref=e22]: Email
+                - generic [ref=e23]:
+                  - img [ref=e24]
+                  - textbox "Email" [ref=e26]:
+                    - /placeholder: your@email.com
+                    - text: testuser@example.com
+              - generic [ref=e27]:
+                - generic [ref=e28]: Password
+                - generic [ref=e29]:
+                  - img [ref=e30]
+                  - textbox "Password" [ref=e32]:
+                    - /placeholder: ••••••••
+                    - text: SecurePass123!
+              - button "Sign In" [ref=e33]
+              - button "Forgot password?" [ref=e35]
+        - generic [ref=e37]: OR CONTINUE WITH
+        - generic [ref=e38]:
+          - button "GitHub" [ref=e39]:
+            - img
+            - text: GitHub
+          - button "Google" [ref=e40]:
+            - img
+            - text: Google
+        - paragraph [ref=e41]:
+          - text: By continuing, you agree to our
+          - button "Terms of Service" [ref=e42]
+          - text: and
+          - button "Privacy Policy" [ref=e43]
+    - paragraph [ref=e44]: VidNote • AI-Powered Learning for Everyone
+```

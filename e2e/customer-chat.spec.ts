@@ -6,40 +6,46 @@ test.describe('Customer Service Chat', () => {
   });
 
   test('should display chat widget button', async ({ page }) => {
-    const chatButton = page.locator('button').filter({ hasText: /chat|help|support/i }).first();
+    // Chat widget is in fixed position at bottom-right
+    const chatButton = page.locator('.fixed.bottom-6.right-6 button, [class*="fixed"][class*="bottom"] button').first();
     await expect(chatButton).toBeVisible({ timeout: 10000 });
   });
 
   test('should open chat window on button click', async ({ page }) => {
-    const chatButton = page.locator('button').filter({ hasText: /chat|help|support/i }).first();
+    const chatButton = page.locator('.fixed.bottom-6.right-6 button, [class*="fixed"][class*="bottom"] button').first();
     
     if (await chatButton.isVisible()) {
       await chatButton.click();
+      await page.waitForTimeout(500);
       
-      // Chat window should open
-      const chatWindow = page.locator('[class*="chat"]').filter({ hasText: /message|type|send/i }).first();
+      // Chat window should open with AI Assistant header
+      const chatWindow = page.getByRole('heading', { name: 'AI Assistant' });
       await expect(chatWindow).toBeVisible({ timeout: 5000 });
     }
   });
 
   test('should have message input field', async ({ page }) => {
-    const chatButton = page.locator('button').filter({ hasText: /chat|help|support/i }).first();
+    const chatButton = page.locator('.fixed.bottom-6.right-6 button, [class*="fixed"][class*="bottom"] button').first();
     
     if (await chatButton.isVisible()) {
       await chatButton.click();
+      await page.waitForTimeout(500);
       
-      const messageInput = page.locator('input[type="text"], textarea').filter({ hasText: /message|type|ask/i }).first();
+      // Look for input with placeholder "Type your message..."
+      const messageInput = page.locator('input[placeholder*="message"], input[placeholder*="type"]').first();
       await expect(messageInput).toBeVisible({ timeout: 5000 });
     }
   });
 
   test('should have send button', async ({ page }) => {
-    const chatButton = page.locator('button').filter({ hasText: /chat|help|support/i }).first();
+    const chatButton = page.locator('.fixed.bottom-6.right-6 button, [class*="fixed"][class*="bottom"] button').first();
     
     if (await chatButton.isVisible()) {
       await chatButton.click();
+      await page.waitForTimeout(500);
       
-      const sendButton = page.locator('button').filter({ hasText: /send/i }).first();
+      // Send button is an icon button (with Send icon)
+      const sendButton = page.locator('button[type="submit"]').first();
       await expect(sendButton).toBeVisible({ timeout: 5000 });
     }
   });

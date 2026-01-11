@@ -1,0 +1,276 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - region "Notifications alt+T"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - img [ref=e8]
+          - heading "VidNote" [level=1] [ref=e10]
+        - button "Sign In" [ref=e12]:
+          - img
+          - text: Sign In
+      - paragraph [ref=e13]: Turn any YouTube video into instant notes, key points, and Q&A
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - generic [ref=e18]: Save time
+        - generic [ref=e19]:
+          - img [ref=e20]
+          - generic [ref=e22]: AI-powered
+        - generic [ref=e23]:
+          - img [ref=e24]
+          - generic [ref=e26]: Zero effort
+    - generic [ref=e29]:
+      - heading "What is VidNote?" [level=2] [ref=e30]
+      - paragraph [ref=e31]: VidNote is your AI-powered learning companion that transforms lengthy YouTube videos into bite-sized, actionable knowledge in seconds. Simply paste any video link and get instant summaries, key takeaways, and study questions—perfect for students, professionals, and lifelong learners.
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - img [ref=e35]
+          - heading "Save Time" [level=3] [ref=e37]
+          - paragraph [ref=e38]: Turn a 30-minute video into a 2-minute read. Get the essence without the wait.
+        - generic [ref=e39]:
+          - img [ref=e41]
+          - heading "Learn Smarter" [level=3] [ref=e43]
+          - paragraph [ref=e44]: AI extracts key concepts, generates study questions, and structures information for maximum retention.
+        - generic [ref=e45]:
+          - img [ref=e47]
+          - heading "Zero Effort" [level=3] [ref=e49]
+          - paragraph [ref=e50]: No signup required. Just paste, click, and get instant results. It's that simple.
+      - generic [ref=e51]:
+        - heading "Perfect For:" [level=3] [ref=e52]
+        - generic [ref=e53]:
+          - generic [ref=e54]: 📚 Students studying for exams
+          - generic [ref=e55]: 💼 Professionals learning new skills
+          - generic [ref=e56]: 🎯 Interview preparation
+          - generic [ref=e57]: ✍️ Content creators repurposing videos
+          - generic [ref=e58]: 🧠 Curious minds exploring topics
+    - generic [ref=e62]:
+      - generic [ref=e63]:
+        - generic:
+          - img
+        - textbox "Paste YouTube video URL here..." [ref=e64]
+      - button "Generate" [disabled]:
+        - text: Generate
+        - img
+    - generic [ref=e65]:
+      - img [ref=e66]
+      - paragraph [ref=e68]: Paste a YouTube URL above to get started
+      - paragraph [ref=e69]: Works with any video that has captions enabled
+  - generic [ref=e71]:
+    - generic [ref=e72]:
+      - heading "Simple, Transparent Pricing" [level=2] [ref=e73]
+      - paragraph [ref=e74]: Start free, upgrade when you need more. No hidden fees, cancel anytime.
+      - generic [ref=e75]:
+        - generic [ref=e76]: Monthly
+        - switch [ref=e77]
+        - generic [ref=e79]: Yearly
+    - generic [ref=e80]:
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e83]: Free
+          - generic [ref=e84]: Perfect for casual learners
+          - generic [ref=e85]:
+            - text: $0
+            - generic [ref=e86]: / forever
+        - generic [ref=e87]:
+          - list [ref=e88]:
+            - listitem [ref=e89]:
+              - img [ref=e90]
+              - generic [ref=e92]: 1 video per day
+            - listitem [ref=e93]:
+              - img [ref=e94]
+              - generic [ref=e96]: Videos up to 30 minutes
+            - listitem [ref=e97]:
+              - img [ref=e98]
+              - generic [ref=e100]: Summary & key points
+            - listitem [ref=e101]:
+              - img [ref=e102]
+              - generic [ref=e104]: Q&A generation
+            - listitem [ref=e105]:
+              - img [ref=e106]
+              - generic [ref=e108]: Copy to clipboard
+          - button "Get Started" [ref=e109]
+      - generic [ref=e110]:
+        - generic [ref=e111]: Most Popular
+        - generic [ref=e112]:
+          - generic [ref=e113]: Basic
+          - generic [ref=e114]: For regular knowledge seekers
+          - generic [ref=e115]:
+            - text: $22
+            - generic [ref=e116]: / per month
+        - generic [ref=e117]:
+          - list [ref=e118]:
+            - listitem [ref=e119]:
+              - img [ref=e120]
+              - generic [ref=e122]: 50 videos per month
+            - listitem [ref=e123]:
+              - img [ref=e124]
+              - generic [ref=e126]: Videos up to 2 hours
+            - listitem [ref=e127]:
+              - img [ref=e128]
+              - generic [ref=e130]: Summary & key points
+            - listitem [ref=e131]:
+              - img [ref=e132]
+              - generic [ref=e134]: Q&A generation
+            - listitem [ref=e135]:
+              - img [ref=e136]
+              - generic [ref=e138]: Copy to clipboard
+            - listitem [ref=e139]:
+              - img [ref=e140]
+              - generic [ref=e142]: Video history
+            - listitem [ref=e143]:
+              - img [ref=e144]
+              - generic [ref=e146]: Priority processing
+          - button "Upgrade to Basic" [ref=e147]
+      - generic [ref=e148]:
+        - generic [ref=e149]:
+          - generic [ref=e150]: Pro
+          - generic [ref=e151]: For power users & professionals
+          - generic [ref=e152]:
+            - text: $45
+            - generic [ref=e153]: / per month
+        - generic [ref=e154]:
+          - list [ref=e155]:
+            - listitem [ref=e156]:
+              - img [ref=e157]
+              - generic [ref=e159]: Unlimited videos
+            - listitem [ref=e160]:
+              - img [ref=e161]
+              - generic [ref=e163]: Videos up to 5 hours
+            - listitem [ref=e164]:
+              - img [ref=e165]
+              - generic [ref=e167]: Advanced AI processing
+            - listitem [ref=e168]:
+              - img [ref=e169]
+              - generic [ref=e171]: Export to PDF
+            - listitem [ref=e172]:
+              - img [ref=e173]
+              - generic [ref=e175]: Video history & favorites
+            - listitem [ref=e176]:
+              - img [ref=e177]
+              - generic [ref=e179]: Advanced Q&A with difficulty levels
+            - listitem [ref=e180]:
+              - img [ref=e181]
+              - generic [ref=e183]: Custom summary length
+            - listitem [ref=e184]:
+              - img [ref=e185]
+              - generic [ref=e187]: Priority support
+          - button "Upgrade to Pro" [ref=e188]
+    - paragraph [ref=e190]: All plans include secure processing and privacy protection. Your data is never stored or shared.
+  - generic [ref=e191]:
+    - generic [ref=e192]:
+      - generic [ref=e193]:
+        - img [ref=e194]
+        - heading "Frequently Asked Questions" [level=2] [ref=e196]
+      - paragraph [ref=e197]: Everything you need to know about VidNote. Can't find your answer? Contact us directly.
+    - generic [ref=e200]:
+      - heading "How does VidNote work?" [level=3] [ref=e202]:
+        - button "How does VidNote work?" [ref=e203]:
+          - generic [ref=e204]: How does VidNote work?
+          - img
+      - heading "What types of videos work with VidNote?" [level=3] [ref=e206]:
+        - button "What types of videos work with VidNote?" [ref=e207]:
+          - generic [ref=e208]: What types of videos work with VidNote?
+          - img
+      - heading "Do I need to create an account to use VidNote?" [level=3] [ref=e210]:
+        - button "Do I need to create an account to use VidNote?" [ref=e211]:
+          - generic [ref=e212]: Do I need to create an account to use VidNote?
+          - img
+      - heading "How many videos can I process?" [level=3] [ref=e214]:
+        - button "How many videos can I process?" [ref=e215]:
+          - generic [ref=e216]: How many videos can I process?
+          - img
+      - heading "Can I download or save the generated content?" [level=3] [ref=e218]:
+        - button "Can I download or save the generated content?" [ref=e219]:
+          - generic [ref=e220]: Can I download or save the generated content?
+          - img
+      - heading "What languages are supported?" [level=3] [ref=e222]:
+        - button "What languages are supported?" [ref=e223]:
+          - generic [ref=e224]: What languages are supported?
+          - img
+      - heading "How accurate are the summaries?" [level=3] [ref=e226]:
+        - button "How accurate are the summaries?" [ref=e227]:
+          - generic [ref=e228]: How accurate are the summaries?
+          - img
+      - heading "Can I use VidNote for my online courses or business?" [level=3] [ref=e230]:
+        - button "Can I use VidNote for my online courses or business?" [ref=e231]:
+          - generic [ref=e232]: Can I use VidNote for my online courses or business?
+          - img
+      - heading "Is my data private and secure?" [level=3] [ref=e234]:
+        - button "Is my data private and secure?" [ref=e235]:
+          - generic [ref=e236]: Is my data private and secure?
+          - img
+      - heading "What if the video doesn't have captions?" [level=3] [ref=e238]:
+        - button "What if the video doesn't have captions?" [ref=e239]:
+          - generic [ref=e240]: What if the video doesn't have captions?
+          - img
+  - contentinfo [ref=e241]:
+    - generic [ref=e242]:
+      - generic [ref=e243]:
+        - generic [ref=e244]:
+          - generic [ref=e245]:
+            - img [ref=e246]
+            - heading "VidNote" [level=3] [ref=e248]
+          - paragraph [ref=e249]: Transform YouTube videos into instant summaries, key points, and study questions with AI-powered intelligence.
+          - generic [ref=e250]:
+            - link "GitHub" [ref=e251] [cursor=pointer]:
+              - /url: https://github.com
+              - img [ref=e252]
+            - link "Twitter" [ref=e254] [cursor=pointer]:
+              - /url: https://twitter.com
+              - img [ref=e255]
+            - link "Email" [ref=e257] [cursor=pointer]:
+              - /url: mailto:hello@vidnote.app
+              - img [ref=e258]
+        - generic [ref=e260]:
+          - heading "Product" [level=4] [ref=e261]
+          - list [ref=e262]:
+            - listitem [ref=e263]:
+              - button "Features" [ref=e264]
+            - listitem [ref=e265]:
+              - link "Pricing" [ref=e266] [cursor=pointer]:
+                - /url: "#pricing"
+            - listitem [ref=e267]:
+              - link "FAQ" [ref=e268] [cursor=pointer]:
+                - /url: "#faq"
+            - listitem [ref=e269]:
+              - button "Changelog" [ref=e270]
+        - generic [ref=e271]:
+          - heading "Resources" [level=4] [ref=e272]
+          - list [ref=e273]:
+            - listitem [ref=e274]:
+              - button "Documentation" [ref=e275]
+            - listitem [ref=e276]:
+              - button "API Reference" [ref=e277]
+            - listitem [ref=e278]:
+              - button "Guides & Tutorials" [ref=e279]
+            - listitem [ref=e280]:
+              - button "Blog" [ref=e281]
+        - generic [ref=e282]:
+          - heading "Legal" [level=4] [ref=e283]
+          - list [ref=e284]:
+            - listitem [ref=e285]:
+              - button "Privacy Policy" [ref=e286]
+            - listitem [ref=e287]:
+              - button "Terms of Service" [ref=e288]
+            - listitem [ref=e289]:
+              - button "Cookie Policy" [ref=e290]
+            - listitem [ref=e291]:
+              - button "Contact Us" [ref=e292]
+      - generic [ref=e293]:
+        - paragraph [ref=e294]: © 2026 VidNote. All rights reserved. Made with ❤ for learners worldwide.
+        - generic [ref=e295]:
+          - link "Status" [ref=e296] [cursor=pointer]:
+            - /url: "#status"
+          - generic [ref=e297]: •
+          - link "Security" [ref=e298] [cursor=pointer]:
+            - /url: "#security"
+          - generic [ref=e299]: •
+          - link "Accessibility" [ref=e300] [cursor=pointer]:
+            - /url: "#accessibility"
+  - button "Open customer service chat" [ref=e302]:
+    - img
+```
