@@ -126,7 +126,7 @@ VidNote features a modern, dark-themed interface with:
 ### Backend
 - **Node.js + Express** (ESM modules)
 - **YouTube Transcript API** for caption extraction
-- **Spark AI Runtime / OpenAI** for LLM processing
+- **Google Cloud Vertex AI / OpenAI** for LLM processing
 
 ### Infrastructure (GCP)
 - **Cloud Run** for backend hosting (auto-scaling 0-50 instances)
@@ -237,9 +237,9 @@ For detailed testing information, see:
 
 ## 🚦 Getting Started
 
-This is a Spark application. To run locally:
+This is a cloud-native application compatible with GCP. To run locally:
 
-1. Open in a Spark-enabled Codespace
+1. Open in GitHub Codespace or local development environment
 2. Dependencies are pre-installed
 3. The app runs automatically via Vite dev server
 4. Visit the local URL to start using VidNote
@@ -248,7 +248,7 @@ This is a Spark application. To run locally:
 
 ## 📝 License
 
-The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
+Application code is open source under the MIT license.
 
 ---
 
@@ -258,4 +258,4 @@ The Spark Template files and resources from GitHub are licensed under the terms 
 
 ---
 
-Built with 💜 using Spark AI Runtime
+Built with 💜 using Google Cloud Platform

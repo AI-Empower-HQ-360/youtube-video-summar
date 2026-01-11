@@ -1,13 +1,18 @@
 /**
- * @label Mock Spark LLM
- * @description Mock GitHub Spark LLM for testing AI features
+ * @label Mock Spark LLM (Deprecated)
+ * @description Legacy mock for GitHub Spark - tests now use API mocks
+ * @deprecated This file is kept for backwards compatibility but tests should use API mocks
  */
 
 import { expectedSummaries } from '../fixtures/summaries';
 
+/**
+ * @deprecated Use API service mocks instead
+ */
 export class MockSparkLLM {
   /**
    * Mock LLM prompt execution
+   * @deprecated Use API service mocks instead
    */
   static async llm(prompt: string, model: string = 'gpt-4o-mini', parseJSON: boolean = true): Promise<any> {
     // Simulate AI processing delay
@@ -36,6 +41,7 @@ export class MockSparkLLM {
 
   /**
    * Mock streaming response
+   * @deprecated Use API service mocks instead
    */
   static async *llmStream(prompt: string, model: string = 'gpt-4o-mini'): AsyncGenerator<string> {
     const summary = expectedSummaries.medium.summary;
@@ -49,8 +55,9 @@ export class MockSparkLLM {
 }
 
 /**
- * @label Mock Window Spark Object
- * @description Mock the window.spark object used in the app
+ * @label Mock Window Spark Object (Deprecated)
+ * @description Legacy mock - kept for backwards compatibility
+ * @deprecated Use API service mocks instead
  */
 export const mockWindowSpark = {
   llm: MockSparkLLM.llm,
@@ -59,8 +66,9 @@ export const mockWindowSpark = {
 };
 
 /**
- * @label Setup Mock Spark
+ * @label Setup Mock Spark (Deprecated)
  * @description Helper to inject mock Spark into window object
+ * @deprecated Use API service mocks instead
  */
 export function setupMockSpark() {
   if (typeof window !== 'undefined') {
@@ -69,8 +77,9 @@ export function setupMockSpark() {
 }
 
 /**
- * @label Cleanup Mock Spark
+ * @label Cleanup Mock Spark (Deprecated)
  * @description Helper to remove mock Spark from window object
+ * @deprecated Use API service mocks instead
  */
 export function cleanupMockSpark() {
   if (typeof window !== 'undefined') {
