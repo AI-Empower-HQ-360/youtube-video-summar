@@ -4,7 +4,6 @@
  */
 
 import axios from 'axios';
-import { YoutubeTranscript } from 'youtube-transcript';
 import { Innertube } from 'youtubei.js';
 import { ApiError } from '../utils/ApiError.js';
 import { transcribeWithLocalWhisper, isLocalWhisperAvailable } from './transcription.service.js';
@@ -44,44 +43,57 @@ export function isValidYouTubeUrl(url) {
 
 /**
  * @label Get Video Transcript
- * @description Fetch transcript for a YouTube video using youtube-transcript library
+ * @description Fetch transcript for a YouTube video using Innertube (youtubei.js)
  */
 export async function getVideoTranscript(videoId) {
   try {
-    // Use the youtube-transcript library for reliable transcript fetching
-    const transcriptData = await YoutubeTranscript.fetchTranscript(videoId, {
-      lang: 'en', // Try English first
-    });
+    // Use Innertube for more reliable transcript fetching
+    const youtube = await Innertube.create();
+    const info = await youtube.getInfo(videoId);
     
-    if (!transcriptData || transcriptData.length === 0) {
-      throw new ApiError(404, 'No transcript available for this video');
+    // Get transcript from captions
+    const transcriptData = await info.getTranscript();
+    
+    if (!transcriptData || !transcriptData.transcript) {
+      throw new Error('No transcript available');
     }
 
     // Combine all transcript segments into a single text
-    const transcript = transcriptData
-      .map(item => item.text)
+    const transcript = transcriptData.transcript.content.body.initial_segments
+      .map(segment => segment.snippet.text)
       .join(' ')
       .replace(/\s+/g, ' ') // Normalize whitespace
       .trim();
 
+    if (!transcript) {
+      throw new Error('Transcript is empty');
+    }
+
     return transcript;
   } catch (error) {
-    // If English fails, try to fetch any available language
+    console.log(`⚠️  Captions not available: ${error.message}`);
+    // Try fallback to any available transcript
     try {
-      const transcriptData = await YoutubeTranscript.fetchTranscript(videoId);
+      const youtube = await Innertube.create();
+      const info = await youtube.getInfo(videoId);
+      const transcriptData = await info.getTranscript();
       
-      if (!transcriptData || transcriptData.length === 0) {
-        throw new ApiError(404, 'No transcript available for this video');
+      if (transcriptData && transcriptData.transcript) {
+        const transcript = transcriptData.transcript.content.body.initial_segments
+          .map(segment => segment.snippet.text)
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        
+        if (transcript) {
+          return transcript;
+        }
       }
-
-      const transcript = transcriptData
-        .map(item => item.text)
-        .join(' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      return transcript;
+      
+      throw new Error('No transcript available');
     } catch (fallbackError) {
+      console.log(`❌ Fallback also failed: ${fallbackError.message}`);
+      
       // Try local Whisper transcription as final fallback (FREE!)
       if (isLocalWhisperAvailable()) {
         console.log('🎙️  No captions available - using FREE local Whisper transcription...');
@@ -98,13 +110,8 @@ export async function getVideoTranscript(videoId) {
         }
       }
       
-      // If local Whisper not available, throw original error
-      if (error.message?.includes('Transcript is disabled')) {
-        throw new ApiError(404, 'Captions are disabled for this video');
-      } else if (error.message?.includes('No transcript found')) {
-        throw new ApiError(404, 'No captions available for this video. Please use a video with captions enabled.');
-      }
-      throw new ApiError(500, `Failed to fetch transcript: ${fallbackError.message}`);
+      // If local Whisper not available, throw error
+      throw new ApiError(404, 'No captions available for this video');
     }
   }
 }
