@@ -1,0 +1,113 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - button "Back to Pricing" [ref=e5]:
+    - img
+    - text: Back to Pricing
+  - generic [ref=e6]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - img [ref=e11]
+          - generic [ref=e13]: Payment Details
+        - generic [ref=e14]: Complete your purchase securely. All transactions are encrypted.
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - heading "Card Information" [level=3] [ref=e18]:
+            - img [ref=e19]
+            - text: Card Information
+          - generic [ref=e21]:
+            - generic [ref=e22]: Card Number *
+            - textbox "Card Number *" [ref=e23]:
+              - /placeholder: 1234 5678 9012 3456
+          - generic [ref=e24]:
+            - generic [ref=e25]: Cardholder Name *
+            - textbox "Cardholder Name *" [ref=e26]:
+              - /placeholder: John Doe
+          - generic [ref=e27]:
+            - generic [ref=e28]:
+              - generic [ref=e29]: Expiry Month *
+              - combobox "Expiry Month *" [ref=e30]:
+                - generic: Month
+                - img
+              - combobox [ref=e31]
+            - generic [ref=e32]:
+              - generic [ref=e33]: Expiry Year *
+              - combobox "Expiry Year *" [ref=e34]:
+                - generic: Year
+                - img
+              - combobox [ref=e35]
+            - generic [ref=e36]:
+              - generic [ref=e37]: CVV *
+              - textbox "CVV *" [ref=e38]:
+                - /placeholder: "123"
+        - generic [ref=e39]:
+          - heading "Billing Information" [level=3] [ref=e40]
+          - generic [ref=e41]:
+            - generic [ref=e42]: Email Address *
+            - textbox "Email Address *" [ref=e43]:
+              - /placeholder: john.doe@example.com
+          - generic [ref=e44]:
+            - generic [ref=e45]: Address Line 1 *
+            - textbox "Address Line 1 *" [ref=e46]:
+              - /placeholder: 123 Main Street
+          - generic [ref=e47]:
+            - generic [ref=e48]: Address Line 2
+            - textbox "Address Line 2" [ref=e49]:
+              - /placeholder: Apartment, suite, etc. (optional)
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]: City *
+              - textbox "City *" [ref=e53]:
+                - /placeholder: New York
+            - generic [ref=e54]:
+              - generic [ref=e55]: State / Province *
+              - textbox "State / Province *" [ref=e56]:
+                - /placeholder: NY
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - generic [ref=e59]: ZIP / Postal Code *
+              - textbox "ZIP / Postal Code *" [ref=e60]:
+                - /placeholder: "10001"
+            - generic [ref=e61]:
+              - generic [ref=e62]: Country *
+              - combobox "Country *" [ref=e63]:
+                - generic: Select country
+                - img
+              - combobox [ref=e64]
+        - generic [ref=e65]:
+          - img [ref=e66]
+          - generic [ref=e68]: Your payment information is encrypted and secure
+        - button "Pay $22 / per month" [ref=e69]:
+          - img
+          - text: Pay $22 / per month
+    - generic [ref=e71]:
+      - generic [ref=e73]: Order Summary
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - paragraph [ref=e77]: Basic Plan
+            - paragraph [ref=e78]: Billed per month
+          - paragraph [ref=e79]: $22
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - generic [ref=e82]: Subtotal
+            - generic [ref=e83]: $22
+          - generic [ref=e84]:
+            - generic [ref=e85]: Tax
+            - generic [ref=e86]: $0.00
+        - generic [ref=e87]:
+          - generic [ref=e88]: Total due today
+          - generic [ref=e89]: $22
+        - generic [ref=e90]:
+          - heading "What's included:" [level=4] [ref=e91]:
+            - img [ref=e92]
+            - text: "What's included:"
+          - list [ref=e94]:
+            - listitem [ref=e95]: • 50 videos per month
+            - listitem [ref=e96]: • Videos up to 2 hours
+            - listitem [ref=e97]: • Video history
+            - listitem [ref=e98]: • Priority processing
+        - paragraph [ref=e99]: Cancel anytime. No hidden fees.
+```
