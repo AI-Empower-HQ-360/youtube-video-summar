@@ -3,6 +3,7 @@
  * @description Shared testing utilities and helpers
  */
 
+import React from 'react';
 import { vi } from 'vitest';
 import { setupMockSpark, cleanupMockSpark } from '../mocks/spark-llm.mock';
 
