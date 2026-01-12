@@ -24,13 +24,15 @@ import {
   Calendar,
   Notebook,
   CheckCircle,
-  TrendUp
+  TrendUp,
+  Gear
 } from '@phosphor-icons/react';
-import { useKV } from '@github/spark/hooks';
+import { useKV } from '@/hooks/useKV';
 import { format } from 'date-fns';
 
 interface DashboardPageProps {
   onBack: () => void;
+  onShowProfileSettings?: () => void;
   user: { email: string; name: string } | null;
 }
 
@@ -43,7 +45,7 @@ interface VideoHistory {
   summary: string;
 }
 
-export default function DashboardPage({ onBack, user }: DashboardPageProps) {
+export default function DashboardPage({ onBack, onShowProfileSettings, user }: DashboardPageProps) {
   const [videoHistory] = useKV<VideoHistory[]>('vidnote-history', []);
   const [userPlan] = useKV<'free' | 'basic' | 'pro'>('vidnote-user-plan', 'free');
   const [videosProcessedToday] = useKV<number>('vidnote-videos-today', 0);
@@ -120,7 +122,18 @@ export default function DashboardPage({ onBack, user }: DashboardPageProps) {
               Dashboard
             </h1>
           </div>
-          <div className="w-32"></div>
+          <div className="flex justify-end gap-2">
+            {onShowProfileSettings && (
+              <Button
+                variant="outline"
+                onClick={onShowProfileSettings}
+                className="gap-2"
+              >
+                <Gear size={18} />
+                Settings
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="grid md:grid-cols-4 gap-6 mb-8">

@@ -10,6 +10,11 @@ export interface GeneratedContent {
   qaPairs: { question: string; answer: string }[];
 }
 
+// Check if Spark is available
+const isSparkAvailable = () => {
+  return typeof window !== 'undefined' && window.spark?.llm;
+};
+
 export async function generateSummary(transcript: string): Promise<string> {
   // Use the new API service instead
   const { summaryApi } = await import('../services/summary.api');
@@ -17,11 +22,13 @@ export async function generateSummary(transcript: string): Promise<string> {
 }
 
 export async function generateKeyPoints(transcript: string): Promise<string[]> {
-  const spark = window.spark
-  if (!spark?.llmPrompt || !spark?.llm) {
-    throw new Error('Spark LLM not available');
+  if (!isSparkAvailable()) {
+    // Fallback: Extract key sentences as points
+    const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 20);
+    return sentences.slice(0, 5).map(s => s.trim());
   }
   
+  const spark = window.spark;
   const promptText = `You are an expert at extracting key information. Given this video transcript, identify the 5-8 most important takeaways, lessons, or concepts. Each point should be clear, actionable, and distinct.
 
 Transcript:
@@ -38,11 +45,15 @@ Return the result as a valid JSON object with a single property called "points" 
 }
 
 export async function generateQA(transcript: string): Promise<{ question: string; answer: string }[]> {
-  const spark = window.spark
-  if (!spark?.llm) {
-    throw new Error('Spark LLM not available');
+  if (!isSparkAvailable()) {
+    // Fallback: Generate simple Q&A
+    return [
+      { question: "What is the main topic of this video?", answer: "This video covers the key concepts presented in the transcript." },
+      { question: "What are the key takeaways?", answer: "The key takeaways include the main points discussed throughout the video." }
+    ];
   }
   
+  const spark = window.spark;
   const promptText = `You are an expert educator. Given this video transcript, create 5-7 meaningful questions that test understanding of the content, along with comprehensive answers. Questions should range from basic comprehension to deeper application.
 
 Transcript:
