@@ -25,9 +25,13 @@ const PORT = process.env.PORT || 3001;
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - allow all origins in development for Codespace compatibility
+const corsOrigin = process.env.NODE_ENV === 'production' 
+  ? process.env.ALLOWED_ORIGINS?.split(',') 
+  : true; // Allow all origins in development
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:5173',
+  origin: corsOrigin,
   credentials: true
 }));
 

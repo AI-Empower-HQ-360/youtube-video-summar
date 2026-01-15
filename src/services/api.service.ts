@@ -9,13 +9,42 @@ import axios, { AxiosInstance, AxiosError } from 'axios';
 // CONFIGURATION
 // ============================================
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+/**
+ * @label Get API Base URL
+ * @description Determine the correct API URL based on environment
+ * Handles GitHub Codespace port forwarding automatically
+ */
+function getApiBaseUrl(): string {
+  // If explicitly set, use that
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  
+  // Auto-detect GitHub Codespace environment
+  const hostname = window.location.hostname;
+  if (hostname.includes('.app.github.dev')) {
+    // Extract the codespace name and construct API URL
+    // Format: codespace-name-port.app.github.dev
+    const parts = hostname.split('-');
+    parts.pop(); // Remove the port number (e.g., "5173")
+    const codespaceName = parts.join('-');
+    return `https://${codespaceName}-3001.app.github.dev/api`;
+  }
+  
+  // Default to localhost
+  return 'http://localhost:3001/api';
+}
+
+const API_BASE_URL = getApiBaseUrl();
+
+// Log API URL for debugging
+console.log('[API Service] Base URL:', API_BASE_URL);
 
 /**
  * @label API Client
  * @description Configured axios instance
  */
-const apiClient: AxiosInstance = axios.create({
+export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
   headers: {
