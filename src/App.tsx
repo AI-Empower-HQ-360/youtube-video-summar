@@ -19,7 +19,8 @@ import {
   YoutubeLogo,
   User as UserIcon,
   SignOut,
-  ChartBar
+  ChartBar,
+  Gear
 } from '@phosphor-icons/react';
 import { isValidYouTubeUrl, extractVideoId, getVideoTranscript, getVideoInfo } from '@/lib/youtube';
 import { generateAllContent, type GeneratedContent } from '@/lib/ai';
@@ -40,7 +41,8 @@ import PrivacyPolicyPage from '@/components/PrivacyPolicyPage';
 import TermsOfServicePage from '@/components/TermsOfServicePage';
 import CookiePolicyPage from '@/components/CookiePolicyPage';
 import ContactPage from '@/components/ContactPage';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import ProfileSettingsPage from '@/components/ProfileSettingsPage';
+import { useKV } from '@/hooks/useKV';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,11 +70,12 @@ export default function App() {
   const [showGuides, setShowGuides] = useState(false);
   const [showBlog, setShowBlog] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showCookies, setShowCookies] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: string; period: string } | null>(null);
-  const [currentUser, setCurrentUser] = useLocalStorage<{ email: string; name: string } | null>('vidnote-current-user', null);
+  const [currentUser, setCurrentUser] = useKV<{ email: string; name: string } | null>('vidnote-current-user', null);
 
   const handleSignOut = () => {
     setCurrentUser(null);
@@ -107,7 +110,22 @@ export default function App() {
   }
 
   if (showDashboard) {
-    return <DashboardPage onBack={() => setShowDashboard(false)} user={currentUser || null} />;
+    // If not logged in, redirect to auth page instead
+    if (!currentUser) {
+      setShowDashboard(false);
+      setShowAuthPage(true);
+      return null;
+    }
+    return (
+      <DashboardPage 
+        onBack={() => setShowDashboard(false)} 
+        onShowProfileSettings={() => {
+          setShowDashboard(false);
+          setShowProfileSettings(true);
+        }}
+        user={currentUser} 
+      />
+    );
   }
 
   if (showFeatures) {
@@ -148,6 +166,16 @@ export default function App() {
 
   if (showContact) {
     return <ContactPage onBack={() => setShowContact(false)} />;
+  }
+
+  if (showProfileSettings) {
+    // If not logged in, redirect to auth page instead
+    if (!currentUser) {
+      setShowProfileSettings(false);
+      setShowAuthPage(true);
+      return null;
+    }
+    return <ProfileSettingsPage onBack={() => setShowProfileSettings(false)} user={currentUser} />;
   }
 
   const handleUrlChange = (value: string) => {
@@ -241,14 +269,11 @@ export default function App() {
                         <ChartBar className="mr-2" size={16} />
                         Dashboard
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setShowProfileSettings(true)}>
                         <UserIcon className="mr-2" size={16} />
-                        Profile
+                        Profile Settings
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        Settings
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setShowProfileSettings(true)}>
                         Billing
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />

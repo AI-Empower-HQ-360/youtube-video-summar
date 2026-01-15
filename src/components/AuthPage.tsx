@@ -16,7 +16,7 @@ import {
   GoogleLogo,
   ArrowLeft
 } from '@phosphor-icons/react';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useKV } from '@/hooks/useKV';
 
 interface AuthPageProps {
   onBack: () => void;
@@ -31,8 +31,8 @@ export default function AuthPage({ onBack, onAuthSuccess }: AuthPageProps) {
   const [signUpPassword, setSignUpPassword] = useState('');
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [users, setUsers] = useLocalStorage<Record<string, { name: string; password: string }>>('vidnote-users', {});
-  const [, setCurrentUser] = useLocalStorage<{ email: string; name: string } | null>('vidnote-current-user', null);
+  const [users, setUsers] = useKV<Record<string, { name: string; password: string }>>('vidnote-users', {});
+  const [, setCurrentUser] = useKV<{ email: string; name: string } | null>('vidnote-current-user', null);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
