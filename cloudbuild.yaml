@@ -1,0 +1,83 @@
+# Cloud Build configuration for automated deployment
+
+steps:
+  # Build the Docker image for the backend API
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-api-image'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/youtube-summarizer/api:$COMMIT_SHA'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/youtube-summarizer/api:latest'
+      - '-f'
+      - 'server/Dockerfile'
+      - './server'
+
+  # Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-api-image'
+    args:
+      - 'push'
+      - '--all-tags'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/youtube-summarizer/api'
+    waitFor: ['build-api-image']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-cloud-run'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'services'
+      - 'update'
+      - 'youtube-summarizer-api'
+      - '--platform=managed'
+      - '--region=${_REGION}'
+      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/youtube-summarizer/api:$COMMIT_SHA'
+      - '--labels=app=youtube-video-summarizer,environment=${_ENVIRONMENT},deployed-by=cloud-build,commit-sha=$SHORT_SHA'
+    waitFor: ['push-api-image']
+
+  # Build frontend static assets
+  - name: 'node:18'
+    id: 'build-frontend'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        npm install
+        npm run build
+    waitFor: ['-']
+
+  # Deploy frontend to Cloud Storage
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-frontend'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gsutil -m rsync -r -d dist/ gs://$PROJECT_ID-youtube-summarizer-assets/
+        gsutil -m setmeta -h "Cache-Control:public, max-age=3600" gs://$PROJECT_ID-youtube-summarizer-assets/**
+    waitFor: ['build-frontend']
+
+# Tag images with build metadata
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/youtube-summarizer/api:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/youtube-summarizer/api:latest'
+
+# Build configuration
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+# Substitutions for environment-specific values
+substitutions:
+  _REGION: 'us-central1'
+  _ENVIRONMENT: 'dev'
+
+tags:
+  - 'youtube-summarizer'
+  - 'automated-deployment'
+  - '${_ENVIRONMENT}'
+
+timeout: '1800s'
