@@ -1,0 +1,68 @@
+# Multi-Stage Docker Build for YouTube Summarizer
+
+# =============================================
+# Stage 1: Build Frontend
+# =============================================
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app
+
+# Copy frontend files
+COPY package.json package-lock.json ./
+COPY src ./src
+COPY public ./public
+COPY index.html vite.config.ts tailwind.config.js tsconfig.json ./
+
+# Install dependencies and build
+RUN npm ci
+RUN npm run build
+
+# =============================================
+# Stage 2: Build Backend
+# =============================================
+FROM node:20 AS backend-builder
+
+WORKDIR /app/server
+
+# Copy server files
+COPY server/package.json server/package-lock.json ./
+RUN npm ci --only=production
+
+# =============================================
+# Stage 3: Production Image
+# =============================================
+FROM node:20
+
+WORKDIR /app
+
+# Install dumb-init for proper signal handling
+RUN apt-get update && apt-get install -y --no-install-recommends dumb-init && rm -rf /var/lib/apt/lists/*
+
+# Copy frontend from builder
+COPY --from=frontend-builder /app/dist ./public
+
+# Copy backend from builder
+COPY --from=backend-builder /app/server/node_modules ./server/node_modules
+
+# Copy server code
+COPY server ./server
+
+# Create non-root user
+RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs nodejs
+
+# Change ownership
+RUN chown -R nodejs:nodejs /app
+
+USER nodejs
+
+EXPOSE 3001 5173
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3001/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" || exit 1
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
+CMD ["node", "server/src/index.js"]
