@@ -297,7 +297,12 @@ export function CustomerServiceChat() {
                     <button
                       key={reply.action}
                       onClick={() => handleQuickReply(reply.action)}
-                      className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                      style={{ 
+                        color: '#1d4ed8', 
+                        backgroundColor: '#dbeafe',
+                        border: '1px solid #93c5fd'
+                      }}
+                      className="text-xs px-3 py-1.5 rounded-full transition-colors hover:opacity-80"
                     >
                       {reply.text}
                     </button>

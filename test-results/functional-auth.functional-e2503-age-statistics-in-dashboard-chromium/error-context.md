@@ -1,0 +1,74 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - region "Notifications alt+T"
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - button "Back to Home" [ref=e6]:
+        - img
+        - text: Back to Home
+      - generic [ref=e7]:
+        - img [ref=e8]
+        - heading "Dashboard" [level=1] [ref=e10]
+    - generic [ref=e11]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - paragraph [ref=e16]: Videos Today
+          - paragraph [ref=e17]:
+            - text: "0"
+            - generic [ref=e18]: / 1
+        - img [ref=e20]
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - paragraph [ref=e26]: Total Processed
+          - paragraph [ref=e27]: "0"
+        - img [ref=e29]
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - paragraph [ref=e35]: Time Saved
+          - paragraph [ref=e36]: 0m
+        - img [ref=e38]
+      - generic [ref=e42]:
+        - generic [ref=e43]:
+          - paragraph [ref=e44]: Current Plan
+          - paragraph [ref=e45]: Free
+        - img [ref=e47]
+    - generic [ref=e51]:
+      - img [ref=e53]
+      - generic [ref=e55]:
+        - heading "Unlock More Videos" [level=3] [ref=e56]
+        - paragraph [ref=e57]: Get 50 videos per month with Basic plan, or unlimited with Pro
+        - generic [ref=e58]:
+          - button "Upgrade Now" [ref=e59]:
+            - img
+            - text: Upgrade Now
+          - button "View All Plans" [ref=e60]
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - img [ref=e64]
+          - text: Daily Usage
+        - generic [ref=e66]: Track your video processing for today
+      - generic [ref=e68]:
+        - generic [ref=e69]:
+          - generic [ref=e70]: Videos Processed
+          - generic [ref=e71]: 0 / 1
+        - progressbar [ref=e72]
+    - generic [ref=e74]:
+      - tablist [ref=e75]:
+        - tab "History" [selected] [ref=e76]
+        - tab "Profile" [ref=e77]
+        - tab "Billing" [ref=e78]
+      - tabpanel "History" [ref=e79]:
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - generic [ref=e83]:
+              - img [ref=e84]
+              - generic [ref=e86]: Video History
+            - generic [ref=e87]: All your processed videos in one place
+          - generic [ref=e89]:
+            - img [ref=e90]
+            - paragraph [ref=e92]: No videos processed yet
+            - paragraph [ref=e93]: Start by pasting a YouTube URL on the home page
+```
